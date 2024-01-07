@@ -1,0 +1,42 @@
+name: craftcraft
+version: git
+base: core22
+summary: Craft your craft app
+description: A template for a craft application
+confinement: classic
+grade: devel
+license: GPL-3.0-only
+compression: lzo
+
+apps:
+  craftcraft:
+    command: bin/python -m craftcraft
+
+parts:
+  craftcraft:
+    source: .
+    plugin: python
+    build-attributes:
+      - enable-patchelf
+    stage-packages:
+      - libapt-pkg6.0
+      - libpython3.10-stdlib
+      - libpython3.10-minimal
+      - python-apt-common
+      - python3-apt
+      - python3.10-minimal
+      - python3.10-venv
+    build-packages:
+      - python3.10-venv
+      - python3-apt
+      - python3-pip-whl
+    build-environment:
+      - PARTS_PYTHON_VENV_ARGS: --system-site-packages
+    override-build: |
+      craftctl default
+      # Compile all Python files in the source directory to bytecode.
+      python3 -m compileall --invalidation-mode checked-hash -j 0 -q $CRAFT_PART_INSTALL
+    prime:
+      - -usr/share/man
+      - -usr/share/lintian
+      - -usr/share/doc

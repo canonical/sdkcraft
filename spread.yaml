@@ -1,0 +1,89 @@
+project: craftcraft
+
+path: /craftcraft
+environment:
+  PROJECT_PATH: /craftcraft
+  PATH: /snap/bin:$PATH
+  CRAFT_DEBUG: 1  # Show exception tracebacks.
+
+include:
+  - "*.snap"
+  - tests/
+
+backends:
+  google:
+    key: '$(HOST: echo "$SPREAD_GOOGLE_KEY")'
+    location: snapd-spread/us-east1-b
+    halt-timeout: 2h
+    systems:
+      - ubuntu-20.04-64:
+          workers: 4
+          storage: 40G
+      - ubuntu-22.04-64:
+          workers: 4
+          storage: 40G
+
+  multipass:
+    type: adhoc
+    allocate: |
+      sleep 0.$RANDOM  # Minimize chances of a race condition
+      if [[ ! -f $HOME/.spread/multipass-count ]]; then
+        mkdir -p $HOME/.spread
+        echo 0 > $HOME/.spread/multipass-count
+      fi
+      instance_num=$(< $HOME/.spread/multipass-count)
+      echo $(( $instance_num + 1 )) > $HOME/.spread/multipass-count
+      multipass_image=$(echo ${SPREAD_SYSTEM} | sed -e s/ubuntu-// -e s/-64//)
+
+      system=$(echo "${SPREAD_SYSTEM}" | tr . -)
+      instance_name="spread-${SPREAD_BACKEND}-${instance_num}-${system}"
+
+      multipass launch --cpus 2 --disk 20G --memory 2G --name "${instance_name}" "${multipass_image}"
+
+      # Enable PasswordAuthentication for root over SSH.
+      multipass exec "$instance_name" -- \
+        sudo sh -c "echo root:${SPREAD_PASSWORD} | sudo chpasswd"
+      multipass exec "$instance_name" -- \
+        sudo sh -c \
+        "sed -i /etc/ssh/sshd_config -e 's/^PasswordAuthentication.*/PasswordAuthentication yes/' -e 's/^#PermitRootLogin.*/PermitRootLogin yes/'"
+      multipass exec "$instance_name" -- \
+        sudo systemctl restart ssh
+
+      # Get the IP from the instance
+      ip=$(multipass info --format csv "$instance_name" | tail -1 | cut -d\, -f3)
+      ADDRESS "$ip"
+    discard: |
+      instance_name=$(multipass list --format csv | grep $SPREAD_SYSTEM_ADDRESS | cut -f1 -d\,)
+      multipass delete --purge "${instance_name}"
+    systems:
+      - ubuntu-20.04-64:
+          workers: 1
+      - ubuntu-22.04-64:
+          workers: 2
+prepare: |
+  set -e
+
+  snap wait system seed.loaded
+
+  # The /snap directory does not exist in some environments
+  [ ! -d /snap ] && ln -s /var/lib/snapd/snap /snap
+
+  # install lxd (previously removing the APT version, if there)
+  [ -e /usr/bin/lxd ] && apt-get remove --purge --yes lxd lxd-client lxcfs liblxc1
+  snap install lxd
+
+  # Hold snap refreshes for 24h.
+  snap set system refresh.hold="$(date --date=tomorrow +%Y-%m-%dT%H:%M:%S%:z)"
+  if ! snap watch --last=auto-refresh?; then
+      journalctl -xe
+  fi
+  if ! snap watch --last=install?; then
+      journalctl -xe
+  fi
+
+  lxd waitready --timeout=30
+  lxd init --auto
+
+  snap install --dangerous $PROJECT_PATH/*.snap
+
+suites:
