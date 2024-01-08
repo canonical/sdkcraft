@@ -1,4 +1,4 @@
-#  This file is part of craftcraft.
+#  This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -18,7 +18,7 @@
 from craft_parts.features import Features
 
 from . import models
-from .application import Craftcraft
+from .application import Sdkcraft
 
 try:
     # This only gets created at wheel-creation time, so we're ignoring all of
@@ -30,7 +30,7 @@ except ImportError:  # pragma: no cover
     from importlib.metadata import version, PackageNotFoundError
 
     try:
-        __version__ = version("craftcraft")
+        __version__ = version("sdkcraft")
     except PackageNotFoundError:
         __version__ = "dev"
 
@@ -39,4 +39,4 @@ Features(
     enable_partitions=True,
 )
 
-__all__ = ["__version__", "models", "Craftcraft"]
+__all__ = ["__version__", "models", "Sdkcraft"]

@@ -1,4 +1,4 @@
-#  This file is part of craftcraft.
+#  This file is part of sdkcraft
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -13,15 +13,9 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Services for craftcraft."""
+"""Entrypoint to use if running with python -m sdkcraft."""
+import sys
 
-from craft_application import ServiceFactory
+from sdkcraft.cli import main
 
-from .lifecycle import Lifecycle
-from .package import Package
-
-__all__ = [
-    "ServiceFactory",
-    "Lifecycle",
-    "Package",
-]
+sys.exit(main())

@@ -1,0 +1,9 @@
+name: sdkcraft
+base: ubuntu@22.04
+
+# apt packages
+# gcc
+# g++
+# python3-dev
+# libapt-pkg-dev
+# tox

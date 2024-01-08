@@ -1,4 +1,4 @@
-#  This file is part of craftcraft.
+# This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -13,19 +13,15 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""metadata.yaml description for craftcraft output."""
+"""Global constants to use in sdkcraft."""
 
-from craft_application.models import BaseMetadata
+# Bases supported by this application.
+SUPPORTED_BASES = [
+    "ubuntu@22.04",
+]
 
-from craftcraft.models.util import Base
-
-
-class Metadata(BaseMetadata):
-    """Structure to hold output metadata."""
-
-    name: str
-    summary: str
-    description: str
-    version: str
-    license: str
-    base: Base
+# Bases that , as well as the version in which they were deprecated.
+DEPRECATED_BASES: dict[str, str] = {
+    # Map the base name to the version in which it was deprecated.
+    "ubuntu@20.04": "0.0",
+}

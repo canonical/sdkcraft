@@ -144,3 +144,6 @@ dmypy.json
 .vscode/
 .idea/
 *.kdev4
+
+# Workshop
+.workshop.lock

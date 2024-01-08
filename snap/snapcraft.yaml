@@ -1,4 +1,4 @@
-name: craftcraft
+name: sdkcraft
 version: git
 base: core22
 summary: Craft your craft app
@@ -9,11 +9,11 @@ license: GPL-3.0-only
 compression: lzo
 
 apps:
-  craftcraft:
-    command: bin/python -m craftcraft
+  sdkcraft:
+    command: bin/python -m sdkcraft
 
 parts:
-  craftcraft:
+  sdkcraft:
     source: .
     plugin: python
     build-attributes:

@@ -1,4 +1,4 @@
-#  This file is part of craftcraft.
+#  This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -13,10 +13,19 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Data models for Craftcraft."""
+"""metadata.yaml description for sdkcraft output."""
 
-from .metadata import Metadata
-from .project import Project
-from .util import Base
+from craft_application.models import BaseMetadata
 
-__all__ = ["Metadata", "Project"]
+from sdkcraft.models.util import Base
+
+
+class Metadata(BaseMetadata):
+    """Structure to hold output metadata."""
+
+    name: str
+    summary: str
+    description: str
+    version: str
+    license: str
+    base: Base

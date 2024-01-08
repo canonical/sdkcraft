@@ -1,4 +1,4 @@
-.. craftcraft documentation root file
+.. sdkcraft documentation root file
 
 Craftcraft
 =========

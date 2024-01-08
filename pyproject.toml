@@ -1,5 +1,5 @@
 [project]
-name = "craftcraft"
+name = "sdkcraft"
 dynamic = ["version", "readme"]
 dependencies = [
     "craft-application~=1.1",
@@ -16,7 +16,7 @@ classifiers = [
 requires-python = ">=3.10"
 
 [project.scripts]
-craftcraft = "craftcraft.cli:main"
+sdkcraft = "sdkcraft.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -58,7 +58,7 @@ build-backend = "setuptools.build_meta"
 readme = {file = "README.rst"}
 
 [tool.setuptools_scm]
-write_to = "craftcraft/_version.py"
+write_to = "sdkcraft/_version.py"
 # the version comes from the latest annotated git tag formatted as 'X.Y.Z'
 # version scheme:
 #   - X.Y.Z.post<commits since tag>+g<hash>.d<%Y%m%d>
@@ -128,7 +128,7 @@ disallow_untyped_decorators = true
 disallow_any_generics = true
 
 [[tool.mypy.overrides]]
-module = ["craftcraft.*"]
+module = ["sdkcraft.*"]
 disallow_untyped_defs = true
 no_implicit_optional = true
 
@@ -141,7 +141,7 @@ warn_return_any = false
 line-length = 88
 
 target-version = "py310"
-src = ["craftcraft", "tests"]
+src = ["sdkcraft", "tests"]
 extend-exclude = [
     "docs",
     "__pycache__",

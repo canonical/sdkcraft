@@ -1,4 +1,4 @@
-#  This file is part of craftcraft.
+#  This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -15,7 +15,7 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Craftcraft project definition.
 
-This module defines a craftcraft.yaml file, exportable to a JSON schema.
+This module defines a sdkcraft.yaml file, exportable to a JSON schema.
 """
 from __future__ import annotations
 
@@ -34,8 +34,8 @@ from craft_application.models import (
 from craft_providers import bases
 from pydantic import AnyUrl
 
-from craftcraft.models import util
-from craftcraft.models.util import Architecture
+from sdkcraft.models import util
+from sdkcraft.models.util import Architecture
 
 
 class Platform(models.CraftBaseModel):

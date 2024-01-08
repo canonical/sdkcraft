@@ -1,4 +1,4 @@
-#  This file is part of craftcraft.
+#  This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Services for craftcraft."""
+"""Services for sdkcraft."""
 from __future__ import annotations
 
 import pathlib
@@ -23,7 +23,7 @@ from typing import cast
 from craft_application import AppMetadata, services
 from overrides import override
 
-from craftcraft import models
+from sdkcraft import models
 
 
 class Package(services.PackageService):
