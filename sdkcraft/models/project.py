@@ -58,7 +58,7 @@ class Platform(models.CraftBaseModel):
 
 
 class Project(models.Project):
-    """Craftcraft project definition."""
+    """Sdkcraft project definition."""
 
     name: ProjectName
     title: ProjectTitle | None

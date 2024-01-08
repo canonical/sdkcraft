@@ -16,9 +16,14 @@
 """Command-line interface entrypoint."""
 
 from sdkcraft import Sdkcraft, application, services
+from . import commands
 
-
-def main() -> int:
+def _create_app() -> "Sdkcraft":
+    # pylint: disable=import-outside-toplevel
+    # Import these here so that the script that generates the docs for the
+    # commands doesn't need to know *too much* of the application.
+    from .application import APP_METADATA
+    
     """Start up and run sdkcraft."""
     factory = services.ServiceFactory(
         app=application.APP_METADATA,
@@ -28,4 +33,16 @@ def main() -> int:
 
     app = Sdkcraft(app=application.APP_METADATA, services=factory)
 
+    app.add_command_group(
+        "Other",
+        [
+            commands.InitCommand,
+        ],
+    )
+
+    return app
+
+
+def main() -> int:
+    app = _create_app()
     return app.run()
