@@ -27,7 +27,7 @@ from sdkcraft import models
 
 
 class Package(services.PackageService):
-    """Package service for Craftcraft."""
+    """Package service for Sdkcraft."""
 
     def __init__(
         self,

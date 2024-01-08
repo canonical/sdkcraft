@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Command-line interface entrypoint."""
-
+import logging
 from sdkcraft import Sdkcraft, application, services
 from . import commands
 
@@ -44,5 +44,10 @@ def _create_app() -> "Sdkcraft":
 
 
 def main() -> int:
+    # set lib loggers to debug level so that all messages are sent to Emitter
+    for lib_name in ("craft_providers", "craft_parts"):
+        logger = logging.getLogger(lib_name)
+        logger.setLevel(logging.DEBUG)
+    
     app = _create_app()
     return app.run()

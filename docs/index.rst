@@ -1,6 +1,6 @@
 .. sdkcraft documentation root file
 
-Craftcraft
+Sdkcraft
 =========
 
 .. toctree::
@@ -16,7 +16,7 @@ Craftcraft
 
    .. grid-item-card:: :ref:`Tutorial <tutorial>`
 
-      **Get started** with a hands-on introduction to Craftcraft
+      **Get started** with a hands-on introduction to Sdkcraft
 
    .. grid-item-card:: :ref:`How-to guides <howto>`
 
@@ -27,7 +27,7 @@ Craftcraft
 
    .. grid-item-card:: :ref:`Reference <reference>`
 
-      **Technical information** about Craftcraft
+      **Technical information** about Sdkcraft
 
    .. grid-item-card:: :ref:`Explanation <explanation>`
 
@@ -36,7 +36,7 @@ Craftcraft
 Project and community
 =====================
 
-Craftcraft is a member of the Canonical family. It's an open source project
+Sdkcraft is a member of the Canonical family. It's an open source project
 that warmly welcomes community projects, contributions, suggestions, fixes
 and constructive feedback.
 

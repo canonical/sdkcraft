@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Craftcraft: Verify your sources."""
+"""Sdkcraft: Verify your sources."""
 
 from craft_parts.features import Features
 
@@ -36,7 +36,7 @@ except ImportError:  # pragma: no cover
 
 Features(
     enable_overlay=False,
-    enable_partitions=True,
+    enable_partitions=False,
 )
 
 __all__ = ["__version__", "models", "Sdkcraft"]
