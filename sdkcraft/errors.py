@@ -22,8 +22,11 @@ class SdkcraftError(CraftError):
     """Failure in a Sdkcraft operation."""
 
 
-class RockcraftInitError(SdkcraftError):
+class SdkcraftInitError(SdkcraftError):
     """Error while initializing sdkcraft project."""
+
+    def __init__(self, yaml_path: str) -> None:
+        super().__init__(f"{yaml_path} already exists!")
 
 
 class PartsLifecycleError(SdkcraftError):

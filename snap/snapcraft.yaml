@@ -26,6 +26,8 @@ parts:
       - python3-apt
       - python3.10-minimal
       - python3.10-venv
+      - python3-requests
+      - python3-packaging
     build-packages:
       - python3.10-venv
       - python3-apt

@@ -15,15 +15,16 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Command-line interface entrypoint."""
 import logging
+
 from sdkcraft import Sdkcraft, application, services
+
 from . import commands
+
 
 def _create_app() -> "Sdkcraft":
     # pylint: disable=import-outside-toplevel
     # Import these here so that the script that generates the docs for the
     # commands doesn't need to know *too much* of the application.
-    from .application import APP_METADATA
-    
     """Start up and run sdkcraft."""
     factory = services.ServiceFactory(
         app=application.APP_METADATA,
@@ -44,10 +45,11 @@ def _create_app() -> "Sdkcraft":
 
 
 def main() -> int:
+    """Command-line interface entrypoint."""
     # set lib loggers to debug level so that all messages are sent to Emitter
     for lib_name in ("craft_providers", "craft_parts"):
         logger = logging.getLogger(lib_name)
         logger.setLevel(logging.DEBUG)
-    
+
     app = _create_app()
     return app.run()
