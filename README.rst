@@ -6,8 +6,6 @@ A tool to create SDKs for Workshop.
 
 Installing
 ----------
-
-
   .. code-block::
 
     $ snapcraft
@@ -18,4 +16,4 @@ Running
   .. code-block::
 
     $ sdkcraft init
-    $ sdkcraft prime
+    $ sdkcraft pack

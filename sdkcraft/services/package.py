@@ -51,10 +51,9 @@ class Package(services.PackageService):
         """
         self.write_metadata(prime_dir)
 
-        binary_package_name = f"{self._project.name}_{self._project.version}.tar.xz"
+        binary_package_name = f"{self._project.name}_{self._project.version}.sdk"
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
             tar.add(prime_dir, arcname=".", recursive=True)
-            tar.add(prime_dir / "sdk.yaml", arcname="sdk.yaml")
         return [dest / binary_package_name]
 
     @property
