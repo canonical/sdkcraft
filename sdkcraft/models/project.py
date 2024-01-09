@@ -37,9 +37,6 @@ from pydantic import AnyUrl
 from sdkcraft.models import util
 from sdkcraft.models.util import Architecture
 
-from pydantic_yaml import YamlModelMixin
-
-
 
 class Platform(models.CraftBaseModel):
     """A platform.
@@ -60,7 +57,7 @@ class Platform(models.CraftBaseModel):
         return [Architecture(arch) for arch in value]
 
 
-class Project(YamlModelMixin, models.Project):
+class Project(models.Project):
     """Sdkcraft project definition."""
 
     name: ProjectName

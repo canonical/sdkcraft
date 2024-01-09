@@ -54,13 +54,13 @@ class Package(services.PackageService):
         binary_package_name = f"{self._project.name}_{self._project.version}.tar.xz"
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
             tar.add(prime_dir, arcname=".", recursive=True)
-            tar.add(prime_dir / "metadata.yaml", arcname="metadata.yaml")
+            tar.add(prime_dir / "sdk.yaml", arcname="sdk.yaml")
         return [dest / binary_package_name]
 
     @property
     @override
     def metadata(self) -> models.Metadata:
-        """Generate the metadata.yaml model for the output file."""
+        """Generate the sdkcraft.yaml model for the output file."""
         project = cast(models.Project, self._project)
         return models.Metadata(**project.dict())
 
@@ -72,4 +72,4 @@ class Package(services.PackageService):
         """
         path = path / "meta"
         path.mkdir(parents=True, exist_ok=True)
-        self.metadata.to_yaml_file(path / "metadata.yaml")
+        self.metadata.to_yaml_file(path / "sdk.yaml")
