@@ -13,6 +13,7 @@ Installing
 
 Running
 -------
+
   .. code-block::
     $ sdkcraft init
-    $ sdkcraft
+    $ sdkcraft prime
