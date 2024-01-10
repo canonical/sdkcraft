@@ -1,4 +1,4 @@
-#  This file is part of craftcraft.
+#  This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -13,24 +13,24 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Main application class for craftcraft."""
+"""Main application class for sdkcraft."""
 import copy
 from typing import Any
 
 import craft_parts
 from craft_application import Application, AppMetadata, util
 
-from craftcraft import models
+from sdkcraft import models
 
 APP_METADATA = AppMetadata(
-    name="craftcraft",
-    summary="Craft a craft application with craft-application",
+    name="sdkcraft",
+    summary="Design and build SDKs with sdkcraft",
     ProjectClass=models.Project,
 )
 
 
-class Craftcraft(Application):
-    """Craftcraft application definition."""
+class Sdkcraft(Application):
+    """sdkcraft application definition."""
 
     def configure(self, global_args: dict[str, Any]) -> None:
         """Configure the application using global command-line arguments."""

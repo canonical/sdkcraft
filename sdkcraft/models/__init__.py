@@ -1,4 +1,4 @@
-#  This file is part of craftcraft.
+#  This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -13,19 +13,10 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Command-line interface entrypoint."""
+"""Data models for Sdkcraft."""
 
-from craftcraft import Craftcraft, application, services
+from .metadata import Metadata
+from .project import Project
+from .util import Base
 
-
-def main() -> int:
-    """Start up and run Craftcraft."""
-    factory = services.ServiceFactory(
-        app=application.APP_METADATA,
-        LifecycleClass=services.Lifecycle,
-        PackageClass=services.Package,
-    )
-
-    app = Craftcraft(app=application.APP_METADATA, services=factory)
-
-    return app.run()
+__all__ = ["Metadata", "Project"]

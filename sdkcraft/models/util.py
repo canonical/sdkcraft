@@ -11,12 +11,12 @@
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Utility models for craftcraft."""
+"""Utility models for sdkcraft."""
 import enum
 
 from craft_providers import bases
 
-from craftcraft import const
+from sdkcraft import const
 
 
 class Architecture(enum.Enum):

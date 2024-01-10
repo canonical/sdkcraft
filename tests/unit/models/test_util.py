@@ -15,8 +15,8 @@
 import pytest
 import pytest_check
 from craft_providers import bases
-from craftcraft import const
-from craftcraft.models import util
+from sdkcraft import const
+from sdkcraft.models import util
 
 
 @pytest.mark.parametrize("base_name", const.SUPPORTED_BASES)

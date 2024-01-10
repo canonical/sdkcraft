@@ -1,4 +1,4 @@
-# This file is part of craftcraft.
+# This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #

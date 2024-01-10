@@ -1,4 +1,4 @@
-# This file is part of craftcraft.
+# This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -17,7 +17,7 @@
 import pytest
 from craft_application import models
 from craft_providers import bases
-from craftcraft.models import project, util
+from sdkcraft.models import project, util
 
 
 @pytest.mark.parametrize(

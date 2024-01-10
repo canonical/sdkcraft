@@ -1,8 +1,8 @@
-project: craftcraft
+project: sdkcraft
 
-path: /craftcraft
+path: /sdkcraft
 environment:
-  PROJECT_PATH: /craftcraft
+  PROJECT_PATH: /sdkcraft
   PATH: /snap/bin:$PATH
   CRAFT_DEBUG: 1  # Show exception tracebacks.
 

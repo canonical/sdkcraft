@@ -1,4 +1,4 @@
-#  This file is part of craftcraft.
+#  This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -13,12 +13,12 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Craftcraft: Verify your sources."""
+"""Sdkcraft: Verify your sources."""
 
 from craft_parts.features import Features
 
 from . import models
-from .application import Craftcraft
+from .application import Sdkcraft
 
 try:
     # This only gets created at wheel-creation time, so we're ignoring all of
@@ -30,13 +30,13 @@ except ImportError:  # pragma: no cover
     from importlib.metadata import version, PackageNotFoundError
 
     try:
-        __version__ = version("craftcraft")
+        __version__ = version("sdkcraft")
     except PackageNotFoundError:
         __version__ = "dev"
 
 Features(
     enable_overlay=False,
-    enable_partitions=True,
+    enable_partitions=False,
 )
 
-__all__ = ["__version__", "models", "Craftcraft"]
+__all__ = ["__version__", "models", "Sdkcraft"]
