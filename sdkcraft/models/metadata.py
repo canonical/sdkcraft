@@ -19,6 +19,7 @@ from craft_application.models import BaseMetadata
 
 from sdkcraft.models.util import Base
 
+
 class Metadata(BaseMetadata):
     """Structure to hold output metadata."""
 
@@ -30,4 +31,6 @@ class Metadata(BaseMetadata):
     base: Base
 
     class Config:
+        """Metadata-specific Config for pydantic."""
+
         use_enum_values = True

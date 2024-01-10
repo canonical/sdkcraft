@@ -20,22 +20,26 @@ from sdkcraft.models.util import Base
 
 @pytest.mark.parametrize(
     ("meta_data", "expected"),
-    [(
-        models.Metadata(
-            name="sdk",
-            summary="Default SDK summary string",
-            description="SDK description",
-            version="0.1",
-            license="GPL-3.0",
-            base=Base.JAMMY,
-        ),
-        {"name": "sdk",
-         "description":"SDK description",
-         "version":"0.1",
-         "license":"GPL-3.0",
-         "summary": "Default SDK summary string",
-         "base":"ubuntu@22.04"}
-    )]
+    [
+        (
+            models.Metadata(
+                name="sdk",
+                summary="Default SDK summary string",
+                description="SDK description",
+                version="0.1",
+                license="GPL-3.0",
+                base=Base.JAMMY,
+            ),
+            {
+                "name": "sdk",
+                "description": "SDK description",
+                "version": "0.1",
+                "license": "GPL-3.0",
+                "summary": "Default SDK summary string",
+                "base": "ubuntu@22.04",
+            },
+        )
+    ],
 )
 def test_metadata(meta_data, expected):
     assert meta_data.marshal() == expected
