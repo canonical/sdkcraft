@@ -3,26 +3,13 @@ project: sdkcraft
 path: /sdkcraft
 environment:
   PROJECT_PATH: /sdkcraft
-  PATH: /snap/bin:$PATH
+  PATH: /snap/bin:$PROJECT_PATH/tests/tools:$PATH
   CRAFT_DEBUG: 1  # Show exception tracebacks.
 
 include:
-  - "*.snap"
   - tests/
 
 backends:
-  google:
-    key: '$(HOST: echo "$SPREAD_GOOGLE_KEY")'
-    location: snapd-spread/us-east1-b
-    halt-timeout: 2h
-    systems:
-      - ubuntu-20.04-64:
-          workers: 4
-          storage: 40G
-      - ubuntu-22.04-64:
-          workers: 4
-          storage: 40G
-
   multipass:
     type: adhoc
     allocate: |
@@ -84,6 +71,8 @@ prepare: |
   lxd waitready --timeout=30
   lxd init --auto
 
-  snap install --dangerous $PROJECT_PATH/*.snap
+  snap install --dangerous --classic $PROJECT_PATH/tests/*.snap
 
 suites:
+  tests/spread/:
+    summary: tests for sdkcraft core functionality
