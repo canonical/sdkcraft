@@ -1,52 +1,62 @@
-.. sdkcraft documentation root file
+:relatedlinks: [Workshop](https://canonical-workshop.readthedocs-hosted.com/en/latest/), [Craft CLI](https://craft-cli.readthedocs.io/en/latest/)
 
-Sdkcraft
-=========
+.. _home:
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
+|project_markup|
+================
 
-   tutorials/index
-   howto/index
-   reference/index
-   explanation/index
+**A tool that packages and publishes SDKs
+to be used with Workshop,
+a related end-user product**.
 
-.. grid:: 1 1 2 2
+**Define your SDK in simple YAML**.
+Next, |project_markup| instantiates the definition
+and snapshots the resulting SDK into a tarball,
+which you can then publish to be retrieved and used with :program:`Workshop`.
 
-   .. grid-item-card:: :ref:`Tutorial <tutorial>`
+**Describe your project's ins and outs in a consistent manner**.
+Use a common, instantly recognisable paradigm
+to make all aspects of your setup and usage explicit.
+|project_markup| provides a uniform way to bake in your domain expertise
+instead of leaving the users to figure everything out by trial and error.
 
-      **Get started** with a hands-on introduction to Sdkcraft
 
-   .. grid-item-card:: :ref:`How-to guides <howto>`
+**For those who maintain and distribute complex SDKs and frameworks**.
+Many software domains have less-than-trivial project layouts
+that require significant effort to set up and support.
+That’s where |project_markup| gives you an edge
+by making your product easier to package, distribute, install and use.
 
-      **Step-by-step guides** covering key operations and common tasks
+---------
 
-.. grid:: 1 1 2 2
-   :reverse:
-
-   .. grid-item-card:: :ref:`Reference <reference>`
-
-      **Technical information** about Sdkcraft
-
-   .. grid-item-card:: :ref:`Explanation <explanation>`
-
-      **Discussion and clarification** of key topics
 
 Project and community
-=====================
+---------------------
 
-Sdkcraft is a member of the Canonical family. It's an open source project
-that warmly welcomes community projects, contributions, suggestions, fixes
-and constructive feedback.
+|project_markup| is an emergent project
+within the Enterprise Engineering department here at Canonical.
 
-* `Ubuntu Code of Conduct <https://ubuntu.com/community/code-of-conduct>`_.
-* `Canonical contributor licenses agreement
-  <https://ubuntu.com/legal/contributors>`_.
+Come and talk to us if you have a project
+you’d like to try with |project_markup| and :program:`Workshop`:
+we'll help you get it out there.
+Share with us the frustrating parts of your experience,
+and we'll see what we can do.
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+- `Code of conduct <https://ubuntu.com/community/ethos/code-of-conduct>`__
+
+- `Pulse reviews on Discourse <https://discourse.canonical.com/c/engineering/sdk/34>`__
+
+- `Mattermost channel <https://chat.canonical.com/canonical/channels/sdk>`__
+
+- `Product map <https://warthogs.atlassian.net/projects/SDK?selectedItem=com.atlassian.plugins.atlassian-connect-plugin:com.herocoders.plugins.jira.epicsmap__epics-map-page>`__
+
+- `Contribution and participation <https://github.com/canonical/sdkcraft/pulls>`__
+
+- `Product and documentation feedback <https://github.com/canonical/sdkcraft/issues>`__
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+
+   Home <self>
