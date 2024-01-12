@@ -51,7 +51,7 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
 sphinxext-opengraph==0.8.1
 tornado==6.2
-urllib3==1.26.14
+urllib3==1.26.18
 wcmatch==8.4.1
 webencodings==0.5.1
 zipp==3.15.0
