@@ -8,7 +8,7 @@ colorama==0.4.6
 contourpy==1.0.7
 cycler==0.11.0
 docutils==0.19
-fonttools==4.39.0
+fonttools==4.43.0
 furo==2022.12.7
 html5lib==1.1
 idna==3.4
