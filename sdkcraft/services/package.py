@@ -44,8 +44,8 @@ class Package(services.PackageService):
         self._platform = platform
         self._build_for = build_for
 
-    def _add_hooks(self, arch: tarfile.TarFile) -> None:
-        """Add provided hooks to the final package."""
+    def _pack_hooks(self, arch: tarfile.TarFile) -> None:
+        """Add provided hooks to the package."""
         dirs = craft_parts.ProjectDirs(work_dir=Path("/root"))
         hooks_dir = dirs.project_dir / "sdk" / "hooks"
         # the list of supported hooks
@@ -68,7 +68,7 @@ class Package(services.PackageService):
         binary_package_name = f"{self._project.name}_{self._project.version}.sdk"
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
             tar.add(prime_dir, arcname=".", recursive=True)
-            self._add_hooks(tar)
+            self._pack_hooks(tar)
         return [dest / binary_package_name]
 
     @property
