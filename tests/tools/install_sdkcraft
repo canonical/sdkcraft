@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# install_sdkcraft: helper to install sdkcraft from a local snap file.
+
+if stat /sdkcraft/tests/*.snap 2>/dev/null; then
+  snap install --classic --dangerous /sdkcraft/tests/*.snap
+else
+  echo "Expected a snap to exist in /sdkcraft/tests/"
+  exit 1
+fi

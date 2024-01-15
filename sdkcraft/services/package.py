@@ -18,8 +18,10 @@ from __future__ import annotations
 
 import pathlib
 import tarfile
+from pathlib import Path
 from typing import cast
 
+import craft_parts
 from craft_application import AppMetadata, services
 from overrides import override
 
@@ -42,6 +44,18 @@ class Package(services.PackageService):
         self._platform = platform
         self._build_for = build_for
 
+    def _pack_hooks(self, arch: tarfile.TarFile) -> None:
+        """Add provided hooks to the package."""
+        dirs = craft_parts.ProjectDirs(work_dir=Path("/root"))
+        hooks_dir = dirs.project_dir / "sdk" / "hooks"
+        # the list of supported hooks
+        hooks = ["setup-base", "save-state", "restore-state"]
+
+        for name in hooks:
+            hook = hooks_dir / name
+            if hook.is_file():
+                arch.add(hook, arcname=Path("hooks") / name)
+
     @override
     def pack(self, prime_dir: pathlib.Path, dest: pathlib.Path) -> list[pathlib.Path]:
         """Create one or more packages as appropriate.
@@ -54,6 +68,7 @@ class Package(services.PackageService):
         binary_package_name = f"{self._project.name}_{self._project.version}.sdk"
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
             tar.add(prime_dir, arcname=".", recursive=True)
+            self._pack_hooks(tar)
         return [dest / binary_package_name]
 
     @property
