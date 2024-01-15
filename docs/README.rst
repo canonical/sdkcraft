@@ -1,7 +1,7 @@
 SDKcraft
 ========
 
-A tool to create SDKs for [Workshop](https://github.com/canonical/workshop).
+A tool to create SDKs for `Workshop <https://github.com/canonical/workshop>`_.
 
 
 Installing
