@@ -7,3 +7,5 @@ base: ubuntu@22.04
 # python3-dev
 # libapt-pkg-dev
 # tox
+# yamllint
+# pyright

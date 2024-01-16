@@ -2,8 +2,8 @@ summary: sdkcraft init test
 
 execute: |
   run_sdkcraft init
-  test -f sdk/sdkcraft.yaml
+  test -f sdkcraft.yaml
   run_sdkcraft pack
 
-  test -f my-sdk-name_0.1.sdk
+  test -f my-sdk-name.sdk
   test ! -d parts -a ! -d stage -a ! -d prime

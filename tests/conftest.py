@@ -20,7 +20,7 @@ from sdkcraft import services
 @pytest.fixture()
 def extra_project_params():
     """Configuration fixture for the Project used by the default services."""
-    return {}
+    return {"parts": { "default-part": {"plugin":"nil"}} }
 
 
 @pytest.fixture()
@@ -39,6 +39,10 @@ def default_project(extra_project_params):
         parts=parts,
         license="MIT",
         platforms={"amd64": None},
+        contact="requests@canonical.com",
+        issues='https://github.com/canonical/sdk-store/issues',
+        source_code='https://github.com/canonical/sdk-store',
+        website='http://canonical.com',
         **extra_project_params,
     )
 

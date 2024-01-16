@@ -15,7 +15,13 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """metadata.yaml description for sdkcraft output."""
 
-from craft_application.models import BaseMetadata
+from craft_application.models import (
+    BaseMetadata,
+    ProjectTitle,
+    SummaryStr,
+    UniqueStrList,
+)
+from pydantic import AnyUrl
 
 from sdkcraft.models.util import Base
 
@@ -24,11 +30,15 @@ class Metadata(BaseMetadata):
     """Structure to hold output metadata."""
 
     name: str
-    summary: str
-    description: str
-    version: str
-    license: str
+    title: ProjectTitle | None
     base: Base
+    summary: SummaryStr
+    license: str
+    description: str
+    website: AnyUrl | None
+    contact: str | UniqueStrList | None
+    issues: str | UniqueStrList | None
+    source_code: AnyUrl | None
 
     class Config:
         """Metadata-specific Config for pydantic."""

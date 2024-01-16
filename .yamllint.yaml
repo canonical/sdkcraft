@@ -5,7 +5,6 @@ extends: default
 
 rules:
   document-start: disable
-  float-values: enable
   line-length: disable
   octal-values: enable
   truthy:

@@ -117,6 +117,7 @@ exclude = [
     "build",
     "tests",
     "results",
+    "docs",
 ]
 warn_unused_configs = true
 warn_redundant_casts = true
@@ -266,3 +267,6 @@ max-args = 8
     "I001",  # isort leaves init files alone by default, this makes ruff ignore them too.
     "F401",  # Allows unused imports in __init__ files.
 ]
+
+[tool.ruff.lint]
+exclude = ["docs"]
