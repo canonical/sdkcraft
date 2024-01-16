@@ -13,12 +13,12 @@ execute: |
 
   run_sdkcraft pack
 
-  test -f my-sdk-name_0.1.sdk
+  test -f my-sdk-name.sdk
   test ! -d parts -a ! -d stage -a ! -d prime
 
   # test that the resulting archive contains only supported hooks
   expected_hooks=("${files[@]/unknown-hook}")
   for file in "${expected_hooks[@]}"; do
-    test "$(tar -tf my-sdk-name_0.1.sdk | grep "hooks/$file")"
+    test "$(tar -tf my-sdk-name.sdk | grep "hooks/$file")"
   done
-  test "$(tar -tf my-sdk-name_0.1.sdk -C "hooks/" --exclude "${expected_hooks[@]}" | wc -l)" -eq 0
+  test "$(tar -tf my-sdk-name.sdk -C "hooks/" --exclude "${expected_hooks[@]}" | wc -l)" -eq 0

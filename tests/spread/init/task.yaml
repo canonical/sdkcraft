@@ -5,5 +5,5 @@ execute: |
   test -f sdk/sdkcraft.yaml
   run_sdkcraft pack
 
-  test -f my-sdk-name_0.1.sdk
+  test -f my-sdk-name.sdk
   test ! -d parts -a ! -d stage -a ! -d prime
