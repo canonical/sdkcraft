@@ -34,7 +34,7 @@ def init(sdkcraft_yaml_content: str) -> None:
     :raises sdkcraftInitError: raises initialization error in case of conflicts
     with existing sdkcraft.yaml files
     """
-    sdkcraft_yaml_path = Path("sdk/sdkcraft.yaml")
+    sdkcraft_yaml_path = Path("sdkcraft.yaml")
 
     if sdkcraft_yaml_path.is_file():
         raise errors.SdkcraftInitError(f"{sdkcraft_yaml_path}")

@@ -2,7 +2,7 @@ summary: sdkcraft init test
 
 execute: |
   run_sdkcraft init
-  test -f sdk/sdkcraft.yaml
+  test -f sdkcraft.yaml
   run_sdkcraft pack
 
   test -f my-sdk-name.sdk

@@ -47,7 +47,7 @@ class Package(services.PackageService):
     def _pack_hooks(self, arch: tarfile.TarFile) -> None:
         """Add provided hooks to the package."""
         dirs = craft_parts.ProjectDirs(work_dir=Path("/root"))
-        hooks_dir = dirs.project_dir / "sdk" / "hooks"
+        hooks_dir = dirs.project_dir / "hooks"
         # the list of supported hooks
         hooks = ["setup-base", "save-state", "restore-state"]
 

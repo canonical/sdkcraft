@@ -68,9 +68,3 @@ class Sdkcraft(Application):
     def _set_global_environment(self, info: craft_parts.ProjectInfo) -> None:
         """Populate the global environment to use when running the parts lifecycle."""
         super()._set_global_environment(info)
-
-    def _resolve_project_path(self, project_dir: pathlib.Path | None) -> pathlib.Path:
-        """Find the project file for the current project."""
-        if project_dir is None:
-            project_dir = pathlib.Path.cwd()
-        return (project_dir / "sdk" / f"{self.app.name}.yaml").resolve(strict=True)
