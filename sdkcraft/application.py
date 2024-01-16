@@ -15,7 +15,6 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Main application class for sdkcraft."""
 import copy
-import pathlib
 from typing import Any
 
 import craft_parts
