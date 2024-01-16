@@ -65,7 +65,7 @@ class Package(services.PackageService):
         """
         self.write_metadata(prime_dir)
 
-        binary_package_name = f"{self._project.name}_{self._project.version}.sdk"
+        binary_package_name = f"{self._project.name}.sdk"
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
             tar.add(prime_dir, arcname=".", recursive=True)
             self._pack_hooks(tar)
@@ -76,7 +76,10 @@ class Package(services.PackageService):
     def metadata(self) -> models.Metadata:
         """Generate the sdkcraft.yaml model for the output file."""
         project = cast(models.Project, self._project)
-        return models.Metadata(**project.dict())
+        return models.Metadata(**project.dict(
+            include={"name", "base", "summary", "license", "description", "website", "contact", "issues", "source_code"},
+            exclude_unset=True,
+        ))
 
     @override
     def write_metadata(self, path: pathlib.Path) -> None:

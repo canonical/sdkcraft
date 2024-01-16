@@ -73,6 +73,8 @@ class Project(models.Project):
     contact: str | UniqueStrList | None
     issues: str | UniqueStrList | None
     source_code: AnyUrl | None
+    website: AnyUrl | None
+
     license: str
 
     parts: dict[str, dict[str, Any]]  # parts are handled by craft-parts
