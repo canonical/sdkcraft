@@ -2,20 +2,20 @@ summary: sdkcraft pack test
 
 execute: |
 
+  hooks=("setup-base" "save-state" "restore-state" "unknown-hook")
   function validate_expected_hooks() {
     # test that the resulting archive contains only supported hooks
-    expected_hooks=("${files[@]/unknown-hook}")
+    expected_hooks=("${hooks[@]/unknown-hook}")
     for file in "${expected_hooks[@]}"; do
-      test "$(tar -tf my-sdk-name.sdk | grep "hooks/$file")"
+      test "$(tar -tf my-sdk-name.sdk | grep "sdk/hooks/$file")"
     done
-    test "$(tar -tf my-sdk-name.sdk -C "hooks/" --exclude "${expected_hooks[@]}" | wc -l)" -eq 0
+    test "$(tar -tf my-sdk-name.sdk -C "sdk/hooks/" --exclude "${expected_hooks[@]}" | wc -l)" -eq 0
   }
 
   # Create an SDK with hooks
   run_sdkcraft init
   test -f sdkcraft.yaml
   mkdir -p hooks
-  hooks=("setup-base" "save-state" "restore-state" "unknown-hook")
   for hook in "${hooks[@]}"; do
       touch "hooks/$hook"
   done

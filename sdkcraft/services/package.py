@@ -54,7 +54,7 @@ class Package(services.PackageService):
         for name in hooks:
             hook = hooks_dir / name
             if hook.is_file():
-                arch.add(hook, arcname=Path("hooks") / name)
+                arch.add(hook, arcname=Path("sdk") / "hooks" / name)
 
     @override
     def pack(self, prime_dir: pathlib.Path, dest: pathlib.Path) -> list[pathlib.Path]:
