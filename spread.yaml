@@ -43,8 +43,8 @@ backends:
       instance_name=$(multipass list --format csv | grep $SPREAD_SYSTEM_ADDRESS | cut -f1 -d\,)
       multipass delete --purge "${instance_name}"
     systems:
-      - ubuntu-20.04-64:
-          workers: 1
+      #- ubuntu-20.04-64:
+      #    workers: 1
       - ubuntu-22.04-64:
           workers: 1
 prepare: |
