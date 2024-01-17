@@ -14,7 +14,8 @@ compression: lzo
 apps:
   sdkcraft:
     command: bin/python -m sdkcraft
-
+  publish:
+    command: bin/publish.sh
 parts:
   sdkcraft-libs:
     plugin: nil
@@ -60,3 +61,8 @@ parts:
       - -usr/share/doc
     after:
       - sdkcraft-libs
+  scripts:
+    plugin: dump
+    source: sdkcraft
+    organize:
+      "*.sh": bin/
