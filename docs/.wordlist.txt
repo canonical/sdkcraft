@@ -54,3 +54,4 @@ workspaces
 worktree
 worktrees
 yaml
+SDKcraft
