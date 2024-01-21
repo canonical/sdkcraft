@@ -9,3 +9,4 @@ base: ubuntu@22.04
 # tox
 # yamllint
 # pyright
+# gsutil

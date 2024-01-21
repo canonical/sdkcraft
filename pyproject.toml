@@ -55,7 +55,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.dynamic]
-readme = {file = "README.rst"}
+readme = {file = "docs/README.rst"}
 
 [tool.setuptools_scm]
 write_to = "sdkcraft/_version.py"
@@ -84,7 +84,7 @@ target-version = ["py310"]
 [tool.codespell]
 ignore-words-list = "buildd,crate,keyserver,comandos,ro,dedent,dedented"
 skip = ".tox,.git,build,.*_cache,__pycache__,*.tar,*.snap,*.png,./node_modules,./docs/_build,.direnv,.venv,venv,.vscode"
-quiet-level = 3
+quiet-level = 0
 check-filenames = true
 
 [tool.isort]
@@ -118,6 +118,7 @@ exclude = [
     "tests",
     "results",
     "docs",
+    "venv",
 ]
 warn_unused_configs = true
 warn_redundant_casts = true
