@@ -26,7 +26,7 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
-SDK_PATH=$(readlink -f $1)
+SDK_PATH=$(readlink -f "$1")
 if [ ! -e "$SDK_PATH" ]; then
     echo "Error: File '$SDK_PATH' not found."
     exit 1
@@ -35,15 +35,17 @@ fi
 allowed_channels=("stable" "candidate" "beta" "edge")
 channel="$2"
 
-if [[ ! " ${allowed_channels[@]} " =~ " $channel " ]]; then
+# shellcheck disable=SC2076
+if [[ ! " ${allowed_channels[*]} " =~ " $channel " ]]; then
     echo "Error: Second argument should be one of: ${allowed_channels[*]}"
     print_help
     exit 1
 fi
 
 CHANNEL=latest/$channel
-SDK_FILE=$(basename $1)
+SDK_FILE=$(basename "$1")
 SDK_NAME="${SDK_FILE%%.*}"
 BUCKET_DIR="gs://sdk-store/$SDK_NAME/$CHANNEL/"
 
-gsutil -h "Cache-Control: no-store" cp $SDK_FILE $BUCKET_DIR
+echo "Uploading $SDK_FILE to $BUCKET_DIR..."
+gsutil -h "Cache-Control: no-store" cp "$SDK_FILE" "$BUCKET_DIR"
