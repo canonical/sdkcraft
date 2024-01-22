@@ -15,6 +15,8 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """metadata.yaml description for sdkcraft output."""
 
+from typing import Any
+
 from craft_application.models import (
     BaseMetadata,
     ProjectTitle,
@@ -23,9 +25,8 @@ from craft_application.models import (
 )
 from pydantic import AnyUrl
 
-from sdkcraft.models.util import Base
-from typing import Any, Dict, Optional, Union
 from sdkcraft.models.project import ContentPlug
+from sdkcraft.models.util import Base
 
 
 class Metadata(BaseMetadata):
@@ -41,8 +42,7 @@ class Metadata(BaseMetadata):
     contact: str | UniqueStrList | None
     issues: str | UniqueStrList | None
     source_code: AnyUrl | None
-    plugs: Optional[Dict[str, Union[ContentPlug, Any]]]
-
+    plugs: dict[str, ContentPlug | Any] | None
 
     class Config:
         """Metadata-specific Config for pydantic."""

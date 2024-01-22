@@ -20,8 +20,9 @@ This module defines a sdkcraft.yaml file, exportable to a JSON schema.
 from __future__ import annotations
 
 import itertools
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
+import craft_parts
 import pydantic
 from craft_application import models
 from craft_application.models import (
@@ -34,12 +35,9 @@ from craft_application.models import (
 from craft_providers import bases
 from pydantic import AnyUrl
 
+from sdkcraft.errors import SdkcraftError
 from sdkcraft.models import util
 from sdkcraft.models.util import Architecture
-
-import craft_parts
-
-from craft_cli import emit
 
 
 class Platform(models.CraftBaseModel):
@@ -60,11 +58,13 @@ class Platform(models.CraftBaseModel):
             value = [value]
         return [Architecture(arch) for arch in value]
 
+
 class ContentPlug(models.CraftBaseModel):
     """Sdkcraft project content plug definition."""
 
     interface: str
     target: str
+
 
 class Project(models.Project):
     """Sdkcraft project definition."""
@@ -88,7 +88,7 @@ class Project(models.Project):
 
     parts: dict[str, dict[str, Any]]  # parts are handled by craft-parts
 
-    plugs: Optional[Dict[str, Union[ContentPlug, Any]]]
+    plugs: dict[str, ContentPlug | Any] | None
 
     @pydantic.validator("platforms", pre=True)
     def pre_parse_platforms(
@@ -145,20 +145,26 @@ class Project(models.Project):
 
     @pydantic.validator("parts", each_item=True)
     @classmethod
-    def _validate_parts(cls, item: Dict[str, Any]) -> Dict[str, Any]:
+    def _validate_parts(cls, item: dict[str, Any]) -> dict[str, Any]:
         """Verify each part (craft-parts will re-validate this)."""
         craft_parts.validate_part(item)
-        if item.get('stage-packages') != None :
-            raise NotImplementedError('\"stage-packages\" are not supported by sdkcraft. Consider using \"setup-base\" hook to install packages required by your SDK')
+        if item.get("stage-packages") is not None:
+            raise NotImplementedError(
+                '"stage-packages" are not supported by sdkcraft. Consider using "setup-base" hook to install packages required by your SDK'
+            )
 
-        if item.get('stage-snaps') != None:
-            raise NotImplementedError('\"stage-snaps\" are not supported by sdkcraft. Consider using \"setup-base\" hook to install snaps required by your SDK')
+        if item.get("stage-snaps") is not None:
+            raise NotImplementedError(
+                '"stage-snaps" are not supported by sdkcraft. Consider using "setup-base" hook to install snaps required by your SDK'
+            )
 
         return item
 
     @pydantic.validator("plugs")
     @classmethod
-    def _validate_plugs(cls, plugs: Dict[str, Union[ContentPlug, Any]]) -> Dict[str, Union[ContentPlug, Any]]:
+    def _validate_plugs(
+        cls, plugs: dict[str, ContentPlug | Any]
+    ) -> dict[str, ContentPlug | Any]:
         if plugs is not None:
             for plug_name, plug in plugs.items():
                 if (
@@ -166,11 +172,11 @@ class Project(models.Project):
                     and plug.get("interface") == "content"
                     and not plug.get("target")
                 ):
-                    raise ValueError(
-                        f"ContentPlug '{plug_name}' must have a 'target' parameter."
+                    raise SdkcraftError(
+                        message=f"ContentPlug '{plug_name}' must have a 'target' parameter."
                     )
 
                 if isinstance(plug, list):
-                    raise ValueError(f"Plug '{plug_name}' cannot be a list.")
+                    raise SdkcraftError(message=f"Plug '{plug_name}' cannot be a list.")
 
         return plugs

@@ -17,6 +17,7 @@
 import pytest
 from craft_application import models
 from craft_providers import bases
+from sdkcraft.errors import SdkcraftError
 from sdkcraft.models import project, util
 
 
@@ -155,34 +156,34 @@ def test_project_get_build_plan(project, expected):
 
 
 def test_project_stage_packages_prohibited():
-    part_packages =  {"plugin":"nil", "stage-packages": ["python3-apt"]}
-    with pytest.raises(NotImplementedError) as exc:
-       project.Project._validate_parts(part_packages)
+    part_packages = {"plugin": "nil", "stage-packages": ["python3-apt"]}
+    with pytest.raises(NotImplementedError):
+        project.Project._validate_parts(part_packages)
 
-    part_snaps =  {"plugin":"nil", "stage-snaps": ["shellcheck"]}
-    with pytest.raises(NotImplementedError) as exc:
-       project.Project._validate_parts(part_snaps)
+    part_snaps = {"plugin": "nil", "stage-snaps": ["shellcheck"]}
+    with pytest.raises(NotImplementedError):
+        project.Project._validate_parts(part_snaps)
 
 
 def test_project_plugs():
     valid_plugs = {
-            "content": {"interface": "content", "target" : "/data"},
-            "randomg": {"interface": "existing"},
-            "content": {"target": "/data"}
-        }
+        "content": {"interface": "content", "target": "/data"},
+        "randomg": {"interface": "existing"},
+        "content2": {"target": "/data"},
+    }
     try:
         project.Project._validate_plugs(valid_plugs)
-    except Exception as e:
+    except ValueError as e:
         pytest.fail(reason=f"unexpected exception {e}")
 
     no_target = {
         "content": {"interface": "content"},
     }
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        SdkcraftError, match="ContentPlug 'content' must have a 'target' parameter."
+    ):
         project.Project._validate_plugs(no_target)
 
-    incorrect_type = {
-        "content": ["interface", "content"]
-    }
-    with pytest.raises(ValueError):
+    incorrect_type = {"content": ["interface", "content"]}
+    with pytest.raises(SdkcraftError, match="cannot be a list"):
         project.Project._validate_plugs(incorrect_type)

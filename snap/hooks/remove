@@ -16,8 +16,8 @@ if ! command -v lxc > /dev/null 2>&1; then
   exit 0
 fi
 
-# check for sdkcraft project
-if ! lxc project info sdkcraft > /dev/null 2>&1; then
+# check for sdkcraft project (earlier versions of LXD do not have project info command)
+if ! lxc project info sdkcraft > /dev/null 2>&1 && ! lxc project show sdkcraft > /dev/null 2>&1; then
   >&2 echo "project 'sdkcraft' does not exist"
   exit 0
 fi
