@@ -20,7 +20,7 @@ This module defines a sdkcraft.yaml file, exportable to a JSON schema.
 from __future__ import annotations
 
 import itertools
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Union
 
 import pydantic
 from craft_application import models
@@ -38,6 +38,8 @@ from sdkcraft.models import util
 from sdkcraft.models.util import Architecture
 
 import craft_parts
+
+from craft_cli import emit
 
 
 class Platform(models.CraftBaseModel):
@@ -58,6 +60,11 @@ class Platform(models.CraftBaseModel):
             value = [value]
         return [Architecture(arch) for arch in value]
 
+class ContentPlug(models.CraftBaseModel):
+    """Sdkcraft project content plug definition."""
+
+    interface: str
+    target: str
 
 class Project(models.Project):
     """Sdkcraft project definition."""
@@ -80,6 +87,8 @@ class Project(models.Project):
     license: str
 
     parts: dict[str, dict[str, Any]]  # parts are handled by craft-parts
+
+    plugs: Optional[Dict[str, Union[ContentPlug, Any]]]
 
     @pydantic.validator("platforms", pre=True)
     def pre_parse_platforms(
@@ -146,3 +155,22 @@ class Project(models.Project):
             raise NotImplementedError('\"stage-snaps\" are not supported by sdkcraft. Consider using \"setup-base\" hook to install snaps required by your SDK')
 
         return item
+
+    @pydantic.validator("plugs")
+    @classmethod
+    def _validate_plugs(cls, plugs: Dict[str, Union[ContentPlug, Any]]) -> Dict[str, Union[ContentPlug, Any]]:
+        if plugs is not None:
+            for plug_name, plug in plugs.items():
+                if (
+                    isinstance(plug, dict)
+                    and plug.get("interface") == "content"
+                    and not plug.get("target")
+                ):
+                    raise ValueError(
+                        f"ContentPlug '{plug_name}' must have a 'target' parameter."
+                    )
+
+                if isinstance(plug, list):
+                    raise ValueError(f"Plug '{plug_name}' cannot be a list.")
+
+        return plugs

@@ -24,6 +24,8 @@ from craft_application.models import (
 from pydantic import AnyUrl
 
 from sdkcraft.models.util import Base
+from typing import Any, Dict, Optional, Union
+from sdkcraft.models.project import ContentPlug
 
 
 class Metadata(BaseMetadata):
@@ -39,6 +41,8 @@ class Metadata(BaseMetadata):
     contact: str | UniqueStrList | None
     issues: str | UniqueStrList | None
     source_code: AnyUrl | None
+    plugs: Optional[Dict[str, Union[ContentPlug, Any]]]
+
 
     class Config:
         """Metadata-specific Config for pydantic."""

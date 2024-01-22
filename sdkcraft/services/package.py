@@ -77,7 +77,7 @@ class Package(services.PackageService):
         """Generate the sdkcraft.yaml model for the output file."""
         project = cast(models.Project, self._project)
         return models.Metadata(**project.dict(
-            include={"name", "base", "summary", "license", "description", "website", "contact", "issues", "source_code"},
+            include={"name", "base", "summary", "license", "description", "website", "contact", "issues", "source_code", "plugs"},
             exclude_unset=True,
         ))
 

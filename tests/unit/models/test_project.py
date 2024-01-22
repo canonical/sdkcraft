@@ -162,3 +162,27 @@ def test_project_stage_packages_prohibited():
     part_snaps =  {"plugin":"nil", "stage-snaps": ["shellcheck"]}
     with pytest.raises(NotImplementedError) as exc:
        project.Project._validate_parts(part_snaps)
+
+
+def test_project_plugs():
+    valid_plugs = {
+            "content": {"interface": "content", "target" : "/data"},
+            "randomg": {"interface": "existing"},
+            "content": {"target": "/data"}
+        }
+    try:
+        project.Project._validate_plugs(valid_plugs)
+    except Exception as e:
+        pytest.fail(reason=f"unexpected exception {e}")
+
+    no_target = {
+        "content": {"interface": "content"},
+    }
+    with pytest.raises(ValueError):
+        project.Project._validate_plugs(no_target)
+
+    incorrect_type = {
+        "content": ["interface", "content"]
+    }
+    with pytest.raises(ValueError):
+        project.Project._validate_plugs(incorrect_type)
