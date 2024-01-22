@@ -158,7 +158,7 @@ class Project(models.Project):
 
     @pydantic.validator("plugs")
     @classmethod
-    def _validate_plugs(cls, plugs):
+    def _validate_plugs(cls, plugs: Dict[str, Union[ContentPlug, Any]]) -> Dict[str, Union[ContentPlug, Any]]:
         if plugs is not None:
             for plug_name, plug in plugs.items():
                 if (

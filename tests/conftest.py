@@ -29,6 +29,7 @@ def default_project(extra_project_params):
     from sdkcraft.models.project import Project
 
     parts = extra_project_params.pop("parts", {})
+    plugs = {"content": {"target": "/path"}}
 
     return Project(
         name=ProjectName("default"),
@@ -43,6 +44,7 @@ def default_project(extra_project_params):
         issues='https://github.com/canonical/sdk-store/issues',
         source_code='https://github.com/canonical/sdk-store',
         website='http://canonical.com',
+        plugs=plugs,
         **extra_project_params,
     )
 
