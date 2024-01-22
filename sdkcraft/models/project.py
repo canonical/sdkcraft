@@ -20,7 +20,7 @@ This module defines a sdkcraft.yaml file, exportable to a JSON schema.
 from __future__ import annotations
 
 import itertools
-from typing import Any
+from typing import Any, Dict
 
 import pydantic
 from craft_application import models
@@ -36,6 +36,8 @@ from pydantic import AnyUrl
 
 from sdkcraft.models import util
 from sdkcraft.models.util import Architecture
+
+import craft_parts
 
 
 class Platform(models.CraftBaseModel):
@@ -131,3 +133,16 @@ class Project(models.Project):
                 )
 
         return build_infos
+
+    @pydantic.validator("parts", each_item=True)
+    @classmethod
+    def _validate_parts(cls, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify each part (craft-parts will re-validate this)."""
+        craft_parts.validate_part(item)
+        if item.get('stage-packages') != None :
+            raise NotImplementedError('\"stage-packages\" are not supported by sdkcraft. Consider using \"setup-base\" hook to install packages required by your SDK')
+
+        if item.get('stage-snaps') != None:
+            raise NotImplementedError('\"stage-snaps\" are not supported by sdkcraft. Consider using \"setup-base\" hook to install snaps required by your SDK')
+
+        return item

@@ -1,19 +1,18 @@
 name: build sdkcraft snap
-on:   [workflow_dispatch]
+on: [workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-   
-    - uses: snapcore/action-build@v1
-      id: snapcraft
+      - uses: actions/checkout@v3
 
-    - uses: snapcore/action-publish@v1
-      env:
-        SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
-      with:
-        snap: ${{ steps.snapcraft.outputs.snap }}
-        release: edge
-    
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.snapcraft.outputs.snap }}
+          release: edge

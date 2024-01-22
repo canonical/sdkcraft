@@ -152,3 +152,13 @@ def test_project_create_valid(obj, expected):
 )
 def test_project_get_build_plan(project, expected):
     assert project.get_build_plan() == expected
+
+
+def test_project_stage_packages_prohibited():
+    part_packages =  {"plugin":"nil", "stage-packages": ["python3-apt"]}
+    with pytest.raises(NotImplementedError) as exc:
+       project.Project._validate_parts(part_packages)
+
+    part_snaps =  {"plugin":"nil", "stage-snaps": ["shellcheck"]}
+    with pytest.raises(NotImplementedError) as exc:
+       project.Project._validate_parts(part_snaps)
