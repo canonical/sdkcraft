@@ -1,0 +1,5 @@
+summary: sdkcraft plugs test to ensure sdkcraft can consume various valid plugs
+
+execute: |
+  run_sdkcraft pack
+  test -f my-sdk-name.sdk
