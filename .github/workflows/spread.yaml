@@ -30,5 +30,7 @@ jobs:
           submodules: true
       - name: Install spread
         run: go install github.com/snapcore/spread/cmd/spread@latest
+      - name: Install snapcraft
+        run: sudo snap install snapcraft --classic
       - name: Run spread
         run: make spread
