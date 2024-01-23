@@ -27,6 +27,9 @@ jobs:
           path: ${{ steps.snapcraft.outputs.snap }}
 
   snap-tests:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04-64, ubuntu-20.04-64]
     runs-on: [self-hosted, Linux, X64]
     needs: [snap-build]
     steps:
@@ -53,4 +56,4 @@ jobs:
           name: snap
           path: tests
       - name: Run spread
-        run: spread
+        run: spread multipass:${{matrix.os}}:tests/spread/
