@@ -8,10 +8,27 @@ on:
     - cron: "0 0 */2 * *"
   workflow_dispatch:
 
+env:
+  SNAPCRAFT_BUILD_ENVIRONMENT: multipass
+
 jobs:
+  snap-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+
+      - name: Upload snap artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: snap
+          path: ${{ steps.snapcraft.outputs.snap }}
+
   snap-tests:
     runs-on: [self-hosted, Linux, X64]
-
+    needs: [snap-build]
     steps:
       - name: Cleanup job workspace
         run: |
@@ -21,8 +38,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: '1.20'
-      - name: Install multipass
-        run: sudo snap install multipass
       - name: Checkout Workshop
         uses: actions/checkout@v4
         with:
@@ -30,7 +45,12 @@ jobs:
           submodules: true
       - name: Install spread
         run: go install github.com/snapcore/spread/cmd/spread@latest
-      - name: Install snapcraft
-        run: sudo snap install snapcraft --classic
+      - name: Install multipass
+        run: sudo snap install multipass
+      - name: Download snap artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: snap
+          path: tests
       - name: Run spread
-        run: make spread
+        run: spread

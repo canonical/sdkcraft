@@ -1,5 +1,5 @@
 name: sdkcraft
-version: git
+version: '0.1'
 base: core22
 summary: Design and build an SDK for Workshop
 description: |
