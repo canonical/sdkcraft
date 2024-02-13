@@ -228,8 +228,8 @@ preparing the SDK for use or preserving its state during updates.
       sudo -u workshop -- mkdir -p /home/workshop/my_python_work/
 
 
-   It runs when the workshop is launched,
-   installing the prerequisites and preparing the workshop.
+   It runs when the workshop is launched or refreshed,
+   installing prerequisites and preparing it for use.
 
 
 #. Also under :file:`python-sdk/hooks/`,

@@ -32,9 +32,11 @@ gocheck
 golang
 gopkg
 https
+init
 installable
 iteratively
 lxd
+modularise
 onboarding
 pathname
 pre
@@ -54,6 +56,7 @@ transactional
 uid
 unmounts
 webhook
+workshopctl
 workshopd
 workspace
 workspaces

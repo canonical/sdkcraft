@@ -38,6 +38,11 @@ In this documentation
 
       **Starter instructions** for new users of |project_markup|
 
+
+   .. grid-item:: :doc:`Reference <reference/index>`
+
+      **Technical details**, specifications, APIs
+
 ---------
 
 
@@ -78,3 +83,5 @@ and we'll see what we can do.
    :maxdepth: 2
 
    Home <self>
+   tutorial/index
+   reference/index
