@@ -29,6 +29,18 @@ by making your product easier to package, distribute, install and use.
 ---------
 
 
+In this documentation
+---------------------
+
+.. grid:: 1 1 2 2
+
+   .. grid-item:: :doc:`Tutorial <tutorial/index>`
+
+      **Starter instructions** for new users of |project_markup|
+
+---------
+
+
 Project and community
 ---------------------
 

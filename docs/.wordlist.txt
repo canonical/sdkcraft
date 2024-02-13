@@ -11,8 +11,10 @@ Makefile
 Mattermost
 MyST
 Permalink
+PYTHONHOME
 ReadMe
 SDK
+SDK’s
 SDKcraft
 SDKs
 UI
@@ -42,9 +44,12 @@ reStructuredText
 readme
 roadmap
 sdk
+SDK's
+sdkcraft
 snapcraft
 snapd
 subcommand
+subdirectory
 transactional
 uid
 unmounts
