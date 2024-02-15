@@ -145,10 +145,15 @@ will define a specific component or piece of the SDK being packaged,
 providing a way to modularise the package and manage its dependencies.
 
 
-.. important::
+.. note::
 
-   |project_markup| doesn't implement full-featured :samp:`parts` yet;
-   instead, rely on the :ref:`hooks <ref_sdk_hooks>` to implement custom logic.
+   |project_markup| is built as a
+   `craft-application <https://github.com/canonical/craft-application>`_,
+   which affects the :samp:`parts` implementation.
+   However, the :samp:`stage-packages` and :samp:`stage-snaps` parts
+   aren't enabled yet;
+   instead, rely on the :ref:`hooks <ref_sdk_hooks>`
+   to implement custom package and snap installation logic.
 
 
 .. _ref_sdk_interfaces:
@@ -159,7 +164,7 @@ Interfaces
 Currently, the only interface supported by |project_markup| is :samp:`content`.
 It maps a directory in the workshop to a predefined directory on the host;
 `Workshop`_ is responsible for mapping the internal directory
-to an internal directory on the host,
+to a default directory on the host,
 and the SDK is responsible for handling the directory's contents.
 
 An example that lists the name of the plug, the interface
@@ -232,8 +237,9 @@ Life cycle hooks
    * - :samp:`setup-base`
 
      - At :command:`workshop launch`, :command:`workshop refresh`:
-       after unpacking the base image,
-       before starting the workshop.
+       after unpacking the base image
+       and starting the workshop,
+       but before setting its status to *Ready*.
 
      - Configures the base image for the SDK to become operational.
 
@@ -280,7 +286,7 @@ A channel is a combination of a track and a risk, e.g. :samp:`latest/beta`.
 
 Tracks allow to maintain multiple published versions of an SDK simultaneously;
 while no specific schema is enforced,
-is is desirable to use a semantic version, e.g. :samp:`1.2.3`,
+it is desirable to use a semantic version, e.g. :samp:`1.2.3`,
 or the :samp:`latest` keyword that maps to the latest published version
 and serves as the default.
 
