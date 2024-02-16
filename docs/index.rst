@@ -1,4 +1,4 @@
-:relatedlinks: [Workshop](https://canonical-workshop.readthedocs-hosted.com/en/latest/), [Craft CLI](https://craft-cli.readthedocs.io/en/latest/)
+:relatedlinks: [Workshop](https://canonical-workshop.readthedocs-hosted.com/), [Craft CLI](https://craft-cli.readthedocs.io/)
 
 .. _home:
 
@@ -20,7 +20,6 @@ to make all aspects of your setup and usage explicit.
 |project_markup| provides a uniform way to bake in your domain expertise
 instead of leaving the users to figure everything out by trial and error.
 
-
 **For those who maintain and distribute complex SDKs and frameworks**.
 Many software domains have less-than-trivial project layouts
 that require significant effort to set up and support.
@@ -30,11 +29,35 @@ by making your product easier to package, distribute, install and use.
 ---------
 
 
+In this documentation
+---------------------
+
+.. grid:: 1 1 2 2
+
+   .. grid-item:: :doc:`Tutorial <tutorial/index>`
+
+      **Starter instructions** for new users of |project_markup|
+
+
+   .. grid-item:: :doc:`Reference <reference/index>`
+
+      **Technical details**, specifications, APIs
+
+---------
+
+
 Project and community
 ---------------------
 
 |project_markup| is an emergent project
-within the Enterprise Engineering department here at Canonical.
+within the Enterprise Engineering department here at Canonical;
+`Workshop <https://canonical-workshop.readthedocs-hosted.com/>`_
+is its older sibling,
+aimed at users who consume SDKs produced with |project_markup|.
+The design of both tools follows the paradigm exemplified by
+`Snap <https://snapcraft.io/docs/>`_
+and implemented with
+`Craft CLI <https://craft-cli.readthedocs.io/>`_.
 
 Come and talk to us if you have a project
 you’d like to try with |project_markup| and :program:`Workshop`:
@@ -60,3 +83,5 @@ and we'll see what we can do.
    :maxdepth: 2
 
    Home <self>
+   tutorial/index
+   reference/index

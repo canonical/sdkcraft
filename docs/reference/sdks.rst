@@ -1,0 +1,302 @@
+.. _ref_sdks:
+
+SDKs
+====
+
+
+.. _ref_sdk_directory:
+
+Source directory
+----------------
+
+All files that go into an SDK should be stored in a *source directory* where
+|project_markup| will be used to initialise, define, pack and publish the SDK.
+
+
+.. _ref_sdk_definition:
+
+Definition
+----------
+
+The name of the workshop definition file must be :file:`sdkcraft.yaml`;
+the file is usually created using the :command:`sdkcraft init` command
+in the source directory.
+
+The definition in the file must be written in
+`YAML <https://yaml.org/>`__
+and include the :samp:`name`, :samp:`base`, :samp:`version`, :samp:`summary`,
+:samp:`license`, :samp:`platforms` and :samp:`parts` top-level fields;
+the :samp:`description` and :samp:`plugs` fields are optional.
+
+.. list-table::
+   :header-rows: 1
+   :width: 95
+   :widths: 1 1 7
+
+   * - Key
+     - Value
+     - Description
+
+   * - :samp:`name`
+     - string
+     - SDK's name, used to reference it in the workshop definition.
+
+
+   * - :samp:`base`
+     - string
+     - SDK's base image
+       that provides the underlying OS capabilities.
+
+       It can be :samp:`ubuntu@20.04` or :samp:`ubuntu@22.04`.
+
+
+   * - :samp:`version`
+     - string
+     - SDK's arbitrary version;
+       semantic versioning is recommended.
+
+       .. note::
+
+          Use quotation marks to prevent a potential data type mismatch:
+          without them, :samp:`'1.0'` can be interpreted as a number,
+          for example.
+
+
+   * - :samp:`summary`
+     - string
+     - A brief one-line summary, up to 79 characters long.
+
+
+   * - :samp:`description`
+     - string
+     - A longer, detailed description of the SDK, up to a hundred words.
+
+
+   * - :samp:`license`
+     - string
+     - Name of the software license under which the SDK is distributed.
+
+       .. note::
+
+          Make sure it complies with the individual components of the SDK.
+
+
+   * - :samp:`platforms`
+     - object
+     - Lists individual architectures that the SDK supports.
+
+
+   * - :samp:`parts`
+     - object
+     - See :ref:`ref_sdk_parts` for a detailed discussion.
+
+
+   * - :samp:`plugs`
+     - object
+     - See :ref:`ref_sdk_interfaces` for a detailed discussion.
+
+
+For example:
+
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+
+    name: go
+    title: Go SDK
+    base: ubuntu@22.04
+    summary: The Go programming language
+    description: |
+      Go is an open source programming language that enables the production
+      of simple, efficient and reliable software at scale.
+    version: '0.1'
+    license: LGPL-2.1
+    platforms:
+        amd64:
+
+    parts:
+      go-part:
+        plugin: nil
+
+    plugs:
+      mod-cache:
+        interface: content
+        target: /home/workshop/go/pkg/mod
+
+
+JSON Schema
+~~~~~~~~~~~
+
+The following
+`JSON Schema <https://json-schema.org/>`__
+formalises the description above:
+
+.. literalinclude:: schema.json
+   :language: json
+
+
+.. _ref_sdk_parts:
+
+Parts
+-----
+
+Parts are imagined as the building blocks of |project_markup|.
+Each part in a :file:`sdkcraft.yaml` :ref:`file <ref_sdk_definition>`
+will define a specific component or piece of the SDK being packaged,
+providing a way to modularise the package and manage its dependencies.
+
+
+.. note::
+
+   |project_markup| is built as a
+   `craft-application <https://github.com/canonical/craft-application>`_,
+   which affects the :samp:`parts` implementation.
+   However, the :samp:`stage-packages` and :samp:`stage-snaps` parts
+   aren't enabled yet;
+   instead, rely on the :ref:`hooks <ref_sdk_hooks>`
+   to implement custom package and snap installation logic.
+
+
+.. _ref_sdk_interfaces:
+
+Interfaces
+----------
+
+Currently, the only interface supported by |project_markup| is :samp:`content`.
+It maps a directory in the workshop to a predefined directory on the host;
+`Workshop`_ is responsible for mapping the internal directory
+to a default directory on the host,
+and the SDK is responsible for handling the directory's contents.
+
+An example that lists the name of the plug, the interface
+and the intended target path in the workshop:
+
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+
+    # ...
+    plugs:
+      mod-cache:
+        interface: content
+        target: /home/workshop/go/pkg/mod
+
+
+This maps the :file:`/home/workshop/go/pkg/mod/` directory inside the workshop
+to a directory created by :program:`Workshop` on the host;
+each workshop that uses this SDK will share the same :samp:`mod-cache` plug.
+
+
+.. _ref_sdk_hooks:
+
+Life cycle hooks
+----------------
+
+|project_markup| supports the following SDK life cycle hooks:
+
+.. list-table::
+   :header-rows: 1
+   :width: 95
+   :widths: 2 5 4
+
+   * - Name
+     - When it runs
+     - What it does
+
+   * - :samp:`check-health`
+     - At :command:`workshop launch`:
+       after running :samp:`setup-base` hooks for *all* SDKs.
+     
+       At :command:`workshop refresh`:
+       after running :samp:`restore-state` hooks for *all* SDKs.
+
+     - Reports the state of the SDK
+       (*OK*, *waiting* or *error*)
+       for :program:`Workshop`
+       to determine the overall state of the workshop,
+       using the :program:`workshopctl` internal CLI tool.
+
+
+   * - :samp:`restore-state`
+
+     - At :command:`workshop refresh`:
+       after launching the new workshop
+       and running the :samp:`setup-base` hook for the SDK.
+
+     - Restores SDK-specific data from the :ref:`state directory <ref_sdk_state>`.
+       The hook itself comes from the *new* SDK version.
+
+
+   * - :samp:`save-state`
+
+     - At :command:`workshop refresh`:
+       before destroying the old workshop.
+
+     - Saves SDK-specific data to the :ref:`state directory <ref_sdk_state>`.
+       The hook itself comes from the *old* SDK version.
+
+
+   * - :samp:`setup-base`
+
+     - At :command:`workshop launch`, :command:`workshop refresh`:
+       after unpacking the base image
+       and starting the workshop,
+       but before setting its status to *Ready*.
+
+     - Configures the base image for the SDK to become operational.
+
+
+The hooks are defined in the :ref:`source directory <ref_sdk_directory>`
+under :samp:`hooks/` in respectively named text files.
+At run-time, they are executed as shell scripts
+under :samp:`root` inside the workshop;
+each hook should thus start with a shebang directive,
+for example:
+
+.. code-block:: shell
+
+   #!/usr/bin/bash
+
+
+.. note::
+
+   The hooks aren't mentioned in the :ref:`definition <ref_sdk_definition>`;
+   |project_markup| automatically enumerates them while packing the SDK.
+
+
+.. _ref_sdk_state:
+
+State
+-----
+
+An SDK may store any data specific to it within the workshop.
+For this purpose, an environment variable named :envvar:`$SDK_STATE_DIR`
+is exposed at run-time;
+it resolves to an internal directory in the workshop,
+which :samp:`save-state` and :samp:`restore-state`
+may use to preserve and recover the data, respectively.
+
+
+.. _ref_sdk_channels:
+
+Channels
+--------
+
+When SDKs are published by their creators and consumed by workshops,
+different versions and releases are tracked via channels.
+A channel is a combination of a track and a risk, e.g. :samp:`latest/beta`.
+
+Tracks allow to maintain multiple published versions of an SDK simultaneously;
+while no specific schema is enforced,
+it is desirable to use a semantic version, e.g. :samp:`1.2.3`,
+or the :samp:`latest` keyword that maps to the latest published version
+and serves as the default.
+
+Risks represent a choice of maturity levels for a specific track:
+
+- :samp:`stable`: indicates that the software can be used in production
+
+- :samp:`candidate`: for software being tested prior to stable deployment
+
+- :samp:`beta`: for software that may be used outside of production
+
+- :samp:`edge`: for unstable software still in active development;
+  nothing is guaranteed
