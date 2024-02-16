@@ -2,6 +2,10 @@ SDKcraft
 ========
 
 A tool to create SDKs for `Workshop <https://github.com/canonical/workshop>`_.
+Follow the sections below or refer to the `Tutorial
+<https://canonical-sdkcraft.readthedocs-hosted.com/en/latest/tutorial/>`_
+in our docs
+for a more detailed introduction to SDKcraft.
 
 
 Installing
