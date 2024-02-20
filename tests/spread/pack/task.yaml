@@ -2,7 +2,7 @@ summary: sdkcraft pack test
 
 execute: |
 
-  hooks=("setup-base" "save-state" "restore-state" "unknown-hook")
+  hooks=("setup-base" "save-state" "restore-state" "check-health" "unknown-hook")
   function validate_expected_hooks() {
     # test that the resulting archive contains only supported hooks
     expected_hooks=("${hooks[@]/unknown-hook}")

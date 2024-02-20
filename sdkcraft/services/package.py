@@ -49,7 +49,7 @@ class Package(services.PackageService):
         dirs = craft_parts.ProjectDirs(work_dir=Path("/root"))
         hooks_dir = dirs.project_dir / "hooks"
         # the list of supported hooks
-        hooks = ["setup-base", "save-state", "restore-state"]
+        hooks = ["setup-base", "save-state", "restore-state", "check-health"]
 
         for name in hooks:
             hook = hooks_dir / name
