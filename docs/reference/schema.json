@@ -66,6 +66,7 @@
         "name",
         "base",
         "summary",
+        "description",
         "version",
         "license",
         "platforms",

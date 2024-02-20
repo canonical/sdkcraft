@@ -87,7 +87,7 @@ from the |project_markup| source code on
    $ git clone git@github.com:canonical/sdkcraft.git  # or git clone https://github.com/canonical/sdkcraft.git
    $ cd sdkcraft
    $ sudo snap install snapcraft --classic
-   $ snapcraft
+   $ snapcraft clean && snapcraft
 
 
 Install the resulting :file:`.snap` file,
@@ -266,6 +266,12 @@ preparing the SDK for use or preserving its state during updates.
 
       The SDK is also refreshed as a part of the workshop,
       so any breaking changes in its save-restore logic will cause an error.
+
+#. Make all hooks executable so `Workshop`_ can run them:
+
+   .. code-block:: console
+
+      $ chmod +x hooks/*
 
 
 Package

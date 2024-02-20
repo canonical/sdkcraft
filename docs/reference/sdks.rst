@@ -24,9 +24,11 @@ in the source directory.
 
 The definition in the file must be written in
 `YAML <https://yaml.org/>`__
-and include the :samp:`name`, :samp:`base`, :samp:`version`, :samp:`summary`,
-:samp:`license`, :samp:`platforms` and :samp:`parts` top-level fields;
-the :samp:`description` and :samp:`plugs` fields are optional.
+and include the
+:samp:`name`, :samp:`base`, :samp:`version`, :samp:`summary`,
+:samp:`description`, :samp:`license`, :samp:`platforms` and :samp:`parts`
+top-level fields;
+the :samp:`plugs` field is optional.
 
 .. list-table::
    :header-rows: 1
