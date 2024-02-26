@@ -51,10 +51,6 @@ parts:
       - python3-pip-whl
     build-environment:
       - PARTS_PYTHON_VENV_ARGS: --system-site-packages
-    override-build: |
-      craftctl default
-      # Compile all Python files in the source directory to bytecode.
-      python3 -m compileall --invalidation-mode checked-hash -j 0 -q $CRAFT_PART_INSTALL
     prime:
       - -usr/share/man
       - -usr/share/lintian
