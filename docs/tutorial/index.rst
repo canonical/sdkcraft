@@ -7,14 +7,14 @@ This is a practical introduction
 that takes you on a tour
 of the essential |project_markup| activities.
 
-Here, you will initialise, define, pack and publish an SDK:
-a set of parts, interfaces and hooks that is bundled into a single package,
-suitable for using with `Workshop`_.
+Here, you will initialise, define, pack and publish an :ref:`SDK <exp_sdks>`:
+a set of hooks, interfaces and parts that is bundled into a single package,
+suitable for use with `Workshop`_.
 The commands you're about to run
 comprise the majority of your daily needs with |project_markup|.
 
 For more comprehensive details, explore the
-:ref:`reference <ref_index>`.
+:ref:`reference <ref_index>` and :ref:`explanation<exp_index>` sections.
 
 
 .. attention::
@@ -110,7 +110,7 @@ Prepare an SDK
 --------------
 
 Having installed |project_markup|,
-use it to initialise, define and pack your first SDK.
+use it to initialise, define and pack your first :ref:`SDK <exp_sdks>`.
 Here, we'll build an SDK that installs a recent Python version in the workshop.
 
 
@@ -128,7 +128,7 @@ Define
       $ cd python-sdk
 
 
-   It will contain your :ref:`SDK definition <ref_sdk_definition>`
+   It will contain your :ref:`SDK definition <exp_sdk_definition>`
    and other source files.
 
 
@@ -176,7 +176,7 @@ Define
 
 
    The new section at the end defines a
-   :ref:`content interface plug <ref_sdk_interfaces>`;
+   :ref:`content interface plug <exp_content_plug>`;
    think of it as a way to share the contents of :envvar:`$PYTHONHOME`
    between all workshops that include this SDK.
 
@@ -185,7 +185,7 @@ Add hooks
 ~~~~~~~~~
 
 To prepare an SDK for action,
-add some :ref:`hooks <ref_sdk_hooks>`
+add some :ref:`hooks <exp_sdk_hooks>`
 that run at different phases of the workshop's life cycle,
 preparing the SDK for use or preserving its state during updates.
 
@@ -267,7 +267,7 @@ preparing the SDK for use or preserving its state during updates.
       The SDK is also refreshed as a part of the workshop,
       so any breaking changes in its save-restore logic will cause an error.
 
-#. Make all hooks executable so `Workshop`_ can run them:
+#. Make all hooks executable so :program:`Workshop` can run them:
 
    .. code-block:: console
 
@@ -295,7 +295,7 @@ Publish the SDK
 
 When an SDK is ready and packed,
 you need to publish it in the SDK Store
-for use with `Workshop`_:
+for use with :program:`Workshop`:
 
 .. code-block:: console
 

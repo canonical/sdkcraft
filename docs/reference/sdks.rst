@@ -15,8 +15,8 @@ All files that go into an SDK should be stored in a *source directory* where
 
 .. _ref_sdk_definition:
 
-Definition
-----------
+SDK definition
+--------------
 
 The name of the workshop definition file must be :file:`sdkcraft.yaml`;
 the file is usually created using the :command:`sdkcraft init` command
@@ -138,11 +138,11 @@ formalises the description above:
 
 .. _ref_sdk_parts:
 
-Parts
------
+SDK parts
+---------
 
 Parts are imagined as the building blocks of |project_markup|.
-Each part in a :file:`sdkcraft.yaml` :ref:`file <ref_sdk_definition>`
+Each part in an :file:`sdkcraft.yaml` :ref:`file <ref_sdk_definition>`
 will define a specific component or piece of the SDK being packaged,
 providing a way to modularise the package and manage its dependencies.
 
@@ -160,8 +160,8 @@ providing a way to modularise the package and manage its dependencies.
 
 .. _ref_sdk_interfaces:
 
-Interfaces
-----------
+SDK interfaces
+--------------
 
 Currently, the only interface supported by |project_markup| is :samp:`content`.
 It maps a directory in the workshop to a predefined directory on the host;
@@ -189,10 +189,10 @@ each workshop that uses this SDK will share the same :samp:`mod-cache` plug.
 
 .. _ref_sdk_hooks:
 
-Life cycle hooks
-----------------
+SDK hooks
+---------
 
-|project_markup| supports the following SDK life cycle hooks:
+|project_markup| supports the following life cycle hooks:
 
 .. list-table::
    :header-rows: 1
