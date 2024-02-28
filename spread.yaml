@@ -32,7 +32,7 @@ backends:
         sudo sh -c "echo root:ubuntu | sudo chpasswd"
       multipass exec "$instance_name" -- \
         sudo sh -c \
-        "sed -i /etc/ssh/sshd_config -e 's/^#PasswordAuthentication.*/PasswordAuthentication yes/' -e 's/^#PermitRootLogin.*/PermitRootLogin yes/' -e 's/^KbdInteractiveAuthentication.*/KbdInteractiveAuthentication yes/'"
+        "sed -i /etc/ssh/sshd_config -e 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/' -e 's/^#PermitRootLogin.*/PermitRootLogin yes/' -e 's/^KbdInteractiveAuthentication.*/KbdInteractiveAuthentication yes/'"
 
       # this config file may or may not present in the image
       multipass exec "$instance_name" -- \
