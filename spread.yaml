@@ -48,8 +48,12 @@ backends:
     systems:
       - ubuntu-20.04-64:
           workers: 1
+          username: root
+          password: ubuntu
       - ubuntu-22.04-64:
           workers: 1
+          username: root
+          password: ubuntu
 prepare: |
   set -e
 
