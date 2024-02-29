@@ -39,6 +39,11 @@ In this documentation
       **Starter instructions** for new users of |project_markup|
 
 
+   .. grid-item:: :doc:`Explanation <explanation/index>`
+
+      **Discussion and clarification** of key topics
+
+
    .. grid-item:: :doc:`Reference <reference/index>`
 
       **Technical details**, specifications, APIs
@@ -84,4 +89,5 @@ and we'll see what we can do.
 
    Home <self>
    tutorial/index
+   explanation/index
    reference/index
