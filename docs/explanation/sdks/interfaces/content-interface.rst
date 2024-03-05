@@ -45,10 +45,12 @@ that does the following:
 - Sets its :samp:`interface` type to :samp:`content`,
   which makes it a content interface plug
 
-- Points the :samp:`target` directory *inside the workshop*
-  to :file:`/home/workshop/go/pkg/mod/`;
-  it will be mounted to a file directory on the host system
-  that `Workshop`_ designates at run-time
+- Points the :samp:`target` directory
+  to :file:`/home/workshop/go/pkg/mod/`
+  *inside the workshop*;
+  a directory on the host system
+  that |project_markup| designates at run-time
+  will be mounted to it
 
 
 Overall, the intent of this declaration is
