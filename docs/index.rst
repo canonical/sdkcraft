@@ -7,7 +7,7 @@
 
 **A tool that packages and publishes SDKs
 to be used with Workshop,
-a related end-user product**.
+a related user-facing product**.
 
 **Define your SDK in simple YAML**.
 Next, |project_markup| instantiates the definition
