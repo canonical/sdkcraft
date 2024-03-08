@@ -163,7 +163,7 @@ Define
         This is my Python SDK's description.
       license: GPL-3.0
       platforms:
-         amd64:
+        amd64:
 
       parts:
         my-part:
@@ -271,6 +271,7 @@ preparing the SDK for use or preserving its state during updates.
 
    .. code-block:: console
 
+      $ cd ..  # back to python-sdk/
       $ chmod +x hooks/*
 
 

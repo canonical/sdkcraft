@@ -1,0 +1,12 @@
+summary: sdkcraft tutorial test
+
+execute: |
+  run_sdkcraft --help
+  mkdir python-sdk/
+  cd python-sdk/
+  run_sdkcraft init
+  mv ../sdkcraft.yaml .
+  mkdir hooks
+  mv ../{setup-base,save-state,restore-state} hooks/
+  chmod +x hooks/*
+  run_sdkcraft pack
