@@ -69,22 +69,19 @@ Build and install the ``sdkcraft`` snap, for example:
 Packing an SDK
 --------------
 
-Browse to the directory with the prepared SDK files
-and initialise an SDK:
+#. Browse to the directory with the prepared SDK files
+   and initialise an SDK:
 
-.. code-block:: console
+   .. code-block:: console
 
-   cd readme-sdk
-   sdkcraft init
+      cd readme-sdk
+      sdkcraft init
 
 
-#. Update the metadata in :file:`sdkcraft.yaml`;
-   at the very least,
-   customise its :samp:`name`, :samp:`summary` and :samp:`description`:
+#. Update the metadata in ``sdkcraft.yaml``,
+   at least its ``name``, ``summary`` and ``description``:
 
    .. code-block:: yaml
-      :caption: sdkcraft.yaml
-      :emphasize-lines: 1,4-6,15-18
 
       name: readme-sdk
       base: ubuntu@22.04
@@ -101,11 +98,11 @@ and initialise an SDK:
           plugin: nil
 
 
-Finally, pack the SDK:
+#. Finally, pack the SDK:
 
-.. code-block:: console
+   .. code-block:: console
 
-   sdkcraft pack
+      sdkcraft pack
 
 
 Publishing the SDK
