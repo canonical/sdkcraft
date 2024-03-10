@@ -10,6 +10,7 @@ SDKs
    Hooks <hooks>
    Interfaces <interfaces/index>
    Parts <parts>
+   Reporting status <workshopctl>
 
 
 SDKs are essential workshop components that:
@@ -88,6 +89,7 @@ Explanation:
 - :ref:`exp_sdk_hooks`
 - :ref:`exp_sdk_interfaces`
 - :ref:`exp_sdk_parts`
+- :ref:`exp_workshopctl`
 
 
 Reference:

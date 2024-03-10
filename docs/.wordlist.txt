@@ -49,8 +49,10 @@ sdk
 SDK's
 sdkcraft
 snapcraft
+snapctl
 snapd
 subcommand
+subcommands
 subdirectory
 transactional
 uid

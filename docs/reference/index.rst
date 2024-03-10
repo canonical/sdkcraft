@@ -15,3 +15,4 @@ SDKs
    :maxdepth: 1
 
    sdks
+   workshopctl
