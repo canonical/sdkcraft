@@ -10,7 +10,7 @@ SDKs
    Hooks <hooks>
    Interfaces <interfaces/index>
    Parts <parts>
-   Reporting status <workshopctl>
+   Reporting health <workshopctl>
 
 
 SDKs are essential workshop components that:

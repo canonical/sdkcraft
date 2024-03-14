@@ -3,49 +3,14 @@
 workshopctl (CLI)
 =================
 
-The :program:`workshopctl` tool has subcommands
-for reporting SDK health, listing workshops and getting their details;
+SDKs use the :program:`workshopctl` tool when reporting to the workshop;
 to invoke a subcommand, add it to your :ref:`SDK hooks <ref_sdk_hooks>`.
-
-:samp:`workshopctl info`
-------------------------
-
-This subcommand gets detailed information about a specific workshop:
-
-.. code-block:: console
-
-   $ workshopctl info albert
-
-     name:     albert
-     base:     ubuntu@22.04
-     project:  /home/user/work/workshop
-     status:   pending
-     notes:    checking-cuda
-     content:
-         tensorflow:
-             channel:  latest/beta  2024-12-03  56
-             message:  Checking if Tensorflow SDK has CUDA enabled
-
-
-:samp:`workshopctl list`
-------------------------
-
-This subcommand lists workshops that use the SDK,
-along with their status and additional details if a workshop is not *Ready*:
-
-.. code-block:: console
-
-   $ workshopctl list
-
-     Project          Workshop  Status   Notes
-     ~/work/workshop  albert    Error    missing-cuda
-     ~/work/workshop  another   Pending  checking-cuda
 
 
 :samp:`workshopctl set-health`
 ------------------------------
 
-This subcommand reports the health status of the SDK.
+This subcommand reports the health of the SDK.
 It is essential for the :samp:`check-health` hook
 that runs after launch or refresh operations in a workshop:
 

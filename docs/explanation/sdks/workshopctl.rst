@@ -1,11 +1,11 @@
 .. _exp_workshopctl:
 
-Reporting SDK status with workshopctl
+Reporting SDK health with workshopctl
 =====================================
 
 The :program:`workshopctl` tool allows an SDK
 to talk to the :program:`workshopd` daemon,
-giving SDK authors a way to manage health checks and report status.
+giving SDK authors a way to manage health checks and report their condition.
 Using a model similar to `snapctl <https://snapcraft.io/docs/using-snapctl>`_,
 it simplifies internal workshop communication,
 helping both SDK authors and users.
@@ -47,24 +47,24 @@ within the workshop environment;
 the daemon does the rest to determine the overall health status of a workshop.
 
 
-Determining workshop health
+Determining workshop status
 ---------------------------
 
 The :samp:`check-health` hook is central in this
-because it communicates the SDK health status to the :program:`workshopd` daemon
+because it communicates the SDK health to the :program:`workshopd` daemon
 during workshop launch or refresh operations.
 The status of a workshop, such as *Ready*, *Pending* or *Error*,
 depends on the hook's run-time results:
 
-- *Ready* means success, achieved if the hook sets the status to :samp:`okay`
+- *Ready* means success, achieved the hook sets SDK health to :samp:`okay`
   or exits gracefully with a zero code.
 
-- *Pending*: used when the hook sets the status to :samp:`waiting`,
+- *Pending*: used when the hook sets SDK health to :samp:`waiting`,
   which changes to :samp:`error` after 10 unsuccessful retries, one per second,
   or 5 initial seconds elapsing without :samp:`set-health` being invoked.
 
 - *Error* occurs when the hook exits with an error code
-  or explicitly sets :samp:`error` as the health status.
+  or explicitly sets SDK health to :samp:`error`.
 
 
 See also
