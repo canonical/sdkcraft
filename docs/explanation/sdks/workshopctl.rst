@@ -56,7 +56,7 @@ during workshop launch or refresh operations.
 The status of a workshop, such as *Ready*, *Pending* or *Error*,
 depends on the hook's run-time results:
 
-- *Ready* means success, achieved the hook sets SDK health to :samp:`okay`
+- *Ready* means success, achieved if the hook sets SDK health to :samp:`okay`
   or exits gracefully with a zero code.
 
 - *Pending*: used when the hook sets SDK health to :samp:`waiting`,
