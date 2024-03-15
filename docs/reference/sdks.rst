@@ -213,7 +213,7 @@ SDK hooks
      - Reports the state of the SDK
        (*OK*, *waiting* or *error*)
        for :program:`Workshop`
-       to determine the overall state of the workshop,
+       to determine the overall status of the workshop,
        using the :program:`workshopctl` internal CLI tool.
 
 

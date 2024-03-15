@@ -70,7 +70,7 @@ a.headerlink {
     font-weight:300;
 }
 
-.sphinx-tabs-tab{
+.sphinx-tabs-tab {
     color: var(--color-brand-primary);
     font-weight:300;
 }
@@ -83,6 +83,14 @@ a.headerlink {
 
 button.sphinx-tabs-tab:hover {
     background-color: var(--color-sidebar-item-background--hover);
+}
+
+.highlight .hll {
+    background-color: var(--color-highlighted-background);
+}
+
+.admonition.attention > .admonition-title {
+    background-color: var(--color-admonition-title-background--attention);
 }
 
 /** Custom classes to fix scrolling in tables by decreasing the
