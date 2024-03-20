@@ -89,9 +89,6 @@ button.sphinx-tabs-tab:hover {
     background-color: var(--color-highlighted-background);
 }
 
-.admonition.attention > .admonition-title {
-    background-color: var(--color-admonition-title-background--attention);
-}
 
 /** Custom classes to fix scrolling in tables by decreasing the
     font size or breaking certain columns.
