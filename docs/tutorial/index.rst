@@ -17,7 +17,7 @@ For more comprehensive details, explore the
 :ref:`reference <ref_index>` and :ref:`explanation<exp_index>` sections.
 
 
-.. attention::
+.. important::
 
    One technical detail before you start:
    currently, |project_markup| supports only :samp:`amd64`.
