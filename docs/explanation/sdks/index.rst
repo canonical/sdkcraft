@@ -81,6 +81,31 @@ along with hooks, interfaces (also shown here) and parts
 that implement the SDK's functionality.
 
 
+.. _exp_agent_sdk:
+
+Agent SDK
+---------
+
+Every workshop contains an *agent SDK*
+that exposes system resources through interface slots.
+Essentially, it is a special SDK type,
+which is not available in the SDK Store but is auto-added to each workshop.
+It is installed first at :command:`workshop launch`
+and removed last at :command:`workshop remove`,
+ensuring internal consistency.
+
+The goal of the agent SDK isn't to offer hooks or provide additional content;
+it exists solely to expose system resources to other SDKs in a uniform fashion.
+As such, it cannot be removed by the user
+and isn't listed in the :command:`workshop info` output.
+
+The uniformity of this approach is the fact that system resources
+and workshop resources are exposed via the same logic.
+Technically, the agent SDK belongs to the eponymous type,
+whereas all other SDKs have a :samp:`regular` type,
+but these details aren't exposed in :file:`sdkcraft.yaml`.
+
+
 See also
 --------
 

@@ -7,7 +7,6 @@ Explanation
 
 .. toctree::
    :hidden:
-   :maxdepth: 1
 
    sdks/index
 
