@@ -90,6 +90,15 @@ class Project(models.Project):
 
     plugs: dict[str, ContentPlug | Any] | None
 
+    @pydantic.validator("name")
+    @classmethod
+    def _validate_project_name(cls, name: ProjectName) -> ProjectName:
+        if name == "agent":
+            raise SdkcraftError(
+                message=f"'{name}' is a reserved SDK name, please choose another name."
+            )
+        return name
+
     @pydantic.validator("platforms", pre=True)
     def pre_parse_platforms(
         cls, platforms: dict[str, Any]
