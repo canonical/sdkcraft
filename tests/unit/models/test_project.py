@@ -187,3 +187,24 @@ def test_project_plugs():
     incorrect_type = {"content": ["interface", "content"]}
     with pytest.raises(SdkcraftError, match="cannot be a list"):
         project.Project._validate_plugs(incorrect_type)
+
+
+def test_project_reserved_name_forbidden():
+    with pytest.raises(
+        SdkcraftError,
+        match="'agent' is a reserved SDK name, please choose another name.",
+    ):
+        project.Project.parse_obj(
+            {
+                "name": "agent",
+                "version": "git",
+                "summary": "A sample project",
+                "base": "ubuntu@22.04",
+                "platforms": {
+                    "amd64": None,
+                    "riscv64": {"build-on": ["amd64", "arm64"]},
+                },
+                "license": "gplv3",
+                "parts": {},
+            }
+        )
