@@ -39,6 +39,11 @@ In this documentation
       **Starter instructions** for new users of |project_markup|
 
 
+   .. grid-item:: :doc:`How-to guides <how-to/index>`
+
+      **Step-by-step guides** covering common tasks
+
+
    .. grid-item:: :doc:`Explanation <explanation/index>`
 
       **Discussion and clarification** of key topics
@@ -85,9 +90,9 @@ and we'll see what we can do.
 
 .. toctree::
    :hidden:
-   :maxdepth: 2
 
    Home <self>
    tutorial/index
+   how-to/index
    explanation/index
    reference/index
