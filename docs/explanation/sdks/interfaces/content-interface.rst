@@ -97,5 +97,5 @@ See also
 
 Explanation:
 
-- :ref:`exp_sdk_definition`
+- :ref:`exp_content_sharing`
 - :ref:`exp_sdk_interfaces`
