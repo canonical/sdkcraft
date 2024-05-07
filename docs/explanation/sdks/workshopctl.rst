@@ -1,6 +1,6 @@
 .. _exp_workshopctl:
 
-Reporting SDK health with workshopctl
+SDK health reporting with workshopctl
 =====================================
 
 The :program:`workshopctl` tool allows an SDK
