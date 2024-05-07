@@ -20,7 +20,7 @@ and the handling of these mounts both inside and outside
 can quickly become an overhead.
 
 |project_markup| addresses this issue by providing a way
-to reuse and share content between individual workshops via SDKs
+to reuse and share content between the host and the workshop via SDKs
 while keeping manual interventions to a necessary minimum.
 Normally, all workshops are isolated from each other and the host system;
 any data sharing needs to occur via the content interface.
@@ -68,9 +68,9 @@ per each directory you want to preserve during the workshop's lifetime.
        interface: content
        target: /opt/cache
 
-     share-build:
+     training-data:
        interface: content
-       target: /opt/build
+       target: /opt/training
 
 
 Here, the SDK defines two content plugs;
@@ -78,9 +78,7 @@ for each one,
 :program:`Workshop` creates a source directory on the host at run-time.
 Both :samp:`target` directories inside the workshop
 can be put to use by the SDK-specific logic
-implemented via SDK hooks and other features,
-or the workshop user can manipulate them directly
-with :command:`workshop shell` and similar commands.
+implemented via SDK hooks and other features.
 
 Here's a corresponding workshop definition:
 
@@ -94,17 +92,23 @@ Here's a corresponding workshop definition:
        channel: latest/stable
 
 
-However, mind that changes to the content directory
-do not propagate between workshops;
-nor can you pre-define the default host location
-that :program:`Workshop` mounts to the target.
+The default host location
+that :program:`Workshop` mounts to the target
+is pre-defined as follows:
+:samp:`$XDG_DATA_HOME/workshop/project/<PROJECT ID>/content/<WORKSHOP>_<SDK>_<PLUG>.sdk/`.
+In the above instance,
+this would be
+:file:`~/.local/share/workshop/project/<PROJECT ID>/content/data_data-science_share-cache.sdk/`.
+In particular,
+this implies that an SDK's plug in each workshop
+will have its own unique source directory.
 
 
 Sharing custom host content with a workshop
 -------------------------------------------
 
 One issue that the previous scenario doesn't address
-is customising the source directory of a workshop.
+is customising the source directory of a plug.
 The :command:`docker run` sample at the start exemplifies this approach;
 it explicitly lists the host directories to mount to respective targets.
 
@@ -123,73 +127,7 @@ under the :samp:`data-science` SDK in the :samp:`data` workshop defined above.
 If that's not the usage you intended for this specific plug,
 but you still need to share arbitrary data with the workshop,
 you can add a designated content interface plug for data sharing
-or even define a *separate* SDK for this purpose;
-the users will then be able to mix and match it with other SDKs
-to avoid interfering with the SDK-specific content in their workshops.
-
-Thus, instead of messing with the plugs in your :samp:`data-science` SDK,
-define a separate SDK that only enables a plug for sharing data:
-
-.. code-block:: yaml
-   :caption: sdkcraft.yaml
-
-   name: data-sharing
-   title: Content sharing SDK
-   base: ubuntu@22.04
-   summary: This SDK shares host files with the workshop.
-   description: |
-     This SDK demonstrates host content sharing with a workshop
-     by enabling a content interface plug that can mount custom data.
-
-   plugs:
-     data-stash:
-       interface: content
-       target: /data-stash
-
-
-It doesn't need to do anything else;
-to share custom content with a workshop,
-the user only needs to add this SDK to the workshop definition
-beside other SDKs that do the actual work and refresh the workshop:
-
-.. code-block:: yaml
-   :caption: .workshop.data.yaml
-
-   name: data
-   base: ubuntu@22.04
-   sdks:
-     data-science:
-       channel: latest/stable
-
-     data-sharing:
-       channel: latest/stable
-
-
-.. code-block:: console
-
-   $ workshop refresh data
-
-
-Sharing content between workshops
----------------------------------
-
-The last issue left to address is the way to share data *between* workshops,
-as opposed to persisting anything *inside* them.
-Again, this can be achieved with :command:`workshop remount`.
-Suppose you have two workshops, :samp:`data1` and :samp:`data2`,
-each using the :samp:`data-science` SDK. This does the trick:
-
-.. code-block:: console
-
-   $ workshop remount data1/data-science:share-cache ~/.local/cache/
-   $ workshop remount data2/data-science:share-cache ~/.local/cache/
-
-
-The commands mount a single location on the host, :file:`~/.local/cache/`,
-to the target directory of the :samp:`share-cache` plug under *each* workshop.
-The data stored there is now accessible to them both;
-they can read and write to it as they please,
-and the rest is up to you and your SDK logic.
+to avoid interfering with the SDK-specific content in your workshop.
 
 
 See also
