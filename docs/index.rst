@@ -85,7 +85,6 @@ and we'll see what we can do.
 
 .. toctree::
    :hidden:
-   :maxdepth: 2
 
    Home <self>
    tutorial/index

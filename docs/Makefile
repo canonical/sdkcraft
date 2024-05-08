@@ -107,7 +107,7 @@ clean-doc:
 
 .PHONY: spelling
 spelling: html
-	. $(VENV) ; python3 -m pyspelling -c .sphinx/spellingcheck.yaml
+	. $(VENV) ; python3 -m pyspelling -c .sphinx/spellingcheck.yaml -j $(shell nproc)
 
 
 .PHONY: linkcheck

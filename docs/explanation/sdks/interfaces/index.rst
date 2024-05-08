@@ -4,10 +4,12 @@ SDK interfaces
 ==============
 
 .. toctree::
+   :glob:
    :hidden:
-   :maxdepth: 1
 
-   Content <content-interface>
+   Content interface <content-interface>
+   Data sharing <content-sharing>
+
 
 To make SDKs customisable and extensible,
 `Workshop`_ implements a counterpart to
@@ -65,6 +67,7 @@ See also
 Explanation:
 
 - :ref:`exp_sdks`
+
 
 Reference:
 

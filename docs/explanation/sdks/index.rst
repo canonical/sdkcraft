@@ -7,10 +7,10 @@ SDKs
    :hidden:
    :maxdepth: 1
 
+   Health <workshopctl>
    Hooks <hooks>
    Interfaces <interfaces/index>
    Parts <parts>
-   Reporting health <workshopctl>
 
 
 SDKs are essential workshop components that:
