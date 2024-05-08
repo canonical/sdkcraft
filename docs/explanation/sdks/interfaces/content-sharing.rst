@@ -124,11 +124,6 @@ This mounts a specific source location on the host, :file:`~/.local/cache/`,
 to the target directory of the :samp:`share-cache` content interface plug
 under the :samp:`data-science` SDK in the :samp:`data` workshop defined above.
 
-If that's not the usage you intended for this specific plug,
-but you still need to share arbitrary data with the workshop,
-you can add a designated content interface plug for data sharing
-to avoid interfering with the SDK-specific content in your workshop.
-
 
 See also
 --------
