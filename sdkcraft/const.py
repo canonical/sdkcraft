@@ -16,12 +16,7 @@
 """Global constants to use in sdkcraft."""
 
 # Bases supported by this application.
-SUPPORTED_BASES = [
-    "ubuntu@22.04",
-]
+SUPPORTED_BASES = ["ubuntu@20.04", "ubuntu@22.04", "ubuntu@24.04"]
 
 # Bases that , as well as the version in which they were deprecated.
-DEPRECATED_BASES: dict[str, str] = {
-    # Map the base name to the version in which it was deprecated.
-    "ubuntu@20.04": "0.0",
-}
+DEPRECATED_BASES: dict[str, str] = {}

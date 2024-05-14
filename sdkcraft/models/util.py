@@ -35,7 +35,6 @@ class Base(enum.Enum):
     # Mark supported and deprecated bases in const.py.
     FOCAL = "ubuntu@20.04"
     JAMMY = "ubuntu@22.04"
-    MANTIC = "ubuntu@23.10"
     NOBLE = "ubuntu@24.04"
 
     def as_base_name(self) -> bases.BaseName:
