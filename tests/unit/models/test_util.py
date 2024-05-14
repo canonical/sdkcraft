@@ -48,6 +48,7 @@ def test_deprecated_bases(base_name, deprecated_version):
 @pytest.mark.parametrize(
     ("base", "base_name"),
     [
+        (util.Base.FOCAL, bases.BaseName("ubuntu", "20.04")),
         (util.Base.JAMMY, bases.BaseName("ubuntu", "22.04")),
         (util.Base.NOBLE, bases.BaseName("ubuntu", "24.04")),
     ],
