@@ -5,14 +5,14 @@
 SDK parts
 =========
 
-Parts are imagined as the building blocks of |project_markup|.
+Parts can be thought of as the building blocks of |project_markup|.
 Each part in the definition
 encapsulates a different aspect of the SDK
 and focuses on a specific feature or resource;
 these can be libraries, binaries, or configuration files.
 
 Parts provide a way to modularise the package and manage its dependencies,
-eventually making it easier to maintain and update
+ultimately making it easier to maintain and update
 by separating its deployment into sourcing, building and staging phases.
 
 

@@ -13,43 +13,44 @@ Consider this Docker command:
      ...
 
 
-An all-too-familiar sight, isn't it?
+All too familiar, isn't it?
 When running a sufficiently complex container,
 you need to mount a lot of directories to make it work,
-and the handling of these mounts both inside and outside
+and the handling of these mounts both inside and outside the container
 can quickly become an overhead.
 
 |project_markup| addresses this issue by providing a way
 to reuse and share content between the host and the workshop via SDKs
-while keeping manual interventions to a necessary minimum.
-Normally, all workshops are isolated from each other and the host system;
-any data sharing needs to occur via the content interface.
+while keeping manual intervention to a necessary minimum.
+Typically, workshops are isolated from each other and from the host system;
+all data exchange is via the content interface.
 
-To use it, your SDK defines a content interface plug.
+To use this interface, your SDK defines a content interface
+:ref:`plug <exp_content_plug>`.
 When a workshop uses the SDK,
 an auto-assigned, non-customisable source directory on the host
 is mounted to the plug-defined target directory inside the workshop.
-What's more, its content is preserved during refresh operations.
-Thus, |project_markup| enables SDK data persistence and reuse
+What's more, its contents are preserved during refresh operations.
+In this way, |project_markup| enables SDK data persistence and reuse
 *inside* individual workshops.
 
-It's important to note, though,
-that files created at the plug's target location by any means
-are only accessible to the workshop
-that this specific auto-assigned source directory is mounted to.
+Note, however,
+that files created in the plug's target location by any means
+will only be accessible to the workshop
+to which that specific auto-assigned source directory is mounted to.
 Other workshops, even if they use the same SDK,
-cannot access these files and do not share them;
-their source directories are different.
+cannot access these files and will not share them;
+their source directories will be different.
 
 
-Persisting and reusing data between workshops
----------------------------------------------
+Persistence and reuse between workshops
+---------------------------------------
 
-This is the most straightforward scenario;
+This is the simplest scenario;
 you use the :samp:`content` interface
 to define the target directory
 where the content will be mounted inside the workshop
-per each directory you want to preserve during the workshop's lifetime.
+per each directory you want to retain during the workshop's life cycle.
 
 .. code-block:: yaml
    :caption: sdkcraft.yaml
@@ -73,12 +74,12 @@ per each directory you want to preserve during the workshop's lifetime.
        target: /opt/training
 
 
-Here, the SDK defines two content plugs;
-for each one,
-:program:`Workshop` creates a source directory on the host at run-time.
+This SDK defines two content plugs;
+for each,
+`Workshop`_ creates a source directory on the host at run-time.
 Both :samp:`target` directories inside the workshop
-can be put to use by the SDK-specific logic
-implemented via SDK hooks and other features.
+can be used by the SDK-specific logic
+implemented via :ref:`SDK hooks <exp_sdk_hooks>` and other features.
 
 Here's a corresponding workshop definition:
 
@@ -96,23 +97,23 @@ The default host location
 that :program:`Workshop` mounts to the target
 is pre-defined as follows:
 :samp:`$XDG_DATA_HOME/workshop/project/<PROJECT ID>/content/<WORKSHOP>_<SDK>_<PLUG>.sdk/`.
-In the above instance,
+In the above example,
 this would be
 :file:`~/.local/share/workshop/project/<PROJECT ID>/content/data_data-science_share-cache.sdk/`.
 In particular,
-this implies that an SDK's plug in each workshop
+this means that the SDK's plug in each workshop
 will have its own unique source directory.
 
 
-Sharing custom host content with a workshop
--------------------------------------------
+Share custom host content with a workshop
+-----------------------------------------
 
 One issue that the previous scenario doesn't address
 is customising the source directory of a plug.
-The :command:`docker run` sample at the start exemplifies this approach;
-it explicitly lists the host directories to mount to respective targets.
+The :command:`docker run` example at the beginning illustrates this approach;
+it explicitly lists the host directories to be mounted to each target.
 
-This can be achieved in :program:`Workshop` as well,
+This can also be done with :program:`Workshop`,
 and the :command:`workshop remount` command is the key to it:
 
 .. code-block:: console

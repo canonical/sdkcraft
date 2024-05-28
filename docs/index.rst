@@ -58,16 +58,16 @@ Project and community
 within the Enterprise Engineering department here at Canonical;
 `Workshop <https://canonical-workshop.readthedocs-hosted.com/>`_
 is its older sibling,
-aimed at users who consume SDKs produced with |project_markup|.
+aimed at users who consume SDKs built with |project_markup|.
 The design of both tools follows the paradigm exemplified by
 `Snap <https://snapcraft.io/docs/>`_
 and implemented with
 `Craft CLI <https://craft-cli.readthedocs.io/>`_.
 
-Come and talk to us if you have a project
+Talk to us if you have a project
 you’d like to try with |project_markup| and :program:`Workshop`:
 we'll help you get it out there.
-Share with us the frustrating parts of your experience,
+Tell us about the frustrating parts of your experience,
 and we'll see what we can do.
 
 

@@ -11,11 +11,10 @@ Here, you will initialise, define, pack and publish an :ref:`SDK <exp_sdks>`:
 a set of hooks, interfaces and parts that is bundled into a single package,
 suitable for use with `Workshop`_.
 The commands you're about to run
-comprise the majority of your daily needs with |project_markup|.
+cover most of your daily needs with |project_markup|.
 
-For more comprehensive details, explore the
-:ref:`reference <ref_index>` and :ref:`explanation<exp_index>` sections.
-
+For more details, see the
+:ref:`reference <ref_index>` and :ref:`explanation <exp_index>` sections.
 
 .. important::
 
@@ -109,9 +108,9 @@ Make sure it runs:
 Prepare an SDK
 --------------
 
-Having installed |project_markup|,
+Once you have installed |project_markup|,
 use it to initialise, define and pack your first :ref:`SDK <exp_sdks>`.
-Here, we'll build an SDK that installs a recent Python version in the workshop.
+Here, we'll build an SDK that installs a version of Python in the workshop.
 
 
 .. _tut_init:
@@ -140,16 +139,16 @@ Define
 
    This command creates a template definition file
    named :file:`sdkcraft.yaml`;
-   despite being almost empty,
-   it can already be built and published.
+   although it's almost empty,
+   it's ready to be built and published.
 
-   However, let's make some extra steps
-   to see what goes into an SDK.
+   However, let's take a few extra steps
+   to explore what can go into an SDK.
 
 
 #. Update the metadata in :file:`sdkcraft.yaml`;
    at the very least,
-   customise its :samp:`name`, :samp:`summary` and :samp:`description`:
+   adjust its :samp:`name`, :samp:`summary` and :samp:`description`:
 
    .. code-block:: yaml
       :caption: sdkcraft.yaml
@@ -184,9 +183,9 @@ Define
 Add hooks
 ~~~~~~~~~
 
-To prepare an SDK for action,
+To prepare an SDK for use,
 add some :ref:`hooks <exp_sdk_hooks>`
-that run at different phases of the workshop's life cycle,
+that run at different stages of the workshop's life cycle,
 preparing the SDK for use or preserving its state during updates.
 
 #. Under :file:`python-sdk/`,
@@ -229,7 +228,7 @@ preparing the SDK for use or preserving its state during updates.
 
 
    It runs when the workshop is launched or refreshed,
-   installing prerequisites and preparing it for use.
+   installing the prerequisites and preparing it for use.
 
 
 #. Also under :file:`python-sdk/hooks/`,
@@ -253,13 +252,13 @@ preparing the SDK for use or preserving its state during updates.
    During a :command:`workshop refresh` operation:
 
    - The :file:`save-state` hook runs *before* the workshop is refreshed,
-     storing the state of the SDK.
+     saving the state of the SDK.
 
-   - The :file:`restore-state` hook recovers the saved state
-     *after* the workshop is successfully updated.
+   - The :file:`restore-state` hook recovers the state
+     *after* the workshop has been successfully updated.
 
    - Both hooks use the :envvar:`$SDK_STATE_DIR` directory,
-     exposed by the workshop to preserve the SDK's state.
+     provided by the workshop to store the SDK state.
 
 
    .. important::
@@ -267,7 +266,7 @@ preparing the SDK for use or preserving its state during updates.
       The SDK is also refreshed as a part of the workshop,
       so any breaking changes in its save-restore logic will cause an error.
 
-#. Make all hooks executable so :program:`Workshop` can run them:
+#. Make all hooks executable so that :program:`Workshop` can run them:
 
    .. code-block:: console
 
@@ -295,7 +294,7 @@ Publish the SDK
 ---------------
 
 When an SDK is ready and packed,
-you need to publish it in the SDK Store
+you need to publish it to the SDK Store
 for use with :program:`Workshop`:
 
 .. code-block:: console
@@ -305,7 +304,7 @@ for use with :program:`Workshop`:
 
 This publishes the newly created SDK
 under the :samp:`latest/beta` channel in the SDK Store,
-from where it can be retrieved by the workshop as follows:
+where it can be accessed by :program:`Workshop` as follows:
 
    .. code-block:: yaml
       :caption: .workshop.python.yaml
@@ -318,13 +317,13 @@ from where it can be retrieved by the workshop as follows:
           channel: latest/beta
 
 
-Mind that the :samp:`base` of the workshop must match the SDK's :samp:`base`.
+Mind that the :samp:`base` of the workshop must match the SDK :samp:`base`.
 
 .. note::
 
    Currently, there's no way to reference local SDK packages in a workshop.
 
 
-That was the last step of the tutorial;
-you are now familiar with the essential operations |project_markup| provides
-and have had your first taste of what it can accomplish for you.
+This was the last step of the tutorial;
+you are now familiar with the basic operations |project_markup| provides
+and have had your first taste of what it can do for you.

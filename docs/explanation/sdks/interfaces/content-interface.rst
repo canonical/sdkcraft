@@ -15,15 +15,16 @@ that references these SDKs.
 Content interface plug
 ----------------------
 
-An essential element here is the content interface plug
-that is declared in the SDK definition.
+An essential element here is the content interface plug,
+which is declared in the SDK definition.
 
-A basic structure includes the name of the plug itself,
+A basic structure would include the name of the plug itself,
 the interface (:samp:`content`)
-and the intended target path inside the workshop:
+and the intended target path inside the workshop, for example:
 
 .. code-block:: yaml
    :caption: sdkcraft.yaml
+   :emphasize-lines: 9-12
 
    name: go
    title: Go SDK
@@ -43,20 +44,20 @@ This definition creates a plug called :samp:`mod-cache`
 that does the following:
 
 - Sets its :samp:`interface` type to :samp:`content`,
-  which makes it a content interface plug
+  making it a content interface plug
 
 - Points the :samp:`target` directory
   to :file:`/home/workshop/go/pkg/mod/`
   *inside the workshop*;
   a directory on the host system
-  that |project_markup| designates at run-time
+  that `Workshop`_ will designate at run-time
   will be mounted to it
 
 
-Overall, the intent of this declaration is
+Overall, the purpose of this declaration example is
 to use a directory
 (which :program:`Workshop` automatically allocates for the slot)
-for persisting the
+to persist the
 `module cache <https://go.dev/ref/mod#module-cache>`__
 in the host file system
 when the workshop stops.
@@ -68,11 +69,11 @@ Content interface slot
 ----------------------
 
 To let SDKs in a workshop access the host file system,
-:program:`Workshop` creates a content interface slot,
-which multiple content interface plugs can then access.
+:program:`Workshop` provides a content interface slot
+that multiple content interface plugs can access.
 
-When the SDK is installed during launch and refresh operations at run-time,
-for each plug that targets the slot, :program:`Workshop` checks the following:
+When the SDK is installed at run-time during launch and refresh operations,
+:program:`Workshop` checks the following for each plug that targets the slot:
 
 - The plug can be installed.
 
@@ -81,15 +82,16 @@ for each plug that targets the slot, :program:`Workshop` checks the following:
 
 - The :samp:`target` directory already exists in the workshop.
 
+
 If the plug passes the checks,
 it is connected
-and a :program:`Workshop`-created directory from the host file system
+and a directory created by :program:`Workshop` on the host file system
 is mounted to the :samp:`target` directory inside the workshop.
 That's where the module cache from our example will end up;
-the best part is that it will be preserved
+the best part is that it's preserved
 between :program:`Workshop` operations such as
 :command:`refresh`, :command:`start` and :command:`stop`,
-so you can benefit from a pre-populated module cache without doing extra work.
+so you benefit from a pre-populated module cache without doing extra work.
 
 
 See also
