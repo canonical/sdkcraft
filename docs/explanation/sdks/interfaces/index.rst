@@ -10,6 +10,8 @@ These articles explain the core set of concepts related to SDK interfaces.
 
    Content interface <content-interface>
    Data sharing <content-sharing>
+   GPU interface <gpu-interface>
+   SSH interface <ssh-agent-interface>
 
 
 Summary

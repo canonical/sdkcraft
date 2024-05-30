@@ -161,27 +161,73 @@ to implement custom logic of package and snap installation.
 SDK interfaces
 --------------
 
-Currently, the only interface supported by |project_markup| is :samp:`content`.
-It maps a directory in the workshop to a predefined directory on the host;
-`Workshop`_ is responsible for mapping the internal directory
-to a default directory on the host,
-and the SDK is responsible for handling the contents of the directory.
+Currently, |project_markup| supports the following interfaces:
 
-An example that lists the name of the plug, the interface
-and the intended target path in the workshop:
+- :ref:`content <ref_content_interface>`
+- :ref:`GPU <ref_gpu_interface>`
+- :ref:`SSH <ref_ssh_interface>`
+
+
+.. _ref_content_interface:
+
+Content interface
+~~~~~~~~~~~~~~~~~
+
+A content plug in the definition must name the plug, the interface
+and the target directory:
 
 .. code-block:: yaml
    :caption: sdkcraft.yaml
 
     # ...
     plugs:
-      mod-cache:
+      <NAME>:
         interface: content
-        target: /home/workshop/go/pkg/mod
+        target: <DIRECTORY>
 
 
-This maps the :file:`/home/workshop/go/pkg/mod/` directory inside the workshop
-to a directory created by :program:`Workshop` on the host.
+This mounts a directory created by :program:`Workshop` on the host
+to the :samp:`target` directory inside the workshop.
+
+
+.. _ref_gpu_interface:
+
+GPU interface
+~~~~~~~~~~~~~
+
+A GPU plug in the definition must name the plug and the interface:
+
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+
+    # ...
+    plugs:
+      <NAME>:
+        interface: gpu
+
+
+This makes the host's GPUs directly available inside the workshop
+via the GPU pass-through mechanism.
+
+
+.. _ref_ssh_interface:
+
+SSH interface
+~~~~~~~~~~~~~
+
+An SSH plug in the definition must name the plug and the interface:
+
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+
+    # ...
+    plugs:
+      <NAME>:
+        interface: ssh-agent
+
+
+This proxies the host's SSH keys and configuration inside the workshop
+via a Unix domain socket.
 
 
 .. _ref_sdk_hooks:
@@ -307,3 +353,4 @@ See also
 Explanation:
 
 - :ref:`exp_sdks`
+- :ref:`exp_sdk_interfaces`

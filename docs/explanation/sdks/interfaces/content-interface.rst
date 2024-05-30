@@ -20,25 +20,7 @@ which is declared in the SDK definition.
 
 A basic structure would include the name of the plug itself,
 the interface (:samp:`content`)
-and the intended target path inside the workshop, for example:
-
-.. code-block:: yaml
-   :caption: sdkcraft.yaml
-   :emphasize-lines: 9-12
-
-   name: go
-   title: Go SDK
-   base: ubuntu@20.04
-   summary: The Go programming language
-   description: |
-     Go is an open source programming language that enables the production
-     of simple, efficient and reliable software at scale.
-
-   plugs:
-     mod-cache:
-       interface: content
-       target: /home/workshop/go/pkg/mod
-
+and the intended target path inside the workshop.
 
 This definition creates a plug called :samp:`mod-cache`
 that does the following:
@@ -54,11 +36,11 @@ that does the following:
   will be mounted to it
 
 
-Overall, the purpose of this declaration example is
+Defining the plug in an SDK
+allows the workshops using this SDK to
 to use a directory
-(which :program:`Workshop` automatically allocates for the slot)
-to persist the
-`module cache <https://go.dev/ref/mod#module-cache>`__
+(which :program:`Workshop` allocates automatically)
+to persist the files placed there from inside the workshop
 in the host file system
 when the workshop stops.
 
@@ -83,15 +65,28 @@ When the SDK is installed at run-time during launch and refresh operations,
 - The :samp:`target` directory already exists in the workshop.
 
 
-If the plug passes the checks,
-it is connected
-and a directory created by :program:`Workshop` on the host file system
-is mounted to the :samp:`target` directory inside the workshop.
-That's where the module cache from our example will end up;
+If the plug passes the checks, it is connected.
+
+
+Connection
+----------
+
+Content interface plugs are connected automatically at launch and refresh;
+manual connection with the :command:`workshop connect` command is also possible.
+
+Establishing a connection means
+a directory created by :program:`Workshop` on the host file system
+is mounted to the :samp:`target` directory inside the workshop;
 the best part is that it's preserved
 between :program:`Workshop` operations such as
 :command:`refresh`, :command:`start` and :command:`stop`,
-so you benefit from a pre-populated module cache without doing extra work.
+so you benefit from a pre-populated directory without doing extra work.
+
+Finally, a slot can be remounted to a custom location on the host file system
+with the :command:`workshop remount` command.
+The new source should be either a non-existing directory
+or an empty directory on the same file system as the current source;
+otherwise, the workshop must be stopped prior to the remount attempt.
 
 
 See also
@@ -101,3 +96,8 @@ Explanation:
 
 - :ref:`exp_content_sharing`
 - :ref:`exp_sdk_interfaces`
+
+
+Reference:
+
+- :ref:`ref_content_interface`
