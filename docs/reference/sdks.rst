@@ -49,7 +49,8 @@ The :samp:`plugs` field is optional.
      - SDK's base image
        that provides the underlying OS capabilities.
 
-       It can be :samp:`ubuntu@20.04` or :samp:`ubuntu@22.04`.
+       It can be :samp:`ubuntu@20.04`, :samp:`ubuntu@22.04`
+       or :samp:`ubuntu@24.04`.
 
 
    * - :samp:`version`
