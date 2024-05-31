@@ -60,7 +60,7 @@ if not "ogp_image" in locals():
 ### General configuration
 ############################################################
 
-exclude_patterns = ["_build", "README.rst", "Thumbs.db", ".sphinx"]
+exclude_patterns = ["_build", "readme.rst", "Thumbs.db", ".sphinx"]
 exclude_patterns.extend(custom_excludes)
 
 rst_epilog = """

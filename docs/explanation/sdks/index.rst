@@ -3,8 +3,9 @@
 SDKs
 ====
 
+These articles explain the core set of SDK-related concepts.
+
 .. toctree::
-   :hidden:
    :maxdepth: 1
 
    Health <workshopctl>
@@ -13,50 +14,56 @@ SDKs
    Parts <parts>
 
 
+Summary
+-------
+
 SDKs are essential workshop components that:
 
-- Install the required system and language packages.
+- Install the necessary system and language packages.
 
 - Configure them
   with hooks, interfaces, parts and other capabilities exposed by `Workshop`_.
 
-- Maintain their own state throughout the lifetime of a workshop.
+- Maintain their own state throughout the life cycle of a workshop.
 
 
-You define, package and publish an *SDK* at the SDK Store
-using |project_markup|'s commands;
-it is then consumed by users of :program:`Workshop`,
+You define, package and publish an SDK in the SDK Store
+using |project_markup|'s CLI commands;
+the SDK is then consumed by :program:`Workshop` users
 who download it and use it in their workshops,
-possibly combining it with SDKs from other publishers.
-SDKs are distributed via :ref:`channels <ref_sdk_channels>` similar to
+possibly in combination with SDKs from other publishers.
+SDKs are distributed through :ref:`channels <ref_sdk_channels>` similar to
 `snap channels <https://snapcraft.io/docs/channels>`_.
 
 
 .. _exp_sdk_state:
 
 SDK state
----------
+~~~~~~~~~
 
-An SDK may store any data specific to it,
+An SDK can store any data specific to it,
 such as a model training configuration,
 within the workshop.
-The publisher of the SDK implements save and restore actions
-to let |project_markup| handle such data consistently as the *SDK state*.
+To enable this,
+the SDK publisher implements save and restore :ref:`hooks <exp_sdk_hooks>`
+that :program:`Workshop` runs at the appropriate moments
+to consistently handle such data, collectively known as *SDK state*.
 
-Before applying any changes to a workshop
-during a :command:`workshop refresh` operation,
-|project_markup| saves the SDKs' states
-by invoking their :ref:`hooks <exp_sdk_hooks>`.
-After a successful change,
-the states are respectively restored.
+For example, before changes are applied to the workshop
+during a :command:`refresh`,
+the states of the SDKs are saved
+by invoking their :samp:`save-state` hooks.
+On success,
+they are restored using the :samp:`restore-state` hooks.
 
 
 .. _exp_sdk_definition:
 
 SDK definition
---------------
+~~~~~~~~~~~~~~
 
-An SDK is defined in a file named :file:`sdkcraft.yaml` that may look like this:
+An SDK is defined in a file named :file:`sdkcraft.yaml`,
+which may look like this:
 
 .. code-block:: yaml
    :caption: sdkcraft.yaml
@@ -76,34 +83,34 @@ An SDK is defined in a file named :file:`sdkcraft.yaml` that may look like this:
 
 
 |project_markup| consumes this definition when creating an SDK package;
-in a real-life scenario, it may include metadata similar to shown above
-along with hooks, interfaces (also shown here) and parts
+in a real-world scenario, it may contain metadata similar to that shown above,
+along with hooks, more interface plugs and parts
 that implement the SDK's functionality.
 
 
 .. _exp_agent_sdk:
 
 Agent SDK
----------
+~~~~~~~~~
 
 Every workshop contains an *agent SDK*
 that exposes system resources through interface slots.
-Essentially, it is a special SDK type,
-which is not available in the SDK Store but is auto-added to each workshop.
-It is installed first at :command:`workshop launch`
+It's essentially a special SDK type,
+which is not available from the SDK Store but is auto-added to each workshop.
+It's installed first at :command:`workshop launch`
 and removed last at :command:`workshop remove`,
 ensuring internal consistency.
 
-The goal of the agent SDK isn't to offer hooks or provide additional content;
-it exists solely to expose system resources to other SDKs in a uniform fashion.
-As such, it cannot be removed by the user
+The purpose of the agent SDK isn't to add hooks or additional content;
+it's only there to expose system resources to other SDKs in a consistent way.
+As such, it can't be removed by the user
 and isn't listed in the :command:`workshop info` output.
 
-The uniformity of this approach is the fact that system resources
-and workshop resources are exposed via the same logic.
-Technically, the agent SDK belongs to the eponymous type,
-whereas all other SDKs have a :samp:`regular` type,
-but these details aren't exposed in :file:`sdkcraft.yaml`.
+The uniformity of this approach lies in the fact that system resources
+and workshop resources are exposed using the same logic.
+Technically, the agent SDK is of :samp:`agent` type,
+whereas all other SDKs are of :samp:`regular` type,
+but this detail isn't exposed in :file:`sdkcraft.yaml`.
 
 
 See also
@@ -111,9 +118,6 @@ See also
 
 Explanation:
 
-- :ref:`exp_sdk_hooks`
-- :ref:`exp_sdk_interfaces`
-- :ref:`exp_sdk_parts`
 - :ref:`exp_workshopctl`
 
 

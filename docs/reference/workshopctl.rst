@@ -34,7 +34,7 @@ that runs after launch or refresh operations in a workshop:
 
    * - :samp:`<ERROR CODE>`
      - Optional, not allowed with :samp:`okay`
-     - Brief code of up to 20 lowercase characters, hyphens and digits;
+     - Short code of up to 20 lowercase characters, hyphens and digits;
        should start with a character.
 
    * - :samp:`<MESSAGE>`

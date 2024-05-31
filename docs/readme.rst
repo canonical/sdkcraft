@@ -8,23 +8,6 @@ SDKcraft
 **A tool that packages and publishes SDKs to be used with Workshop,
 a related user-facing product**.
 
-**Define your SDK in simple YAML**.
-Next, SDKcraft instantiates the definition
-and snapshots the resulting SDK into a tarball,
-which you can then publish to be retrieved and used with Workshop.
-
-**Describe your project's ins and outs in a consistent manner**.
-Use a common, instantly recognisable paradigm
-to make all aspects of your setup and usage explicit.
-SDKcraft provides a uniform way to bake in your domain expertise
-instead of leaving the users to figure everything out by trial and error.
-
-**For those who maintain and distribute complex SDKs and frameworks**.
-Many software domains have less-than-trivial project layouts
-that require significant effort to set up and support.
-That’s where SDKcraft gives you an edge
-by making your product easier to package, distribute, install and use.
-
 
 Getting Started
 ---------------
@@ -37,13 +20,12 @@ in our docs for a more detailed introduction to SDKcraft.
 
 To know more about `Workshop <https://github.com/canonical/workshop>`_,
 the user-facing counterpart to SDKcraft,
-start with the `Tutorial
+start with its own `Tutorial
 <https://canonical-workshop.readthedocs-hosted.com/en/latest/tutorial/>`_.
 
 
-------------
 Installation
-------------
+~~~~~~~~~~~~
 
 SDKcraft requires
 `LXD <https://canonical.com/lxd>`_

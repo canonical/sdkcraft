@@ -9,8 +9,9 @@ SDKs
 Source directory
 ----------------
 
-All files that go into an SDK should be stored in a *source directory* where
-|project_markup| will be used to initialise, define, pack and publish the SDK.
+All files that go into an SDK should be placed in a *source directory*
+where you'll run |project_markup|
+to initialise, define, pack and publish the SDK.
 
 
 .. _ref_sdk_definition:
@@ -24,11 +25,10 @@ in the source directory.
 
 The definition in the file must be written in
 `YAML <https://yaml.org/>`__
-and include the
+and include these top-level fields:
 :samp:`name`, :samp:`base`, :samp:`version`, :samp:`summary`,
-:samp:`description`, :samp:`license`, :samp:`platforms` and :samp:`parts`
-top-level fields;
-the :samp:`plugs` field is optional.
+:samp:`description`, :samp:`license`, :samp:`platforms` and :samp:`parts`.
+The :samp:`plugs` field is optional.
 
 .. list-table::
    :header-rows: 1
@@ -49,7 +49,8 @@ the :samp:`plugs` field is optional.
      - SDK's base image
        that provides the underlying OS capabilities.
 
-       It can be :samp:`ubuntu@20.04` or :samp:`ubuntu@22.04`.
+       It can be :samp:`ubuntu@20.04`, :samp:`ubuntu@22.04`
+       or :samp:`ubuntu@24.04`.
 
 
    * - :samp:`version`
@@ -59,19 +60,19 @@ the :samp:`plugs` field is optional.
 
        .. note::
 
-          Use quotation marks to prevent a potential data type mismatch:
+          Use quotes to avoid potential data type mismatches:
           without them, :samp:`'1.0'` can be interpreted as a number,
           for example.
 
 
    * - :samp:`summary`
      - string
-     - A brief one-line summary, up to 79 characters long.
+     - A short one-line summary of up to 79 characters.
 
 
    * - :samp:`description`
      - string
-     - A longer, detailed description of the SDK, up to a hundred words.
+     - A longer, more detailed description of the SDK, up to one hundred words.
 
 
    * - :samp:`license`
@@ -80,7 +81,7 @@ the :samp:`plugs` field is optional.
 
        .. note::
 
-          Make sure it complies with the individual components of the SDK.
+          Make sure it matches the individual components of the SDK.
 
 
    * - :samp:`platforms`
@@ -141,21 +142,18 @@ formalises the description above:
 SDK parts
 ---------
 
-Parts are imagined as the building blocks of |project_markup|.
+Parts can be though of as the building blocks of |project_markup|.
 Each part in an :file:`sdkcraft.yaml` :ref:`file <ref_sdk_definition>`
-will define a specific component or piece of the SDK being packaged,
+defines a specific component or piece of the SDK being packaged,
 providing a way to modularise the package and manage its dependencies.
 
-
-.. note::
-
-   |project_markup| is built as a
-   `craft-application <https://github.com/canonical/craft-application>`_,
-   which affects the :samp:`parts` implementation.
-   However, the :samp:`stage-packages` and :samp:`stage-snaps` parts
-   aren't enabled yet;
-   instead, rely on the :ref:`hooks <ref_sdk_hooks>`
-   to implement custom package and snap installation logic.
+|project_markup| is built as a
+`craft-application <https://github.com/canonical/craft-application>`_,
+which affects how :samp:`parts` are implemented.
+However, note that :samp:`stage-packages` and :samp:`stage-snaps`
+aren't enabled yet;
+instead, rely on the :ref:`hooks <ref_sdk_hooks>`
+to implement custom logic of package and snap installation.
 
 
 .. _ref_sdk_interfaces:
@@ -167,7 +165,7 @@ Currently, the only interface supported by |project_markup| is :samp:`content`.
 It maps a directory in the workshop to a predefined directory on the host;
 `Workshop`_ is responsible for mapping the internal directory
 to a default directory on the host,
-and the SDK is responsible for handling the directory's contents.
+and the SDK is responsible for handling the contents of the directory.
 
 An example that lists the name of the plug, the interface
 and the intended target path in the workshop:
@@ -183,8 +181,7 @@ and the intended target path in the workshop:
 
 
 This maps the :file:`/home/workshop/go/pkg/mod/` directory inside the workshop
-to a directory created by :program:`Workshop` on the host;
-each workshop that uses this SDK will share the same :samp:`mod-cache` plug.
+to a directory created by :program:`Workshop` on the host.
 
 
 .. _ref_sdk_hooks:
@@ -246,11 +243,11 @@ SDK hooks
      - Configures the base image for the SDK to become operational.
 
 
-The hooks are defined in the :ref:`source directory <ref_sdk_directory>`
-under :samp:`hooks/` in respectively named text files.
+Each hooks is defined in a text file of the same name
+under :samp:`hooks/` in the :ref:`source directory <ref_sdk_directory>`.
 At run-time, they are executed as shell scripts
-under :samp:`root` inside the workshop;
-each hook should thus start with a shebang directive,
+under :samp:`root` inside the workshop,
+so each hook must start with a shebang directive,
 for example:
 
 .. code-block:: shell
@@ -261,44 +258,52 @@ for example:
 .. note::
 
    The hooks aren't mentioned in the :ref:`definition <ref_sdk_definition>`;
-   |project_markup| automatically enumerates them while packing the SDK.
+   |project_markup| automatically enumerates them when packing the SDK.
 
 
 .. _ref_sdk_state:
 
-State
------
+SDK state
+---------
 
-An SDK may store any data specific to it within the workshop.
+An SDK cat store any data specific to it within the workshop.
 For this purpose, an environment variable named :envvar:`$SDK_STATE_DIR`
-is exposed at run-time;
+is exposed by :program:`Workshop` at run-time;
 it resolves to an internal directory in the workshop,
 which :samp:`save-state` and :samp:`restore-state`
-may use to preserve and recover the data, respectively.
+can use to preserve and recover the data respectively.
 
 
 .. _ref_sdk_channels:
 
-Channels
---------
+SDK channels
+------------
 
 When SDKs are published by their creators and consumed by workshops,
-different versions and releases are tracked via channels.
+different versions and releases are tracked through the use of channels.
 A channel is a combination of a track and a risk, e.g. :samp:`latest/beta`.
 
-Tracks allow to maintain multiple published versions of an SDK simultaneously;
-while no specific schema is enforced,
+Tracks allow multiple published versions of an SDK to exist in parallel;
+while no specific scheme is enforced,
 it is desirable to use a semantic version, e.g. :samp:`1.2.3`,
-or the :samp:`latest` keyword that maps to the latest published version
-and serves as the default.
+or the :samp:`latest` keyword,
+which maps to the latest published version and serves as the default.
 
-Risks represent a choice of maturity levels for a specific track:
+Risks represent a choice of maturity levels for a particular track:
 
 - :samp:`stable`: indicates that the software can be used in production
 
-- :samp:`candidate`: for software being tested prior to stable deployment
+- :samp:`candidate`: for software that's being tested prior to stable deployment
 
-- :samp:`beta`: for software that may be used outside of production
+- :samp:`beta`: for software that can be used outside of production
 
-- :samp:`edge`: for unstable software still in active development;
+- :samp:`edge`: for unstable software that's still in active development;
   nothing is guaranteed
+
+
+See also
+--------
+
+Explanation:
+
+- :ref:`exp_sdks`

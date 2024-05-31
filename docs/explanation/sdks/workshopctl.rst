@@ -5,7 +5,7 @@ SDK health reporting with workshopctl
 
 The :program:`workshopctl` tool allows an SDK
 to talk to the :program:`workshopd` daemon,
-giving SDK authors a way to manage health checks and report their condition.
+giving SDK authors a way to manage health checks and report their health.
 Using a model similar to `snapctl <https://snapcraft.io/docs/using-snapctl>`_,
 it simplifies internal workshop communication,
 helping both SDK authors and users.
@@ -22,18 +22,18 @@ to fit seamlessly into the workshop environment.
 
 This interaction between SDKs and the :program:`workshopd` daemon
 focuses on health checks in post-launch or refresh operations.
-The tool offers commands to report SDK health,
+The tool provides commands to report SDK health,
 list workshops that use the SDK and get their details.
 
 
-Setting SDK health
-------------------
+SDK health
+----------
 
 A primary function of :program:`workshopctl` is
 to allow SDKs to report their health
 using the :samp:`set-health` subcommand.
-This command allows to report important information about the state of an SDK
-after the workshop that uses the SDK is launched or refreshed.
+This command allows important SDK health information to be reported
+after the workshop using the SDK has been launched or refreshed.
 
 To use the command with :program:`workshopctl`,
 you specify the mandatory health status.
@@ -41,29 +41,29 @@ If it's not :samp:`okay`,
 you can also supply an error code with a user-friendly message
 to provide further details.
 
-This command is essential for SDK authors
-to communicate the health status of their individual SDKs
+This command is essential for SDK publishers
+to communicate the health status of their SDKs
 within the workshop environment;
-the daemon does the rest to determine the overall health status of a workshop.
+then :program:`workshopd` determines the overall health status of a workshop.
 
 
-Determining workshop status
----------------------------
+Workshop status
+---------------
 
-The :samp:`check-health` hook is central in this
-because it communicates the SDK health to the :program:`workshopd` daemon
-during workshop launch or refresh operations.
+The :samp:`check-health` hook is central to this,
+as it tells the :program:`workshopd` daemon the health of the SDK
+when workshop is launched or refreshed.
 The status of a workshop, such as *Ready*, *Pending* or *Error*,
-depends on the hook's run-time results:
+depends on the run-time results of the hook:
 
-- *Ready* means success, achieved if the hook sets SDK health to :samp:`okay`
-  or exits gracefully with a zero code.
+- *Ready* means success: the hook sets SDK health to :samp:`okay`
+  or gracefully exits with a zero code.
 
-- *Pending*: used when the hook sets SDK health to :samp:`waiting`,
+- *Pending*: the hook sets SDK health to :samp:`waiting`,
   which changes to :samp:`error` after 10 unsuccessful retries, one per second,
-  or 5 initial seconds elapsing without :samp:`set-health` being invoked.
+  or 5 initial seconds elapse without :samp:`set-health` being invoked.
 
-- *Error* occurs when the hook exits with an error code
+- *Error*: the hook exits with an error code
   or explicitly sets SDK health to :samp:`error`.
 
 
