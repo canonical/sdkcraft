@@ -13,6 +13,6 @@ parts:
     plugin: nil
 
 plugs:
-  pythonhome:
+  packages:
     interface: content
     target: /usr/local/lib/python3.11

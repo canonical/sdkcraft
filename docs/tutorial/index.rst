@@ -152,10 +152,49 @@ Define
 
    .. code-block:: yaml
       :caption: sdkcraft.yaml
-      :emphasize-lines: 1,4-6,15-18
+      :emphasize-lines: 1,4-6
 
       name: python
-      base: ubuntu@22.04
+      base: ubuntu@24.04
+      version: '0.1'
+      summary: Python SDK
+      description: |
+        This is my Python SDK's description.
+      license: GPL-3.0
+      platforms:
+        amd64:
+
+      parts:
+        my-part:
+          plugin: nil
+
+
+.. _tut_content_interface:
+
+Add interface plugs
+~~~~~~~~~~~~~~~~~~~
+
+In |project_markup|,
+:ref:`interfaces <exp_sdk_interfaces>` provide a controllable way
+of exposing the resources of the host system to the workshops,
+and you can use them in a variety of ways
+to extend the functionality of your SDK.
+
+Suppose you want to preserve the installed Python packages
+when a workshop using your SDK is rebuilt from scratch.
+You can use a :ref:`content interface <exp_content_interface>` plug:
+it mounts a host directory to a target directory in the workshop,
+so that the files remain on the host.
+
+Open :file:`sdkcraft.yaml` again
+and add a plug named :samp:`packages` to the :samp:`plugs` section:
+
+   .. code-block:: yaml
+      :caption: sdkcraft.yaml
+      :emphasize-lines: 15-18
+
+      name: python
+      base: ubuntu@24.04
       version: '0.1'
       summary: Python SDK
       description: |
@@ -169,15 +208,22 @@ Define
           plugin: nil
 
       plugs:
-        pythonhome:
+        packages:
           interface: content
           target: /usr/local/lib/python3.11
 
 
-   The new section at the end defines a
-   :ref:`content interface plug <exp_content_plug>`;
-   think of it as a way to share the contents of :envvar:`$PYTHONHOME`
-   between all workshops that include this SDK.
+Now, when a workshop using this SDK is started,
+:program:`Workshop` will map the plug's :samp:`target` in the workshop
+to a host directory that will be automatically created
+and maintained between refresh operations.
+
+.. note::
+
+   You can't explicitly set the host directory here;
+   this prevents SDKs from accessing any arbitrary data on the host file system.
+   However, users who add your SDK to their workshops
+   will be able to remount the plug elsewhere at run-time.
 
 
 Add hooks
@@ -311,7 +357,7 @@ where it can be accessed by :program:`Workshop` as follows:
       :emphasize-lines: 4,5
 
       name: python
-      base: ubuntu@22.04
+      base: ubuntu@24.04
       sdks:
         python-sdk:
           channel: latest/beta
