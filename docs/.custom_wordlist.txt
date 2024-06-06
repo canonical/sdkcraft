@@ -1,4 +1,6 @@
+AUTH
 EdTech
+GPUs
 IDEs
 IoT
 Jupyter
