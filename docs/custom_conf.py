@@ -72,9 +72,7 @@ html_context = {
     # (usually "/" or "/docs/")
     "github_folder": "/docs/",
     # Change to an empty value to suppress the 'Give feedback' button on top.
-    "github_issues": "",
-    # This toggles the 'Open a GitHub issue for this page' link in the footer.
-    "github_issues_footer": "enabled",
+    "github_issues": "enabled",
     # Controls the existence of Previous / Next buttons at the bottom of pages
     # Valid options: none, prev, next, both
     "sequential_nav": "none",
