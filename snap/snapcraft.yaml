@@ -15,6 +15,8 @@ apps:
   sdkcraft:
     command: bin/python -m sdkcraft
   publish:
+    environment:
+      PATH: ${SNAP}/bin:${PATH}
     command: bin/publish.sh
 parts:
   sdkcraft-libs:
@@ -62,3 +64,15 @@ parts:
     source: sdkcraft
     organize:
       "*.sh": bin/
+    build-attributes:
+      - no-patchelf
+  yq:
+    plugin: go
+    source: https://github.com/mikefarah/yq.git
+    source-tag: v4.44.1
+    build-snaps:
+      - go/latest/stable
+    build-environment:
+      - CGO_LDFLAGS_ALLOW: ".*"
+    override-build: |
+      CGO_ENABLED=0  go build -o "${CRAFT_PART_INSTALL}/bin/yq" -ldflags "-s -w" .
