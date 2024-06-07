@@ -156,7 +156,9 @@ docs/.sphinx/venv/
 docs/.sphinx/warnings.txt
 docs/.sphinx/.wordlist.dic
 docs/.sphinx/.doctrees/
+docs/.sphinx/exts/__pycache__/
 docs/.sphinx/node_modules/
+docs/.sphinx/styles/
 docs/__pycache__/
 package*.json
 docs/_build
