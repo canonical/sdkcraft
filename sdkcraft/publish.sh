@@ -3,7 +3,7 @@
 set -eu
 
 print_help() {
-    echo "Usage: $0 <filename> <stable|candidate|beta|edge>"
+    echo "Usage: $0 <filename> <track>/<stable|candidate|beta|edge>"
     echo "Example: $0 my-sdk.sdk latest/beta"
 }
 
@@ -32,20 +32,23 @@ if [ ! -e "$SDK_PATH" ]; then
     exit 1
 fi
 
-allowed_channels=("stable" "candidate" "beta" "edge")
+re='^[a-z0-9]*/(stable|candidate|beta|edge)$'
 channel="$2"
 
 # shellcheck disable=SC2076
-if [[ ! " ${allowed_channels[*]} " =~ " $channel " ]]; then
-    echo "Error: Second argument should be one of: ${allowed_channels[*]}"
+if [[ ! "$channel" =~ $re ]]; then
+    echo "Error: channel must match regex: ${re}"
     print_help
     exit 1
 fi
 
-CHANNEL=latest/$channel
 SDK_FILE=$(basename "$1")
 SDK_NAME="${SDK_FILE%%.*}"
-BUCKET_DIR="gs://sdk-store/$SDK_NAME/$CHANNEL/"
+BUCKET_DIR="gs://sdk-store/$SDK_NAME/$channel/"
 
 echo "Uploading $SDK_FILE to $BUCKET_DIR..."
 gsutil -h "Cache-Control: no-store" cp "$SDK_FILE" "$BUCKET_DIR"
+
+echo "Publishing SDK meta data..."
+meta=$(tar -xOf "$SDK_FILE" ./meta/sdk.yaml | yq -r -o=j -I=0)
+gcloud storage objects update "$BUCKET_DIR""$SDK_FILE" --custom-metadata=^DELIM^sdk-yaml="$meta"
