@@ -1,0 +1,124 @@
+#!/usr/bin/bash
+
+set -e
+
+_WORKSHOP_USER="workshop"
+_WORKSHOP_USER_HOME="/home/${_WORKSHOP_USER}"
+_WORKSHOP_COLCON_BASE_PATH="${_WORKSHOP_USER_HOME}/colcon"
+_WORKSHOP_COLCON_CONFIG_BASE_PATH="${_WORKSHOP_USER_HOME}/.colcon"
+_WORKSHOP_PROJECT_BASE_PATH="/project"
+_WORKSHOP_ROS_DISTRO="jazzy"
+
+# NOTE: we use apt-get instead of apt for non-interactive package installation.
+# apt will prompt services restart for some of the packages below which will
+# make the SDK installation hang forever.
+
+# Update package list
+apt-get -y update
+
+# Ensure the Ubuntu Universe repo are enabled
+apt-get -y install software-properties-common
+add-apt-repository universe
+
+# Make sure curl is installed
+apt-get -y install curl
+
+# Download the ROS 2 GPG key
+if [ ! -f "/usr/share/keyrings/ros-archive-keyring.gpg" ]; then
+  curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+fi
+
+# Add ROS 2 repository to the sources list
+if [ ! -f "/etc/apt/sources.list.d/ros2.list" ]; then
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2-testing/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" |  tee /etc/apt/sources.list.d/ros2.list > /dev/null
+fi
+
+# Update package repository cache
+apt-get -y update
+
+# Upgrade the system
+apt-get -y upgrade
+
+# Install ROS 2 development tools
+apt-get -y install ros-dev-tools
+
+# Those aren't part of ros-dev-tools/colcon-common-extensions
+apt-get -y install python3-colcon-argcomplete python3-colcon-alias python3-colcon-clean python3-colcon-mixin
+
+# Make sure a minimal ROS 2 (system) workspace is setup
+apt-get -y install ros-${_WORKSHOP_ROS_DISTRO}-ros-environment ros-${_WORKSHOP_ROS_DISTRO}-ros-workspace ros-${_WORKSHOP_ROS_DISTRO}-ament-index-cpp ros-${_WORKSHOP_ROS_DISTRO}-ament-index-python
+
+# Install ros2 run/launch as users probably would expect them
+apt-get -y install ros-${_WORKSHOP_ROS_DISTRO}-ros2run ros-${_WORKSHOP_ROS_DISTRO}-ros2launch
+
+# Add bashrc setup script
+if ! grep -q "source /opt/ros/${_WORKSHOP_ROS_DISTRO}/setup.bash" "${_WORKSHOP_USER_HOME}/.bashrc"; then
+  echo "
+  # Source ROS 2
+  if [ -f /opt/ros/${_WORKSHOP_ROS_DISTRO}/setup.bash ]; then
+    source /opt/ros/${_WORKSHOP_ROS_DISTRO}/setup.bash
+  fi" >> "${_WORKSHOP_USER_HOME}/.bashrc"
+fi
+
+# Add colcon autocompletion to bashrc
+if ! grep -q "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" "${_WORKSHOP_USER_HOME}/.bashrc"; then
+  echo "
+  # Source colcon autocompletion
+  if [ -f /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash ]; then
+    source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
+  fi" >> "${_WORKSHOP_USER_HOME}/.bashrc"
+fi
+
+# Configure colcon's default dirs
+sudo -u ${_WORKSHOP_USER} bash -c "mkdir -p ${_WORKSHOP_COLCON_CONFIG_BASE_PATH}"
+sudo -u ${_WORKSHOP_USER} bash -c "mkdir -p ${_WORKSHOP_COLCON_BASE_PATH}"
+
+if [ ! -f "${_WORKSHOP_COLCON_CONFIG_BASE_PATH}/defaults.yaml" ]; then
+  echo "{
+    \"\": {\"log-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/log\"},
+    \"build\": {
+      \"build-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/build\",
+      \"install-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/install\",
+      \"test-result-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/build\",
+    },
+    \"clean.packages\": {
+      \"build-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/build\",
+      \"install-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/install\",
+      \"log-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/log\",
+      \"test-result-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/build\",
+    },
+    \"clean.workspace\": {
+      \"build-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/build\",
+      \"install-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/install\",
+      \"log-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/log\",
+      \"test-result-base\": \"${_WORKSHOP_COLCON_BASE_PATH}/build\",
+    },
+  }" > "${_WORKSHOP_COLCON_CONFIG_BASE_PATH}/defaults.yaml"
+fi
+chown ${_WORKSHOP_USER}:${_WORKSHOP_USER} "${_WORKSHOP_COLCON_CONFIG_BASE_PATH}/defaults.yaml"
+
+# Add colcon's default mixins
+if [ ! -d "${_WORKSHOP_COLCON_CONFIG_BASE_PATH}/colcon-mixin-repository" ] ; then
+  sudo -u ${_WORKSHOP_USER} bash -c "git -C ${_WORKSHOP_COLCON_CONFIG_BASE_PATH} clone https://github.com/colcon/colcon-mixin-repository.git"
+fi
+if [! -f ${_WORKSHOP_COLCON_CONFIG_BASE_PATH}/mixin_repositories.yaml ] || ! grep -q "default:" "${_WORKSHOP_COLCON_CONFIG_BASE_PATH}/mixin_repositories.yaml"; then
+  sudo -u ${_WORKSHOP_USER} bash -c "colcon mixin add default file://${_WORKSHOP_COLCON_CONFIG_BASE_PATH}/colcon-mixin-repository/index.yaml"
+fi
+sudo -u ${_WORKSHOP_USER} bash -c "colcon mixin update default"
+
+# Initialise rosdep
+if [ ! -f "/etc/ros/rosdep/sources.list.d/20-default.list" ]; then
+  rosdep init
+fi
+sudo -H -E -u ${_WORKSHOP_USER} bash -c "rosdep update --rosdistro=${_WORKSHOP_ROS_DISTRO}"
+
+# Install project's dependencies
+if [ -d "${_WORKSHOP_PROJECT_BASE_PATH}" ]; then
+  if [ ! -z "$(ls -A ${_WORKSHOP_PROJECT_BASE_PATH})" ]; then
+    sudo -H -i -u ${_WORKSHOP_USER} bash -c "rosdep install --default-yes --ignore-packages-from-source --rosdistro=${_WORKSHOP_ROS_DISTRO} --from-paths ${_WORKSHOP_PROJECT_BASE_PATH}/."
+  fi
+fi
+
+# Install some useful snaps
+snap install lxd
+snap install snapcraft --classic

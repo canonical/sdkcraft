@@ -1,0 +1,22 @@
+name: ros2
+title: "The ROS\_2 SDK"
+base: ubuntu@24.04
+version: '0.1'
+summary: "The strictly necessary ROS\_2 development environment for your project."
+description: "The ROS\_2 SDK creates a minimum viable development environment\nfor your ROS\_2 project.\nIt sets up a bare-bones ROS\_2 workspace\nbefore installing all of the dependencies\nfor the ROS\_2 project mounted by workshop.\n\nA developer can thus connect to the workshop\nto immediately build the project.\n"
+license: LGPL-2.1
+platforms:
+  amd64: null
+  arm64: null
+parts:
+  ros2-part:
+    plugin: nil
+plugs:
+  ros-cache:
+    interface: content
+    target: /home/workshop/.ros
+  colcon-cache:
+    interface: content
+    target: /home/workshop/colcon
+  gpu:
+    interface: gpu

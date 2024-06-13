@@ -1,5 +1,6 @@
 AUTH
 EdTech
+GPG
 GPUs
 IDEs
 IoT
@@ -7,6 +8,7 @@ Jupyter
 JupyterLab
 LXD
 PYTHONHOME
+ROS
 SDK
 SDK's
 SDKcraft
@@ -14,6 +16,7 @@ SDKs
 SDK’s
 backend
 basename
+colcon
 customisable
 cwd
 dev
@@ -27,12 +30,15 @@ https
 init
 iteratively
 lxd
+mixin
+mixins
 modularise
 onboarding
 pathname
 readme
 repo
 roadmap
+rosdep
 sdk
 sdkcraft
 snapcraft

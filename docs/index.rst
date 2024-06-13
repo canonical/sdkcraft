@@ -5,6 +5,17 @@
 |project_markup|
 ================
 
+
+.. toctree::
+   :hidden:
+
+   Home <self>
+   tutorial/index
+   how-to/index
+   explanation/index
+   reference/index
+
+
 **A tool that packages and publishes SDKs
 to be used with Workshop,
 a related user-facing product**.
@@ -44,6 +55,10 @@ In this documentation
       **Discussion and clarification** of key topics
 
 
+   .. grid-item:: :doc:`How-to guides <how-to/index>`
+
+      **Step-by-step guides** covering common tasks
+
    .. grid-item:: :doc:`Reference <reference/index>`
 
       **Technical details**, specifications, APIs
@@ -82,11 +97,3 @@ and we'll see what we can do.
 - `Contribution and participation <https://github.com/canonical/sdkcraft/pulls>`__
 
 - `Product and documentation feedback <https://github.com/canonical/sdkcraft/issues>`__
-
-.. toctree::
-   :hidden:
-
-   Home <self>
-   tutorial/index
-   explanation/index
-   reference/index
