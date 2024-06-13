@@ -77,7 +77,7 @@ everything is cached on the host instead.
 Thus, the :samp:`save-state` and :samp:`restore-state` hooks aren't used,
 so we only have to define the :samp:`setup-base` hook.
 
-The entire source can be found :download:`here <design-sdk/setup-base.txt>`;
+The entire source can be found :download:`here <design-sdk/setup-base>`;
 let's focus on the more important sections and what they do.
 
 The key idea behind the design is two-fold.
@@ -95,7 +95,7 @@ we'll discuss their operation in detail below.
 Path variables
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: design-sdk/setup-base.txt
+.. literalinclude:: design-sdk/setup-base
    :language: shell
    :lines: 5-10
 
@@ -108,7 +108,7 @@ and the ROS 2 distribution (:samp:`jazzy`).
 Package management setup
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: design-sdk/setup-base.txt
+.. literalinclude:: design-sdk/setup-base
    :language: shell
    :lines: 16-24
 
@@ -122,7 +122,7 @@ With this, we can enable the specific repository we need.
 Setup ROS 2 GPG key and repository
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: design-sdk/setup-base.txt
+.. literalinclude:: design-sdk/setup-base
    :language: shell
    :lines: 26-34
 
@@ -136,7 +136,7 @@ this is done in a manner typical of Ubuntu-based installations
 Install ROS 2 development tools
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: design-sdk/setup-base.txt
+.. literalinclude:: design-sdk/setup-base
    :language: shell
    :lines: 26-34
 
@@ -149,7 +149,7 @@ for building and managing packages (this time, in the sense of ROS 2).
 Setup minimal ROS 2 workspace
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: design-sdk/setup-base.txt
+.. literalinclude:: design-sdk/setup-base
    :language: shell
    :lines: 48-52
 
@@ -161,7 +161,7 @@ for running and launching ROS 2 nodes.
 Update :file:`.bashrc` for ROS 2 and :program:`colcon`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: design-sdk/setup-base.txt
+.. literalinclude:: design-sdk/setup-base
    :language: shell
    :lines: 54-70
 
@@ -175,7 +175,7 @@ ensuring they are loaded in every new shell session
 Configure :program:`colcon` defaults
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: design-sdk/setup-base.txt
+.. literalinclude:: design-sdk/setup-base
    :language: shell
    :lines: 72-98
 
@@ -192,7 +192,7 @@ specifying paths for build, install, and log files.
 Add :program:`colcon` mixins
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: design-sdk/setup-base.txt
+.. literalinclude:: design-sdk/setup-base
    :language: shell
    :lines: 100-107
 
@@ -206,7 +206,7 @@ Again, the directory configured for the :samp:`colcon-cache` plug is used.
 Install :program:`rosdep` dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: design-sdk/setup-base.txt
+.. literalinclude:: design-sdk/setup-base
    :language: shell
    :lines: 109-120
 
