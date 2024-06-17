@@ -40,31 +40,36 @@ Let's review the less trivial sections:
 
    * - :samp:`parts`
      - This is essentially a stub;
-       currently, :program:`Workshop` doesn't implement any :samp:`parts`
-       mechanisms similar to what's available in snaps, for example.
-       Again, this is subject to change,
-       and many actions that we do with :ref:`hooks <how_ros2_sdk_hooks>`
-       will eventually move here.
+       currently, the SDK doesn't rely on it.
+
+       Also subject to change,
+       some actions done with :ref:`hooks <how_ros2_sdk_hooks>`
+       may move here.
 
    * - :samp:`plugs`
      - This section defines two content plugs and a GPU plug.
 
-       The first content plug, :samp:`ros-cache`, maps ROS 2 configuration
-       to a host directory to preserve it between refreshes.
-       The second one, :samp:`colcon-cache`,
-       is where the build artefacts will end up at run-time,
-       so the build cache can be persisted and reused.
+       - The first content plug, :samp:`ros-cache`, maps ROS 2 configuration
+         to a host directory to preserve it between refreshes.
 
-       The GPU plug provides GPU pass-through for the SDK.
+       - The second one, :samp:`colcon-artefacts`,
+         is where the build artefacts will end up at run-time,
+         so the build cache can be persisted and reused.
+
+       - The GPU plug provides GPU pass-through for the SDK.
 
 
 Summarily, the definition builds upon :program:`Workshop`'s capabilities,
 persisting the important reusable parts of the setup on the host
 and making its GPU capabilities directly available.
 
-However, to make this definition work,
-the SDK should be installed to target the two content directories;
-currently, this is achieved with SDK hooks.
+However,
+the SDK should actually make use of the directories defined in content plugs.
+For :samp:`ros-cache`,
+this occurs automatically because it's a default,
+but we need to explicitly tip the SDK
+to place the build under the :samp:`colcon-artefacts` target.
+Currently, this is achieved with an SDK hook.
 
 
 .. _how_ros2_sdk_hooks:
@@ -72,24 +77,22 @@ currently, this is achieved with SDK hooks.
 Define the hooks
 ----------------
 
-The design of the SDK doesn't require preserving any state between refreshes;
-everything is cached on the host instead.
-Thus, the :samp:`save-state` and :samp:`restore-state` hooks aren't used,
-so we only have to define the :samp:`setup-base` hook.
+This design doesn't require preserving state between refreshes.
+As seen above, the content is cached on the host,
+so we only need to define the :samp:`setup-base` hook
+to install the SDK in the workshop.
 
-The entire source can be found :download:`here <design-sdk/setup-base>`;
-let's focus on the more important sections and what they do.
+The hook is available as a :download:`file <design-sdk/setup-base>`;
+in this section, let's focus on its major portions and what they do.
+Besides installing the prerequisites, the hook does two important things:
 
-The key idea behind the design is two-fold.
-Aside from installing the prerequisites, the hook does two important things:
-
-- Points the build configuration to the directory set for :samp:`colcon-cache`
+- Points the build configuration to the directory set for :samp:`colcon-artefacts`
 - Looks up project dependencies in the :samp:`/project/` directory,
   assuming the project sources are already mapped there,
   and installs them automatically
 
-Both should simplify reuse and reentry for SDK users;
-we'll discuss their operation in detail below.
+Both aspects simplify reuse and reentry for SDK users;
+we'll discuss how they work in detail below.
 
 
 Path variables
@@ -97,7 +100,8 @@ Path variables
 
 .. literalinclude:: design-sdk/setup-base
    :language: shell
-   :lines: 5-10
+   :start-after: [path-variables-start]
+   :end-before: [path-variables-end]
 
 
 Defines various environment-specific variables,
@@ -110,7 +114,8 @@ Package management setup
 
 .. literalinclude:: design-sdk/setup-base
    :language: shell
-   :lines: 16-24
+   :start-after: [apt-update-start]
+   :end-before: [apt-update-end]
 
 
 Updates the package list and ensures necessary tools
@@ -124,7 +129,8 @@ Setup ROS 2 GPG key and repository
 
 .. literalinclude:: design-sdk/setup-base
    :language: shell
-   :lines: 26-34
+   :start-after: [ros2-repo-start]
+   :end-before: [ros2-repo-end]
 
 
 Downloads the ROS 2 GPG key and adds the ROS 2 repository
@@ -138,7 +144,8 @@ Install ROS 2 development tools
 
 .. literalinclude:: design-sdk/setup-base
    :language: shell
-   :lines: 26-34
+   :start-after: [ros2-devtools-start]
+   :end-before: [ros2-devtools-end]
 
 
 Using the repository configured earlier,
@@ -151,7 +158,8 @@ Setup minimal ROS 2 workspace
 
 .. literalinclude:: design-sdk/setup-base
    :language: shell
-   :lines: 48-52
+   :start-after: [ros2-workspace-start]
+   :end-before: [ros2-workspace-end]
 
 
 Installs minimal workspace packages and tools
@@ -163,7 +171,8 @@ Update :file:`.bashrc` for ROS 2 and :program:`colcon`
 
 .. literalinclude:: design-sdk/setup-base
    :language: shell
-   :lines: 54-70
+   :start-after: [bashrc-update-start]
+   :end-before: [bashrc-update-end]
 
 
 Adds lines to the :file:`.bashrc` file
@@ -177,14 +186,16 @@ Configure :program:`colcon` defaults
 
 .. literalinclude:: design-sdk/setup-base
    :language: shell
-   :lines: 72-98
+   :start-after: [colcon-defaults-start]
+   :end-before: [colcon-defaults-end]
 
-Creates directories and a default configuration file for :program:`colcon`,
-specifying paths for build, install, and log files.
+
+Creates directories and a default configuration file for :program:`colcon`
+with build, install, and log file paths.
 
 .. important::
 
-   This is where the :samp:`colcon-cache` plug from :file:`sdkcraft.yaml`
+   This is where the :samp:`colcon-artefacts` plug from :file:`sdkcraft.yaml`
    comes into play;
    the configuration points the build actions there instead of the default path.
 
@@ -194,13 +205,15 @@ Add :program:`colcon` mixins
 
 .. literalinclude:: design-sdk/setup-base
    :language: shell
-   :lines: 100-107
+   :start-after: [colcon-mixins-start]
+   :end-before: [colcon-mixins-end]
+
 
 Clones the :program:`colcon` mixin repository
 and adds default mixins for :program:`colcon`,
 updating them as necessary.
 
-Again, the directory configured for the :samp:`colcon-cache` plug is used.
+Again, the directory configured for the :samp:`colcon-artefacts` plug is used.
 
 
 Install :program:`rosdep` dependencies
@@ -208,7 +221,9 @@ Install :program:`rosdep` dependencies
 
 .. literalinclude:: design-sdk/setup-base
    :language: shell
-   :lines: 109-120
+   :start-after: [rosdep-dependencies-start]
+   :end-before: [rosdep-dependencies-end]
+
 
 Initialises :program:`rosdep`,
 a tool for installing system dependencies,
@@ -249,7 +264,21 @@ when respective features are eventually added).
 Summary
 -------
 
+This guide presents one way to approach SDK design;
+there are other options involving more hooks,
+the :samp:`parts` mechanism and so on.
+Let's go through the trade-offs here:
 
+- One benefit is that the SDK itself is very lightweight
+
+- Another advantage is its using the most up-to-date versions of all content
+
+- The drawback is the content being downloaded and installed
+  at every launch or refresh
+
+
+In general, it's a perfectly viable approach
+that you safely can adopt for your first SDK design.
 
 
 See also
