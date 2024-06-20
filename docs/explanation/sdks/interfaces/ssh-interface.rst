@@ -1,7 +1,7 @@
 .. _exp_ssh_interface:
 
 SSH interface
-===================
+=============
 
 The SSH interface
 exposes the host system's SSH agent
@@ -36,7 +36,7 @@ that multiple SSH interface plugs can access.
 
 When the SDK is installed at run-time during launch and refresh operations,
 :program:`Workshop` checks that the plug targeting the slot
-passes :ref:`validation <exp_interfaces_validation>`;
+passes :ref:`validation <exp_interface_connections>`;
 if it does,
 it can be connected.
 
