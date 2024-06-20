@@ -13,15 +13,6 @@ These articles explain individual interfaces in more detail.
    SSH interface <ssh-interface>
 
 
-These articles explain the key principles of interface usage.
-
-.. toctree::
-   :maxdepth: 1
-
-   Data sharing <content-sharing>
-   Interface connections <connections>
-
-
 Summary
 -------
 

@@ -132,4 +132,9 @@ See also
 Explanation:
 
 - :ref:`exp_content_interface`
-- :ref:`exp_sdk_interfaces`
+- :ref:`exp_sdks`
+
+
+Reference:
+
+- :ref:`ref_content_interface`
