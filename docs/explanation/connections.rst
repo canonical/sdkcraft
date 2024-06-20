@@ -18,7 +18,7 @@ Interfaces determine what resources a workshop can access
 and ensure that these permissions are managed securely and transparently.
 
 There are a limited number of pre-defined interfaces available,
-so they're de-facto standardised in :program:`Workshop`
+so they're in fact standardised in :program:`Workshop`
 to handle SDK permissions in a consistent, uniform way.
 
 
@@ -81,7 +81,7 @@ What goes into an connection
   Note that some slot declarations allow multiple plugs per slot,
   as shown for the content interface in the previous example,
   while some, such as the GPU interface, don't need it by design;
-  The default behavour is to set no restrictions.
+  The default behaviour is to set no restrictions.
 
 
 - **Automatic or manual connection**:
