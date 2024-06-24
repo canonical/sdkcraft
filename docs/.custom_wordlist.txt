@@ -1,7 +1,9 @@
 AUTH
+CLIs
 EdTech
 GPG
 GPUs
+GUIs
 IDEs
 IoT
 Jupyter

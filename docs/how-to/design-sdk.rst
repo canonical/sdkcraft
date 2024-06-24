@@ -261,8 +261,8 @@ whereas :file:`sdk/` stores hooks (and will store any other content
 when respective features are eventually added).
 
 
-Summary
--------
+Conclusion
+----------
 
 This guide presents one way to approach SDK design;
 there are other options involving more hooks,

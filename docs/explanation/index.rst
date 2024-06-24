@@ -25,8 +25,8 @@ These articles explain the key principles of SDK usage.
 
 .. _exp_sdks:
 
-Summary
--------
+SDKs
+----
 
 SDKs are essential workshop components that:
 
