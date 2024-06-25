@@ -50,7 +50,7 @@ Connections
 
 What goes into establishing a connection between a plug and a slot?
 
-- **Slot declaration**:
+- **Slot definition**:
   An interface has one or many slots,
   exposed at run-time via the :samp:`agent` SDK.
 
@@ -108,8 +108,9 @@ What goes into establishing a connection between a plug and a slot?
     under the :samp:`agent` SDK in the same workshop.
 
 
-  If the slot can be resolved without qualifying it,
-  the command can be shortened:
+  If only the slot name is supplied,
+  it's resolved against the workshop's :samp:`agent` SDK,
+  so this is equivalent to the previous example:
 
   .. code-block:: console
 
