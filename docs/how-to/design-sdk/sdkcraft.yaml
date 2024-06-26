@@ -15,7 +15,7 @@ plugs:
   ros-cache:
     interface: content
     target: /home/workshop/.ros
-  colcon-cache:
+  colcon-artefacts:
     interface: content
     target: /home/workshop/colcon
   gpu:

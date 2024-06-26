@@ -3,15 +3,14 @@
 SDK interfaces
 ==============
 
-These articles explain the core set of concepts related to SDK interfaces.
+These articles explain individual interfaces in more detail.
 
 .. toctree::
    :maxdepth: 1
 
    Content interface <content-interface>
-   Data sharing <content-sharing>
    GPU interface <gpu-interface>
-   SSH interface <ssh-agent-interface>
+   SSH interface <ssh-interface>
 
 
 Summary
@@ -57,23 +56,10 @@ provided that the definition has all :program:`Workshop` needs to make a match.
 When you build an SDK with |project_markup|,
 its plugs and slots should be listed in the
 :ref:`definition <exp_sdk_definition>`;
-each interface will have its own fields and semantics.
+each interface will have its own fields and semantics,
+including rules to establish connections at run-time.
 
-
-.. _exp_interfaces_validation:
-
-Validation and policies
-~~~~~~~~~~~~~~~~~~~~~~~
-
-To ensure plugs can be installed and connected,
-each interface uses its own set of rules called policies.
-For example, the content interface plug can be installed and auto-connected
-based on its policy alone.
-However, other interfaces may have different rules,
-such as allowing installation but not auto-connection for :samp:`ssh-agent`.
-
-Finally, once all the checks are done,
-the SDKs are ready to use the external resources.
+For details of the connection process, see :ref:`exp_interface_connections`.
 
 
 See also
