@@ -274,7 +274,7 @@ preparing the SDK for use or preserving its state during updates.
 
 
    It runs when the workshop is launched or refreshed,
-   installing the prerequisites and preparing it for use.
+   installing the prerequisites and preparing it.
 
 
 #. Also under :file:`python-sdk/hooks/`,
@@ -303,14 +303,30 @@ preparing the SDK for use or preserving its state during updates.
    - The :file:`restore-state` hook recovers the state
      *after* the workshop has been successfully updated.
 
-   - Both hooks use the :envvar:`$SDK_STATE_DIR` directory,
-     provided by the workshop to store the SDK state.
+   - Both hooks use the workshop's :envvar:`$SDK_STATE_DIR` directory
+     to store the SDK state.
 
 
    .. important::
 
       The SDK is also refreshed as a part of the workshop,
       so any breaking changes in its save-restore logic will cause an error.
+
+
+#. Finally,
+   create a hook
+   named :file:`check-health`:
+
+   .. code-block:: shell
+      :caption: check-health
+
+      #!/usr/bin/bash
+      python3 -c "import os" || workshopctl error
+
+
+   It checks whether the Python installation is actually functional
+   and :ref:`reports an error <exp_workshopctl>` if it's not.
+
 
 #. Make all hooks executable so that :program:`Workshop` can run them:
 
