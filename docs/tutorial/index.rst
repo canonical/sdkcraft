@@ -321,7 +321,7 @@ preparing the SDK for use or preserving its state during updates.
       :caption: check-health
 
       #!/usr/bin/bash
-      python3 -c "import os" || workshopctl error
+      python3 -c "import os" || workshopctl set-health --code=installation-fails error "Python 3 installation fails"
 
 
    It checks whether the Python installation is actually functional
