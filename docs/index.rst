@@ -5,7 +5,6 @@
 |project_markup|
 ================
 
-
 .. toctree::
    :hidden:
 
