@@ -16,11 +16,6 @@ cover most of your daily needs with |project_markup|.
 For more details, see the
 :ref:`reference <ref_index>` and :ref:`explanation <exp_index>` sections.
 
-.. important::
-
-   One technical detail before you start:
-   currently, |project_markup| supports only :samp:`amd64`.
-
 
 Check prerequisites
 -------------------
