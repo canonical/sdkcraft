@@ -1,7 +1,7 @@
 .. _exp_workshopctl:
 
-SDK health reporting with workshopctl
-=====================================
+SDK health reports with :program:`workshopctl`
+==============================================
 
 The :program:`workshopctl` tool allows an SDK
 to talk to the :program:`workshopd` daemon,
