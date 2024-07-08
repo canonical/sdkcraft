@@ -257,7 +257,7 @@ SDK hooks
        (:samp:`okay`, :samp:`waiting`` or :samp:`error`)
        for :program:`Workshop`
        to determine the overall status of the workshop,
-       using the :program:`workshopctl` internal CLI tool.
+       using the :ref:`workshopctl <ref_workshopctl>` internal CLI tool.
 
 
    * - :samp:`restore-state`
