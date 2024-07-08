@@ -127,11 +127,6 @@ but this detail isn't exposed in :file:`sdkcraft.yaml`.
 See also
 --------
 
-Explanation:
-
-- :ref:`exp_workshopctl`
-
-
 Reference:
 
 - :ref:`ref_sdks`

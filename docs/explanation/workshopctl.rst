@@ -59,11 +59,13 @@ depends on the run-time results of the hook:
 - *Ready* means success: the hook sets SDK health to :samp:`okay`
   or gracefully exits with a zero code.
 
-- *Pending*: the hook sets SDK health to :samp:`waiting`,
-  which changes to :samp:`error` after 10 unsuccessful retries, one per second,
-  or 5 initial seconds elapse without :samp:`set-health` being invoked.
+- *Pending*: The hook sets the SDK health to :samp:`waiting`.
+  This means it will be retried, one attempt per second.
+  If the retries fail 10 times consecutively
+  or if 5 seconds pass without :samp:`set-health` being invoked,
+  the SDK health is changed to :samp:`error`.
 
-- *Error*: the hook exits with an error code
+- *Error*: the hook exits with an non-zero code
   or explicitly sets SDK health to :samp:`error`.
 
 
