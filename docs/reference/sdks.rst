@@ -254,7 +254,7 @@ SDK hooks
        after running :samp:`restore-state` hooks for *all* SDKs.
 
      - Reports the state of the SDK
-       (:samp:`okay`, :samp:`waiting`` or :samp:`error`)
+       (:samp:`okay`, :samp:`waiting` or :samp:`error`)
        for :program:`Workshop`
        to determine the overall status of the workshop,
        using the :ref:`workshopctl <ref_workshopctl>` internal CLI tool.
