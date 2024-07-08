@@ -240,10 +240,10 @@ SDK hooks
 .. list-table::
    :header-rows: 1
    :width: 95
-   :widths: 2 5 4
+   :widths: 3 6 5
 
    * - Name
-     - When it runs
+     - When :program:`Workshop` runs it
      - What it does
 
    * - :samp:`check-health`
