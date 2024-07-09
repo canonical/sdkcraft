@@ -35,8 +35,6 @@ Let's review the less trivial sections:
 
    * - :samp:`platform`
      - The SDK targets both :samp:`amd64` and :samp:`arm64`.
-       Currently, `Workshop`_ is available only for :samp:`amd64`,
-       but this is subject to change.
 
    * - :samp:`parts`
      - This is essentially a stub;

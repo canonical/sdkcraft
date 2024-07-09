@@ -5,11 +5,7 @@ Reference
 
 These reference guides
 provide technical background
-that may be required to use |project_markup|.
-
-
-SDKs
-----
+for using |project_markup|:
 
 .. toctree::
    :maxdepth: 1

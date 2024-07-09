@@ -3,7 +3,7 @@
 Explanation
 ===========
 
-These articles explain the core set of SDK-related concepts.
+These articles iterate over the core set of SDK-related concepts:
 
 .. toctree::
    :maxdepth: 1
@@ -13,7 +13,7 @@ These articles explain the core set of SDK-related concepts.
    Parts <parts>
 
 
-These articles explain the key principles of SDK usage.
+These topics cover the key principles of SDK usage:
 
 .. toctree::
    :maxdepth: 1
@@ -126,11 +126,6 @@ but this detail isn't exposed in :file:`sdkcraft.yaml`.
 
 See also
 --------
-
-Explanation:
-
-- :ref:`exp_workshopctl`
-
 
 Reference:
 

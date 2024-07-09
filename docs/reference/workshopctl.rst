@@ -19,6 +19,13 @@ that runs after launch or refresh operations in a workshop:
    workshopctl set-health [--code=<ERROR CODE>] <STATUS> [<MESSAGE>]
 
 
+Example (note only the message is quoted):
+
+.. code-block:: shell
+
+   workshopctl set-health --code=missing-cuda error "CUDA libraries not found"
+
+
 .. list-table::
    :header-rows: 1
    :width: 95
@@ -30,24 +37,17 @@ that runs after launch or refresh operations in a workshop:
 
    * - :samp:`<STATUS>`
      - Required
-     - One of :samp:`okay`, :samp:`waiting` or :samp:`error`.
+     - Can be :samp:`okay`, :samp:`waiting` or :samp:`error`.
 
    * - :samp:`<ERROR CODE>`
      - Optional, not allowed with :samp:`okay`
-     - Short code of up to 20 lowercase characters, hyphens and digits;
-       should start with a character.
+     - Short code of lowercase letters, hyphens and digits;
+       3–30 characters, should start with a letter.
 
    * - :samp:`<MESSAGE>`
      - Required with :samp:`error-code`
-     - User-friendly message explaining the context of the error code;
-       7-70 lines long.
-
-
-Example:
-
-.. code-block:: shell
-
-   workshopctl set-health --code=missing-cuda error "CUDA libraries not found"
+     - Arbitrary string explaining the context of the error code;
+       7–70 characters.
 
 
 See also
