@@ -320,7 +320,7 @@ preparing the SDK for use or preserving its state during updates.
 
 
    It checks whether the Python installation is actually functional
-   and :ref:`reports an error <exp_workshopctl>` if it's not.
+   and reports an error via :ref:`workshopctl <exp_workshopctl>` if it's not.
 
 
 #. Make all hooks executable so that :program:`Workshop` can run them:

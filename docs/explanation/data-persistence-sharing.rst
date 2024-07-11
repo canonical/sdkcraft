@@ -25,8 +25,8 @@ while keeping manual intervention to a necessary minimum.
 Typically, workshops are isolated from each other and from the host system;
 all data exchange is via the content interface.
 
-To use this interface, your SDK defines a content interface
-:ref:`plug <exp_content_plug>`.
+To use this interface, your SDK defines a
+:ref:`content interface plug <exp_content_plug>`.
 When a workshop uses the SDK,
 an auto-assigned, non-customisable source directory on the host
 is mounted to the plug-defined target directory inside the workshop.
@@ -79,7 +79,7 @@ for each,
 `Workshop`_ creates a source directory on the host at run-time.
 Both :samp:`target` directories inside the workshop
 can be used by the SDK-specific logic
-implemented via :ref:`SDK hooks <exp_sdk_hooks>` and other features.
+implemented via :ref:`hooks <exp_sdk_hooks>` and other features.
 
 Here's a corresponding workshop definition:
 

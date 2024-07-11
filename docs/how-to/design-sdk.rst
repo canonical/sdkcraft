@@ -12,8 +12,8 @@ is structured.
 
 .. note::
 
-   This guide assumes that you already have |project_markup|
-   :ref:`installed <tutorial>` and know how to use it.
+   This guide assumes that you already have |project_markup| installed
+   and know how to use it; if needed, see the :ref:`tutorial <tutorial>` first.
    Also, our ROS 2 SDK is currently based on the :samp:`jazzy` distribution;
    adapt these steps for other distributions as needed.
 

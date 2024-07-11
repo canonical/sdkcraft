@@ -25,13 +25,13 @@ and managing that access securely and transparently.
 Plugs and slots
 ---------------
 
-Two :ref:`important concepts <exp_interfaces_plugs_slots>`
-are involved in requesting and granting permissions via an interface:
+Two important concepts are involved in
+:ref:`requesting and granting permissions via an interface <exp_interfaces_plugs_slots>`:
 
 - *Plugs* are attributes of an SDK that needs to access a resource.
 
 - *Slots*, which provide that access, are the attributes of the
-  :ref:`agent <exp_agent_sdk>` SDK,
+  :ref:`agent SDK <exp_agent_sdk>`,
   internal to :program:`Workshop`.
 
 
