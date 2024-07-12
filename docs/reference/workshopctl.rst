@@ -4,7 +4,7 @@ workshopctl (CLI)
 =================
 
 SDKs use the :program:`workshopctl` tool when reporting to the workshop;
-to invoke a subcommand, add it to your :ref:`SDK hooks <ref_sdk_hooks>`.
+to invoke a subcommand, add it to your :ref:`SDK hook <ref_sdk_hooks>`.
 
 
 :samp:`workshopctl set-health`

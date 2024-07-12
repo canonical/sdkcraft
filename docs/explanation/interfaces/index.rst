@@ -38,7 +38,7 @@ Plugs and slots
 
 To provide access to these resource types,
 :program:`Workshop` exposes *interface slots*.
-For example, a :ref:`content interface slot <exp_content_interface>`
+For example, a :ref:`content interface <exp_content_interface>` slot
 creates an internal host directory to be mounted inside the workshop;
 think of the slot as the provider of the resource.
 
@@ -49,7 +49,7 @@ You can think of the plug as the recipient of the resources exposed by the slot;
 note that a slot can handle connections with multiple plugs.
 
 This mechanism comes into play when you
-:command:`launch` or :command:`start` the workshop;
+:command:`workshop launch` or :command:`workshop start` the workshop;
 the plugs defined by its SDKs are automatically connected to the slots,
 provided that the definition has all :program:`Workshop` needs to make a match.
 

@@ -15,7 +15,7 @@ Introduction
 ------------
 
 :program:`workshopctl` is a CLI tool
-that an SDK author can use in the :ref:`SDK hooks <exp_sdk_hooks>`
+that an SDK author can use with some :ref:`hooks <exp_sdk_hooks>`
 to communicate with the :program:`workshopd` daemon.
 Under the hood, :program:`workshopctl` uses a socket exposed by the daemon
 to fit seamlessly into the workshop environment.

@@ -79,7 +79,9 @@ a directory created by :program:`Workshop` on the host file system
 is mounted to the :samp:`target` directory inside the workshop;
 the best part is that it's preserved
 between :program:`Workshop` operations such as
-:command:`refresh`, :command:`start` and :command:`stop`,
+:command:`workshop refresh`,
+:command:`workshop start`
+and :command:`workshop stop`,
 so you benefit from a pre-populated directory without doing extra work.
 
 Finally, a slot can be remounted to a custom location on the host file system

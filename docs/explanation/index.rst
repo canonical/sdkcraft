@@ -61,7 +61,7 @@ that :program:`Workshop` runs at the appropriate moments
 to consistently handle such data, collectively known as *SDK state*.
 
 For example, before changes are applied to the workshop
-during a :command:`refresh`,
+during :command:`workshop refresh`,
 the states of the SDKs are saved
 by invoking their :samp:`save-state` hooks.
 On success,
