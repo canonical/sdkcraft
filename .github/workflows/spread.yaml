@@ -1,4 +1,4 @@
-name: Spread
+name: End to end tests
 on:
   pull_request:
   push:

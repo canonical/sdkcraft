@@ -1,4 +1,4 @@
-name: build sdkcraft snap
+name: Release snap
 on: [workflow_dispatch]
 
 jobs:
