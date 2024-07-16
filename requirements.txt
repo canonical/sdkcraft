@@ -3,5 +3,5 @@
 # When updating, remove the urllib3 constraint from renovate config.
 urllib3==1.26.15
 craft-application~=3.2
-requests==2.30.0
+requests==2.32.2
 requests-unixsocket==0.3.0
