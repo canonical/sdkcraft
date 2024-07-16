@@ -45,6 +45,12 @@ parts:
   sdkcraft:
     source: .
     plugin: python
+    python-packages:
+      - wheel
+      - pip
+      - setuptools
+    python-requirements:
+      - requirements.txt
     build-attributes:
       - enable-patchelf
     build-packages:

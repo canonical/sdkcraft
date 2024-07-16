@@ -15,7 +15,6 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """craft-parts lifecycle integration."""
 
-
 from craft_application import services
 from overrides import override
 

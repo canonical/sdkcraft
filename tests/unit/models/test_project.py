@@ -14,56 +14,39 @@
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Tests for project models."""
+
 import pytest
 from craft_application import models
-from craft_providers import bases
+from craft_application.models import ProjectName, ProjectTitle, SummaryStr, VersionStr
 from sdkcraft.errors import SdkcraftError
-from sdkcraft.models import project, util
+from sdkcraft.models import project
 
-
-@pytest.mark.parametrize(
-    ("value", "expected"),
-    [
-        ("amd64", [util.Architecture.AMD64]),
-        (["riscv64", "arm64"], [util.Architecture.RISCV64, util.Architecture.ARM64]),
-        (util.Architecture.ARM64, [util.Architecture.ARM64]),
-        ([util.Architecture.S390X], [util.Architecture.S390X]),
-    ],
-)
-def test_platform_vectorise(value, expected):
-    assert project.Platform.vectorise(value) == expected
-
-
-@pytest.mark.parametrize(
-    ("platforms", "expected"),
-    [
-        (
-            {"amd64": None},
-            {
-                "amd64": {
-                    "build-on": [util.Architecture.AMD64],
-                    "build-for": [util.Architecture.AMD64],
-                }
-            },
-        ),
-        (
-            {"arbitrary platform name": {"build-on": "amd64", "build-for": "arm64"}},
-            {"arbitrary platform name": {"build-on": "amd64", "build-for": "arm64"}},
-        ),
-        (
-            {"riscv64": {"build-on": ["amd64", "arm64"]}},
-            {
-                "riscv64": {
-                    "build-on": ["amd64", "arm64"],
-                    "build-for": [util.Architecture.RISCV64],
-                }
-            },
-        ),
-    ],
-)
-def test_project_pre_parse_platforms(platforms, expected):
-    assert project.Project.pre_parse_platforms(platforms) == expected
-
+default = project.Project(
+                name=ProjectName("my-project"),
+                version=VersionStr("git"),
+                title=ProjectTitle("Sample"),
+                summary=SummaryStr("A sample project"),
+                description="description",
+                base="ubuntu@22.04",
+                contact="contact@canonical.com",
+                issues="https://github.com/canonical/sdk-store/issues",
+                source_code=None,
+                adopt_info=None,
+                package_repositories=None,
+                platforms={
+                    "amd64": models.Platform(
+                        build_for=["amd64"],
+                        build_on=["amd64"],
+                    ),
+                    "riscv64": models.Platform(
+                        build_on=["amd64", "arm64"],
+                        build_for=["riscv64"],
+                    ),
+                },
+                license="gplv3",
+                parts={},
+                plugs={},
+            )
 
 @pytest.mark.parametrize(
     ("obj", "expected"),
@@ -74,31 +57,22 @@ def test_project_pre_parse_platforms(platforms, expected):
                 "version": "git",
                 "summary": "A sample project",
                 "base": "ubuntu@22.04",
+                "title": "Sample",
+                "description": "description",
+                "contact": "contact@canonical.com",
+                "issues": "https://github.com/canonical/sdk-store/issues",
                 "platforms": {
-                    "amd64": None,
-                    "riscv64": {"build-on": ["amd64", "arm64"]},
+                    "amd64": {"build-for": ["amd64"], "build-on": ["amd64"]},
+                    "riscv64": {
+                        "build-on": ["amd64", "arm64"],
+                        "build-for": ["riscv64"],
+                    },
                 },
                 "license": "gplv3",
                 "parts": {},
+                "plugs": {},
             },
-            project.Project(
-                name="my-project",
-                version="git",
-                summary="A sample project",
-                base=util.Base.JAMMY,
-                platforms={
-                    "amd64": project.Platform(
-                        build_for=[util.Architecture.AMD64],
-                        build_on=[util.Architecture.AMD64],
-                    ),
-                    "riscv64": project.Platform(
-                        build_on=[util.Architecture.AMD64, util.Architecture.ARM64],
-                        build_for=[util.Architecture.RISCV64],
-                    ),
-                },
-                license="gplv3",
-                parts={},
-            ),
+            default,
         ),
     ],
 )
@@ -106,63 +80,14 @@ def test_project_create_valid(obj, expected):
     assert project.Project.parse_obj(obj) == expected
 
 
-@pytest.mark.parametrize(
-    ("project", "expected"),
-    [
-        (
-            project.Project(
-                name="my-project",
-                version="git",
-                summary="A sample project",
-                base=util.Base.JAMMY,
-                platforms={
-                    "amd64": project.Platform(
-                        build_for=[util.Architecture.AMD64],
-                        build_on=[util.Architecture.AMD64],
-                    ),
-                    "riscv64": project.Platform(
-                        build_on=[util.Architecture.AMD64, util.Architecture.ARM64],
-                        build_for=[util.Architecture.RISCV64],
-                    ),
-                },
-                license="gplv3",
-                parts={},
-            ),
-            [
-                models.BuildInfo(
-                    "amd64",
-                    util.Architecture.AMD64.value,
-                    util.Architecture.AMD64.value,
-                    bases.BaseName("ubuntu", "22.04"),
-                ),
-                models.BuildInfo(
-                    "riscv64",
-                    util.Architecture.AMD64.value,
-                    util.Architecture.RISCV64.value,
-                    bases.BaseName("ubuntu", "22.04"),
-                ),
-                models.BuildInfo(
-                    "riscv64",
-                    util.Architecture.ARM64.value,
-                    util.Architecture.RISCV64.value,
-                    bases.BaseName("ubuntu", "22.04"),
-                ),
-            ],
-        ),
-    ],
-)
-def test_project_get_build_plan(project, expected):
-    assert project.get_build_plan() == expected
-
-
 def test_project_stage_packages_prohibited():
     part_packages = {"plugin": "nil", "stage-packages": ["python3-apt"]}
     with pytest.raises(NotImplementedError):
-        project.Project._validate_parts(part_packages)
+        default._validate_parts(part_packages)
 
     part_snaps = {"plugin": "nil", "stage-snaps": ["shellcheck"]}
     with pytest.raises(NotImplementedError):
-        project.Project._validate_parts(part_snaps)
+        default._validate_parts(part_snaps)
 
 
 def test_project_plugs():
@@ -172,7 +97,7 @@ def test_project_plugs():
         "content2": {"target": "/data"},
     }
     try:
-        project.Project._validate_plugs(valid_plugs)
+        default._validate_plugs(valid_plugs)
     except ValueError as e:
         pytest.fail(reason=f"unexpected exception {e}")
 
@@ -182,11 +107,11 @@ def test_project_plugs():
     with pytest.raises(
         SdkcraftError, match="ContentPlug 'content' must have a 'target' parameter."
     ):
-        project.Project._validate_plugs(no_target)
+        default._validate_plugs(no_target)
 
     incorrect_type = {"content": ["interface", "content"]}
     with pytest.raises(SdkcraftError, match="cannot be a list"):
-        project.Project._validate_plugs(incorrect_type)
+        default._validate_plugs(incorrect_type)
 
 
 def test_project_reserved_name_forbidden():
