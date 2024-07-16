@@ -14,6 +14,7 @@
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Services for sdkcraft."""
+
 from __future__ import annotations
 
 import pathlib
@@ -36,13 +37,8 @@ class Package(services.PackageService):
         app: AppMetadata,
         project: models.Project,
         services: services.ServiceFactory,
-        *,
-        platform: str | None,
-        build_for: str,
     ) -> None:
         super().__init__(app, services, project=project)
-        self._platform = platform
-        self._build_for = build_for
 
     def _pack_hooks(self, arch: tarfile.TarFile) -> None:
         """Add provided hooks to the package."""

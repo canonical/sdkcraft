@@ -12,6 +12,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+from pathlib import Path
 
 import pytest
 from sdkcraft import services
@@ -25,7 +27,7 @@ def extra_project_params():
 
 @pytest.fixture()
 def default_project(extra_project_params):
-    from craft_application.models import ProjectName, VersionStr
+    from craft_application.models import Platform, ProjectName, SummaryStr, VersionStr
     from sdkcraft.models.project import Project
 
     parts = extra_project_params.pop("parts", {})
@@ -34,17 +36,15 @@ def default_project(extra_project_params):
     return Project(
         name=ProjectName("default"),
         version=VersionStr("1.0"),
-        summary="default project",
+        summary=SummaryStr("default project"),
         description="default project",
         base="ubuntu@22.04",
         parts=parts,
         license="MIT",
-        platforms={"amd64": None},
+        platforms={"amd64": Platform(build_on=["amd64"], build_for=["amd64"])},
         contact="requests@canonical.com",
-        issues="https://github.com/canonical/sdk-store/issues",
-        source_code="https://github.com/canonical/sdk-store",
-        website="http://canonical.com",
         plugs=plugs,
+        issues="https://github.com/canonical/sdk-store/issues",
         **extra_project_params,
     )
 
@@ -70,6 +70,30 @@ def package_service(default_project, default_factory):
         app=APP_METADATA,
         project=default_project,
         services=default_factory,
-        platform="amd64",
-        build_for="amd64",
     )
+
+
+@pytest.fixture()
+def new_dir(tmpdir):
+    """Change to a new temporary directory."""
+
+    cwd = Path.cwd()
+    os.chdir(tmpdir)
+
+    yield tmpdir
+
+    os.chdir(cwd)
+
+
+@pytest.fixture()
+def _reset_callbacks():
+    """Fixture that resets the status of craft-part's various lifecycle callbacks,
+    so that tests can start with a clean slate.
+    """
+    # pylint: disable=import-outside-toplevel
+
+    from craft_parts import callbacks
+
+    callbacks.unregister_all()
+    yield
+    callbacks.unregister_all()

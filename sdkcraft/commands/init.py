@@ -13,6 +13,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Creation of minimalist sdkcraft projects."""
+
 import textwrap
 from pathlib import Path
 from typing import TYPE_CHECKING

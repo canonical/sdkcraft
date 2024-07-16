@@ -26,7 +26,6 @@ from craft_application.models import (
 from pydantic import AnyUrl
 
 from sdkcraft.models.project import ContentPlug
-from sdkcraft.models.util import Base
 
 
 class Metadata(BaseMetadata):
@@ -34,7 +33,7 @@ class Metadata(BaseMetadata):
 
     name: str
     title: ProjectTitle | None
-    base: Base
+    base: Any
     summary: SummaryStr
     license: str
     description: str
@@ -44,7 +43,8 @@ class Metadata(BaseMetadata):
     source_code: AnyUrl | None
     plugs: dict[str, ContentPlug | Any] | None
 
-    class Config:
-        """Metadata-specific Config for pydantic."""
+    def __init__(self, **kwargs: dict[Any, Any]) -> None:
+        super().__init__(**kwargs)
 
-        use_enum_values = True
+        # Setting attributes of Config
+        self.Config.use_enum_values = True
