@@ -20,8 +20,8 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: "pip"
       - name: Configure environment
         run: |
           echo "::group::Begin snap install"
@@ -33,87 +33,52 @@ jobs:
           python -m pip install tox
           echo "::endgroup::"
           echo "::group::Create virtual environments for linting processes."
-          tox run --colored yes -m lint --notest
+          python -m pip install -U wheel setuptools pip
+          python -m pip install -U -r requirements-dev.txt
+          pip install -e .
           echo "::endgroup::"
           echo "::group::Wait for snap to complete"
           snap watch --last=install
           echo "::endgroup::"
-      - name: Run Linters
-        run: tox run --skip-pkg-install --no-list-dependencies --colored yes -m lint
-  unit:
+      - name: Run codespell
+        run: make test-codespell
+      - name: Run ruff
+        run: make test-ruff
+      - name: Run my-py
+        run: make test-mypy
+      - name: Run pyright
+        run: make test-pyright
+      - name: Run shellcheck
+        run: make test-shellcheck
+      - name: Run yamllint
+        run: make test-yamllint
+  tests:
     strategy:
       matrix:
-        platform: [ubuntu-20.04, ubuntu-22.04, windows-latest, macos-latest]
+        platform: [ubuntu-22.04]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: |
-            3.8
-            3.10
-            3.11
-            3.12-dev
-          cache: 'pip'
       - name: Configure environment
         run: |
-          echo "::group::pip install"
-          python -m pip install tox
+          echo "::group::apt-get update"
+          sudo apt-get update
           echo "::endgroup::"
-          mkdir -p results
-      - name: Setup Tox environments
-        run: tox run --colored yes -m tests --notest
-      - name: Test with tox
-        run: tox run --skip-pkg-install --no-list-dependencies --result-json results/tox-${{ matrix.platform }}.json --colored yes -m unit-tests
-        env:
-          PYTEST_ADDOPTS: "--no-header -vv -rN"
-      - name: Upload code coverage
-        uses: codecov/codecov-action@v3
-        with:
-          directory: ./results/
-          files: coverage*.xml
-      - name: Upload test results
-        if: success() || failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results-${{ matrix.platform }}
-          path: results/
-  integration:
-    strategy:
-      matrix:
-        platform: [ubuntu-20.04, ubuntu-22.04, windows-latest, macos-latest]
-    runs-on: ${{ matrix.platform }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: |
-            3.8
-            3.10
-            3.11
-            3.12-dev
-          cache: 'pip'
-      - name: Configure environment
+          echo "::group::apt-get install..."
+          sudo apt-get install -y python3 python3-pip python3-apt python3-dev libapt-pkg-dev
+          echo "::endgroup::"
+          echo "::group::pip install"
+          python -m pip install -U wheel setuptools pip
+          python -m pip install -U -r requirements-dev.txt
+          echo "::endgroup::"
+      - name: Install project
         run: |
-          echo "::group::pip install"
-          python -m pip install tox
-          echo "::endgroup::"
-          mkdir -p results
-      - name: Setup Tox environments
-        run: tox run --colored yes -m tests --notest
-      - name: Test with tox
-        run: tox run --skip-pkg-install --no-list-dependencies --result-json results/tox-${{ matrix.platform }}.json --colored yes -m integration-tests
-        env:
-          PYTEST_ADDOPTS: "--no-header -vv -rN"
-      - name: Upload test results
-        if: success() || failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results-${{ matrix.platform }}
-          path: results/
+          pip install -e .
+      - name: Run unit tests
+        run: |
+          make test-units
+      - name: Run integration tests
+        run: |
+          make test-integrations

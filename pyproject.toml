@@ -1,15 +1,6 @@
 [project]
 name = "sdkcraft"
 dynamic = ["version", "readme"]
-dependencies = [
-    # Needed until requests-unixsocket supports urllib3 v2
-    # https://github.com/msabramo/requests-unixsocket/pull/69
-    # When updating, remove the urllib3 constraint from renovate config.
-    "urllib3==1.26.15",
-    "craft-application~=1.1",
-    "requests==2.30.0",
-    "requests-unixsocket==0.3.0"
-]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: GNU General Public License (GPL)",

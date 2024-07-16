@@ -10,9 +10,8 @@ jobs:
       - uses: snapcore/action-build@v1
         id: snapcraft
 
-      - uses: snapcore/action-publish@v1
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          snap: ${{ steps.snapcraft.outputs.snap }}
-          release: edge
+          files: |
+            ${{ steps.snapcraft.output.snap }}

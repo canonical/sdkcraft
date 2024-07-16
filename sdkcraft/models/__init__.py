@@ -17,6 +17,5 @@
 
 from .metadata import Metadata
 from .project import Project
-from .util import Base
 
 __all__ = ["Metadata", "Project"]
