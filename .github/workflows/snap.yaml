@@ -1,4 +1,4 @@
-name: build sdkcraft snap
+name: Release snap
 on: [workflow_dispatch]
 
 jobs:
@@ -14,4 +14,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ${{ steps.snapcraft.output.snap }}
+            ${{ steps.snapcraft.outputs.snap }}
