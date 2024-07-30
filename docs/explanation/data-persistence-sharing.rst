@@ -96,10 +96,15 @@ Here's a corresponding workshop definition:
 The default host location
 that :program:`Workshop` mounts to the target
 is pre-defined as follows:
-:samp:`$XDG_DATA_HOME/workshop/project/<PROJECT ID>/content/<WORKSHOP>_<SDK>_<PLUG>.sdk/`.
+
+.. code-block:: none
+
+   $XDG_DATA_HOME/workshop/project/<PROJECT ID>/content/<WORKSHOP>_<SDK>_<PLUG>.sdk/
+
+
 In the above example,
 this would be
-:file:`~/.local/share/workshop/project/<PROJECT ID>/content/data_data-science_share-cache.sdk/`.
+:file:`~/.local/share/workshop/project/<PROJECT ID>/content/data_data-science_share-cache.sdk/`.
 In particular,
 this means that the SDK's plug in each workshop
 will have its own unique source directory.

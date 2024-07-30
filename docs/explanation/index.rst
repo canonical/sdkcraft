@@ -99,12 +99,12 @@ along with hooks, more interface plugs and parts
 that implement the SDK's functionality.
 
 
-.. _exp_agent_sdk:
+.. _exp_host_sdk:
 
-Agent SDK
-~~~~~~~~~
+Host SDK
+~~~~~~~~
 
-Every workshop contains an *agent SDK*
+Every workshop contains a *host SDK*
 that exposes system resources through interface slots.
 It's essentially a special SDK type,
 which is not available from the SDK Store but is auto-added to each workshop.
@@ -112,14 +112,14 @@ It's installed first at :command:`workshop launch`
 and removed last at :command:`workshop remove`,
 ensuring internal consistency.
 
-The purpose of the agent SDK isn't to add hooks or additional content;
-it's only there to expose system resources to other SDKs in a consistent way.
+The purpose of the host SDK isn't to add hooks or additional content;
+it's only there to expose host system resources to other SDKs consistently.
 As such, it can't be removed by the user
 and isn't listed in the :command:`workshop info` output.
 
 The uniformity of this approach lies in the fact that system resources
 and workshop resources are exposed using the same logic.
-Technically, the agent SDK is of :samp:`agent` type,
+Technically, the host SDK is of :samp:`host` type,
 whereas all other SDKs are of :samp:`regular` type,
 but this detail isn't exposed in :file:`sdkcraft.yaml`.
 
