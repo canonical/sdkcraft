@@ -364,6 +364,17 @@ p code.literal {
     font-size: var(--code-font-size);
 }
 
+/* Make inline commands look like inline code */
+strong.command {
+    border: none;
+    border-radius: 0;
+    padding: .1em .2em;
+    background-color: var(--color-inline-code-background);
+    font-size: var(--code-font-size);
+    font-family: var(--font-stack--monospace);
+    font-weight: normal;
+}
+
 /* Use the general admonition font size for inline code */
 .admonition p code.literal {
     font-size: var(--admonition-font-size);
