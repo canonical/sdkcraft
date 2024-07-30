@@ -31,7 +31,7 @@ Two important concepts are involved in
 - *Plugs* are attributes of an SDK that needs to access a resource.
 
 - *Slots*, which provide that access, are the attributes of the
-  :ref:`agent SDK <exp_agent_sdk>`,
+  :ref:`host SDK <exp_host_sdk>`,
   internal to :program:`Workshop`.
 
 
@@ -52,7 +52,7 @@ What goes into establishing a connection between a plug and a slot?
 
 - **Slot definition**:
   An interface has one or many slots,
-  exposed at run-time via the :samp:`agent` SDK.
+  exposed at run-time via the :samp:`host` SDK.
 
   Each slot has a set of rules that determine
   whether an SDK which uses the interface can be installed
@@ -96,7 +96,7 @@ What goes into establishing a connection between a plug and a slot?
 
   .. code-block:: console
 
-     $ workshop connect ros2/ros2:ssh-agent ros2/agent:ssh-agent
+     $ workshop connect ros2/ros2:ssh-agent ros2/host:ssh-agent
 
 
   This command fully qualifies both the plug and the slot:
@@ -105,11 +105,11 @@ What goes into establishing a connection between a plug and a slot?
     under the :samp:`ros2` SDK in the :samp:`ros2` workshop.
 
   - Second, it specifies the :samp:`ssh-agent` interface slot
-    under the :samp:`agent` SDK in the same workshop.
+    under the :samp:`host` SDK in the same workshop.
 
 
   If only the slot name is supplied,
-  it's resolved against the workshop's :samp:`agent` SDK,
+  it's resolved against the workshop's :samp:`host` SDK,
   so this is equivalent to the previous example:
 
   .. code-block:: console
