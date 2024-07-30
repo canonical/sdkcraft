@@ -147,8 +147,8 @@ with :program:`Workshop` and |project_markup| as follows:
      - :samp:`setup-base` :ref:`hook <exp_sdk_hooks>`
 
    * - :samp:`FROM`
+     - :samp:`base` in the workshop definition
      - :samp:`base` in the :ref:`SDK definition <exp_sdk_definition>`
-     -  
 
    * - :samp:`HEALTHCHECK`
      -  
