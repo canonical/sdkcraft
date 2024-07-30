@@ -42,12 +42,12 @@ Bind mounts
 
 :program:`Docker` provides several ways to manage data persistence and storage
 such as the :option:`!--mount` run-time option or :samp:`VOLUME` instructions.
-It's important to note that the run-time mount settings
-are usually provided by the users themselves;
-image authors often prefer to keep their images mount-agnostic,
-in line with the aforementioned preference for immutability.
+It's important to note that
+the expectations for mount configuration are set by the image author
+but the actual parameters are set by users who follow the author's guidance;
+the resulting manual process is error-prone and adds unnecessary overhead.
 
-:program:`Workshop` reciprocates this functionality
+:program:`Workshop` internalises and reciprocates this functionality
 with the :ref:`content interface <exp_content_interface>`
 and the :command:`workshop remount` command,
 but the key difference is
@@ -207,6 +207,38 @@ The Dockerfile says:
 In :program:`Workshop`'s terms, this translates to :samp:`ubuntu@24.04`
 in the :ref:`SDK definition <exp_sdk_definition>`;
 the same base should appear in the definition of the workshop itself.
+
+
+Mount points
+~~~~~~~~~~~~
+
+ROS-specific mounts need to be configured by the user at run-time, for example:
+
+.. code-block:: console
+
+   $ docker run \
+       --mount type=bind,source=/dev/dri,target=/dev/dri,consistency=cached \
+       --mount type=bind,source=~/cache/$ROS_DISTRO/build,target=/home/ws/build \
+       --mount type=bind,source=~/cache/$ROS_DISTRO/install,target=/home/ws/install \
+       --mount type=bind,source=~/cache/$ROS_DISTRO/log,target=/home/ws/log ...
+
+
+With |project_markup|, similar mounts can be defined as SDK interface plugs:
+
+.. code-block:: yaml
+
+   plugs:
+     ros-cache:
+       interface: content
+       target: /home/workshop/.ros
+     colcon-artefacts:
+       interface: content
+       target: /home/workshop/colcon
+     gpu:
+       interface: gpu
+
+
+This removes the need to configure them per each user.
 
 
 Working directory
