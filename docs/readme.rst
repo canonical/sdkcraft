@@ -37,14 +37,17 @@ for low-level operation:
    sudo lxd init --auto
 
 
-Build and install the ``sdkcraft`` snap, for example:
+Download the latest snap from the
+`Releases <https://github.com/canonical/sdkcraft/releases/>`_
+page on GitHub and install it,
+using the options
+`--dangerous <https://snapcraft.io/docs/install-modes#heading--dangerous>`_
+and
+`--classic <https://snapcraft.io/docs/install-modes#heading--classic>`_,
+for example:
 
 .. code-block:: console
 
-   git clone git@github.com:canonical/sdkcraft.git  # or git clone https://github.com/canonical/sdkcraft.git
-   cd sdkcraft
-   sudo snap install snapcraft --classic
-   snapcraft clean && snapcraft
    sudo snap install --dangerous --classic ./sdkcraft_0.1_amd64.snap
 
 
