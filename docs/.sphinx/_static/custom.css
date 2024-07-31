@@ -375,6 +375,11 @@ strong.command {
     font-weight: normal;
 }
 
+/* Make inline program names lighter */
+strong.program {
+    font-weight: lighter;
+}
+
 /* Use the general admonition font size for inline code */
 .admonition p code.literal {
     font-size: var(--admonition-font-size);
