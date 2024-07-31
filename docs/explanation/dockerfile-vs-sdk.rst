@@ -3,9 +3,9 @@
 How a Dockerfile compares to an SDK
 ===================================
 
-:program:`Workshop` didn't happen in a vacuum; there have been many attempts
-to provide developers with robust environments.
-A common approach is to use :program:`Docker`
+:program:`Workshop` and |project_markup| didn't happen in a vacuum;
+there have been many attempts to provide developers with robust environments.
+A common approach is to use Docker
 to achieve repeatability, persistence, layering, and various other benefits
 that the technology offers.
 
@@ -24,14 +24,14 @@ Feature discussion
 ------------------
 
 To begin with, it's perfectly reasonable to draw a few comparisons
-between :program:`Docker` and :program:`Workshop`.
+between Docker and :program:`Workshop`.
 
 
 :spellexception:`(Im)mutability`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first contrast comes from the overall approach:
-:program:`Docker` images are conceived to be immutable,
+Docker images are conceived to be immutable,
 whereas workshops are designed to evolve over time.
 This affects all aspects of their design and implementation,
 including Dockerfiles and SDKs respectively.
@@ -40,7 +40,7 @@ including Dockerfiles and SDKs respectively.
 Bind mounts
 ~~~~~~~~~~~
 
-:program:`Docker` provides several ways to manage data persistence and storage
+Docker provides several ways to manage data persistence and storage
 such as the :option:`!--mount` run-time option or :samp:`VOLUME` instructions.
 It's important to note that
 the expectations for mount configuration are set by the image author
@@ -63,8 +63,8 @@ Resource usage
 ~~~~~~~~~~~~~~
 
 For largely historical reasons,
-:program:`Docker`'s way of accessing various host resources
-can be remarkably disparate;
+the Docker way of accessing various host resources
+can be notably inconsistent;
 for example, enabling GPU pass-through is entirely different to SSH forwarding.
 
 In contrast, :program:`Workshop` aims to unify these mechanisms
@@ -75,7 +75,7 @@ providing a consistent way to uniformly manage host resource access.
 Parts and layers
 ~~~~~~~~~~~~~~~~
 
-:program:`Docker` relies on temporally layered approach,
+Docker relies on temporally layered approach,
 where each change is built on top of the previous one.
 
 Our SDKs are structured using :ref:`parts <exp_sdk_parts>`;
@@ -89,11 +89,12 @@ although :program:`Workshop` doesn't yet support layering.
 Build commands
 ~~~~~~~~~~~~~~
 
-In :program:`Docker`,
+In Docker,
 build commands are typically bundled as :samp:`RUN` instructions.
 
 In our SDKs,
-the :samp:`setup-base` :ref:`hook <exp_sdk_hooks>` is responsible for building the workshop,
+the :samp:`setup-base` :ref:`hook <exp_sdk_hooks>`
+is responsible for building the workshop,
 but other hooks add extra functionality with run-time events and health checks.
 
 
@@ -107,7 +108,7 @@ whereas a workshop is managed by the user but relies on publisher-defined SDKs
 whose definitions are beyond the user's reach.
 
 This means that some aspects of implementation
-accessible to the :program:`Docker` user
+accessible to the Docker user
 won't be available to a user of :program:`Workshop`,
 so the design process is split between the user-oriented :program:`Workshop`
 and the publisher-focused |project_markup|.
@@ -128,7 +129,8 @@ with :program:`Workshop` and |project_markup| as follows:
 
    * - :samp:`ADD`
      -  
-     - :ref:`parts <exp_sdk_parts>`, :ref:`content interface <exp_content_interface>`
+     - :ref:`parts <exp_sdk_parts>`,
+       :ref:`content interface <exp_content_interface>`
 
    * - :samp:`CMD`
      - :command:`workshop exec`, :command:`workshop shell`
@@ -176,7 +178,7 @@ with :program:`Workshop` and |project_markup| as follows:
 
    * - :samp:`WORKDIR`
      - :command:`workshop exec` with :option:`!-w` or :option:`!--cwd` set
-     -  
+     - :file:`/project/` inside the workshop
 
 
 Case study: ROS 2
@@ -191,7 +193,8 @@ for details, refer to the corresponding how-to guide
 in the `See also`_ section.
 
 Nonetheless, we won't focus on the specifics of ROS 2 here;
-instead, we will discuss how certain parts of an arbitrary elaborate Dockerfile
+instead, we will discuss how certain parts
+of an arbitrarily sophisticated Dockerfile
 map to a similar SDK and the workshop that uses it.
 
 
@@ -238,15 +241,18 @@ With |project_markup|, similar mounts can be defined as SDK interface plugs:
        interface: gpu
 
 
-This removes the need to configure them per each user.
+This removes the need to configure them per each user;
+moreover, the :command:`workshop remount` command adds extra flexibility here
+by enabling run-time remounts without the need to redefine or stop the workshop.
 
 
-Working directory
-~~~~~~~~~~~~~~~~~
+Directories
+~~~~~~~~~~~
 
-Next, let's look at how the approach to the working directory differs.
+Next, let's look at the different approaches
+to the working and project directories.
 
-The Dockerfile establishes it as follows:
+The Dockerfile establishes its :samp:`WORKDIR` as follows:
 
 .. code-block:: docker
 
@@ -256,8 +262,10 @@ The Dockerfile establishes it as follows:
    WORKDIR $ROS2_WS
 
 
-But the SDK is more elaborate.
-First, it builds a hierarchy in the default home directory:
+But our |project_markup| SDK can afford to be more elaborate.
+Firstly, it builds a hierarchy
+in the home directory of the default user, :samp:`workshop`,
+to provide settings that rely on the home directory:
 
 .. code-block:: shell
 
@@ -267,43 +275,47 @@ First, it builds a hierarchy in the default home directory:
    _WORKSHOP_COLCON_CONFIG_BASE_PATH="${_WORKSHOP_USER_HOME}/.colcon"
 
 
-But distinguishes it from the project directory:
+Home directories don't have a special meaning for :program:`Workshop` itself;
+however, :file:`/project/` does:
 
 .. code-block:: shell
 
    _WORKSHOP_PROJECT_BASE_PATH="/project"
 
 
-Remember that the host directory where the workshop was defined and launched
-is mapped to the *project* directory, not the home directory.
+The host directory where the workshop was defined and launched
+is mapped to this *project* directory, not the home directory.
+This means that the source files placed there
+will appear under :file:`/project/` inside the workshop.
+In general, this is what an SDK should expect and rely upon.
 
 Next, the hook modifies the default :samp:`.bashrc`,
-then creates and populates :program:`colcon`'s directories in the hierarchy,
+then creates and populates :program:`colcon`'s hierarchy in the home directory,
 effectively establishing a foundation for the workshop's run-time behaviour;
-the build artefacts of ROS 2 are eventually stored in the *project* directory.
+the build artefacts of ROS 2 are stored there
+and exposed to the host via the :samp:`colcon-artefacts` mount.
 
 
 Build commands
 ~~~~~~~~~~~~~~
 
-Normally, everything under a :samp:`RUN` instruction in a Dockerfile
+Normally, a :samp:`RUN` instruction in a Dockerfile
 translates to the :samp:`setup-base` :ref:`hook <exp_sdk_hooks>` in an SDK
-pretty much unchanged.
+pretty well.
 Here, the steps to
 `set up keys <https://github.com/osrf/docker_images/blob/248dd4b04e98ff136921f3a4f328d42c0dbc927c/ros2/source/devel/Dockerfile#L35>`_,
-then `configure the repositories <https://github.com/osrf/docker_images/blob/248dd4b04e98ff136921f3a4f328d42c0dbc927c/ros2/source/devel/Dockerfile#L45>`_
+then `configure the repos <https://github.com/osrf/docker_images/blob/248dd4b04e98ff136921f3a4f328d42c0dbc927c/ros2/source/devel/Dockerfile#L45>`_
 and `install the packages <https://github.com/osrf/docker_images/blob/248dd4b04e98ff136921f3a4f328d42c0dbc927c/ros2/source/devel/Dockerfile#L52>`_
-would largely stay the same.
+largely stay the same.
 
 However, :samp:`setup-base` runs with the project directory already mounted,
 which means that some :samp:`ONBUILD` features
 can be implemented with the same hook.
 Here, this enables the ROS 2 SDK
 to identify and install project-specific dependencies,
-eliminating the need to do this manually
-as would be the case with the Dockerfile.
+eliminating the need to do this manually.
 
-For instance, this Dockerfile instruction:
+For instance, these Dockerfile instructions:
 
 .. code-block:: docker
 
@@ -318,8 +330,8 @@ For instance, this Dockerfile instruction:
        colcon metadata update
 
 
-Largely corresponds to this section of :samp:`setup-base` from the ROS 2 SDK
-(note the use of the variables from the previous section):
+Correspond to this section of :samp:`setup-base` from the ROS 2 SDK
+(note the use of the variables):
 
 .. code-block:: shell
 
@@ -339,8 +351,8 @@ Largely corresponds to this section of :samp:`setup-base` from the ROS 2 SDK
    sudo -H -E -u ${_WORKSHOP_USER} bash -c "rosdep update --rosdistro=${_WORKSHOP_ROS_DISTRO}"
 
 
-Lastly, the SDK adds steps that implement project-specific logic
-on top of the defaults:
+Lastly, the SDK implements extra logic,
+traversing the project directory for dependencies:
 
 .. code-block:: shell
 

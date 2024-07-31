@@ -41,6 +41,7 @@ onboarding
 pathname
 readme
 repo
+repos
 roadmap
 rosdep
 sdk
