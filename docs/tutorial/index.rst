@@ -284,7 +284,7 @@ preparing the SDK for use or preserving its state during updates.
       rsync -a $SDK_STATE_DIR/ /home/workshop/my_python_work
 
 
-   During a :command:`workshop refresh` operation:
+   During a :command:`workshop refresh` operation:
 
    - The :file:`save-state` hook runs *before* the workshop is refreshed,
      saving the state of the SDK.

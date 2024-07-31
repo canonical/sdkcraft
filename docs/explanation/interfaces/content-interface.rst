@@ -72,20 +72,20 @@ Connection
 ----------
 
 Content interface plugs are connected automatically at launch and refresh;
-manual connection with the :command:`workshop connect` command is also possible.
+manual connection with the :command:`workshop connect` command is also possible.
 
 Establishing a connection means
 a directory created by :program:`Workshop` on the host file system
 is mounted to the :samp:`target` directory inside the workshop;
 the best part is that it's preserved
 between :program:`Workshop` operations such as
-:command:`workshop refresh`,
-:command:`workshop start`
-and :command:`workshop stop`,
+:command:`workshop refresh`,
+:command:`workshop start`
+and :command:`workshop stop`,
 so you benefit from a pre-populated directory without doing extra work.
 
 Finally, a slot can be remounted to a custom location on the host file system
-with the :command:`workshop remount` command.
+with the :command:`workshop remount` command.
 The new source should be either a non-existing directory
 or an empty directory on the same file system as the current source;
 otherwise, the workshop must be stopped prior to the remount attempt.
