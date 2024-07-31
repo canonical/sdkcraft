@@ -78,7 +78,7 @@ page on GitHub and install it,
 using the options
 `--dangerous <https://snapcraft.io/docs/install-modes#heading--dangerous>`_
 and
-`--classic <https://snapcraft.io/docs/install-modes#heading--classic>`_,
+`--classic <https://snapcraft.io/docs/install-modes#heading--confinement>`_,
 for example:
 
 .. code-block:: console
