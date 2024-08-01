@@ -377,7 +377,7 @@ strong.command {
 
 /* Make inline program names lighter */
 strong.program {
-    font-weight: lighter;
+    font-weight: normal;
 }
 
 /* Use the general admonition font size for inline code */
