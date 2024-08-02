@@ -45,7 +45,7 @@ Connection
 ----------
 
 SSH interface plugs aren't connected automatically for security reasons
-and require manual connection with the :command:`workshop connect` command.
+and require manual connection with the :command:`workshop connect` command.
 
 Establishing a connection means
 a proxy Unix domain socket has been created

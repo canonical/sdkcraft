@@ -119,7 +119,7 @@ The :command:`docker run` example at the beginning illustrates this approach;
 it explicitly lists the host directories to be mounted to each target.
 
 This can also be done with :program:`Workshop`,
-and the :command:`workshop remount` command is the key to it:
+and the :command:`workshop remount` command is the key to it:
 
 .. code-block:: console
 

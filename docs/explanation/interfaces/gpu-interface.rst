@@ -46,7 +46,7 @@ Connection
 ----------
 
 GPU interface plugs are connected automatically at launch and refresh;
-manual connection with the :command:`workshop connect` command is also possible.
+manual connection with the :command:`workshop connect` command is also possible.
 
 Establishing a connection means
 the host's GPUs are directly available inside the workshop

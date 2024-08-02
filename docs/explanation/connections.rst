@@ -92,7 +92,7 @@ What goes into establishing a connection between a plug and a slot?
 
   If a slot denies auto-connection,
   the user connects the plug
-  with :command:`workshop connect`, for example:
+  with :command:`workshop connect`, for example:
 
   .. code-block:: console
 
@@ -122,7 +122,7 @@ Usage
 
 Once the plug is connected,
 the SDK can use the resource,
-as :command:`workshop connections` shows:
+as :command:`workshop connections` shows:
 
 .. code-block:: console
 
@@ -136,8 +136,8 @@ as :command:`workshop connections` shows:
 
 
 The user can disconnect the plug manually,
-using :command:`workshop disconnect`,
-and reconnect it with :command:`workshop connect`;
+using :command:`workshop disconnect`,
+and reconnect it with :command:`workshop connect`;
 as the output suggests, manual connections are tracked separately.
 
 

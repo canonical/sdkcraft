@@ -72,19 +72,13 @@ is enabled and running:
 Install |project_markup|
 ------------------------
 
-Build the :program:`sdkcraft` snap
-from the |project_markup| source code on
-`GitHub`_:
-
-.. code-block:: console
-
-   $ git clone git@github.com:canonical/sdkcraft.git  # or git clone https://github.com/canonical/sdkcraft.git
-   $ cd sdkcraft
-   $ sudo snap install snapcraft --classic
-   $ snapcraft clean && snapcraft
-
-
-Install the resulting :file:`.snap` file,
+Download the latest snap from the
+`Releases <https://github.com/canonical/sdkcraft/releases/>`_
+page on GitHub and install it,
+using the options
+`--dangerous <https://snapcraft.io/docs/install-modes#heading--dangerous>`_
+and
+`--classic <https://snapcraft.io/docs/install-modes#heading--confinement>`_,
 for example:
 
 .. code-block:: console
@@ -290,7 +284,7 @@ preparing the SDK for use or preserving its state during updates.
       rsync -a $SDK_STATE_DIR/ /home/workshop/my_python_work
 
 
-   During a :command:`workshop refresh` operation:
+   During a :command:`workshop refresh` operation:
 
    - The :file:`save-state` hook runs *before* the workshop is refreshed,
      saving the state of the SDK.

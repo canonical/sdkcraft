@@ -61,7 +61,7 @@ that :program:`Workshop` runs at the appropriate moments
 to consistently handle such data, collectively known as *SDK state*.
 
 For example, before changes are applied to the workshop
-during :command:`workshop refresh`,
+during :command:`workshop refresh`,
 the states of the SDKs are saved
 by invoking their :samp:`save-state` hooks.
 On success,
@@ -108,14 +108,14 @@ Every workshop contains a *host SDK*
 that exposes system resources through interface slots.
 It's essentially a special SDK type,
 which is not available from the SDK Store but is auto-added to each workshop.
-It's installed first at :command:`workshop launch`
-and removed last at :command:`workshop remove`,
+It's installed first at :command:`workshop launch`
+and removed last at :command:`workshop remove`,
 ensuring internal consistency.
 
 The purpose of the host SDK isn't to add hooks or additional content;
 it's only there to expose host system resources to other SDKs consistently.
 As such, it can't be removed by the user
-and isn't listed in the :command:`workshop info` output.
+and isn't listed in the :command:`workshop info` output.
 
 The uniformity of this approach lies in the fact that system resources
 and workshop resources are exposed using the same logic.

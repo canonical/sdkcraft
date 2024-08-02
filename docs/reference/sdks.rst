@@ -20,7 +20,7 @@ SDK definition
 --------------
 
 The name of the workshop definition file must be :file:`sdkcraft.yaml`;
-the file is usually created using the :command:`sdkcraft init` command
+the file is usually created using the :command:`sdkcraft init` command
 in the source directory.
 
 The definition in the file must be written in
@@ -247,10 +247,10 @@ SDK hooks
      - What it does
 
    * - :samp:`check-health`
-     - At :command:`workshop launch`:
+     - At :command:`workshop launch`:
        after running :samp:`setup-base` hooks for *all* SDKs.
      
-       At :command:`workshop refresh`:
+       At :command:`workshop refresh`:
        after running :samp:`restore-state` hooks for *all* SDKs.
 
      - Sets the state of the SDK
@@ -260,7 +260,7 @@ SDK hooks
 
    * - :samp:`restore-state`
 
-     - At :command:`workshop refresh`:
+     - At :command:`workshop refresh`:
        after launching the new workshop
        and running the :samp:`setup-base` hook for the SDK.
 
@@ -270,7 +270,7 @@ SDK hooks
 
    * - :samp:`save-state`
 
-     - At :command:`workshop refresh`:
+     - At :command:`workshop refresh`:
        before destroying the old workshop.
 
      - Saves SDK-specific data to the :ref:`state directory <ref_sdk_state>`.
@@ -279,7 +279,7 @@ SDK hooks
 
    * - :samp:`setup-base`
 
-     - At :command:`workshop launch`, :command:`workshop refresh`:
+     - At :command:`workshop launch`, :command:`workshop refresh`:
        after unpacking the base image
        and starting the workshop,
        but before setting its status to *Ready*.
