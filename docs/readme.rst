@@ -107,19 +107,6 @@ To release an SDK in the ``edge`` track of the latest channel:
 Testing
 -------
 
-SDKcraft uses `craftcraft
-<https://github.com/canonical/craftcraft/blob/main/HACKING.rst>`_'s
-testing workflow based on `tox <https://tox.wiki/>`_:
-
-.. code-block:: console
-
-   python --version                   # Needs Python 3.10+
-   sudo snap install shellcheck
-   sudo snap install ruff             # Needs external linters
-   pip install tox
-   tox
-
-
 To run end-to-end tests and integration tests with
 `Spread <https://github.com/snapcore/spread>`_:
 
