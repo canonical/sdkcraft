@@ -332,6 +332,22 @@ Make all hooks executable so that :program:`Workshop` can run them:
    $ chmod +x hooks/*
 
 
+Build SDK
+---------
+
+Under :file:`python-sdk/`, run:
+
+.. code-block:: console
+
+   $ sdkcraft build
+
+
+This builds all :ref:`SDK parts <exp_sdk_parts>`
+defined in the :file:`sdkcraft.yaml` file,
+e.g. pulling source code, applying patches, configuring, and compiling it
+according to the build instructions there.
+
+
 Package SDK
 -----------
 
@@ -343,7 +359,8 @@ Under :file:`python-sdk/`, run:
 
 
 This creates the :file:`python-sdk.sdk` file,
-which contains the SDK metadata, hooks and other components.
+which contains the build artefacts from the previous step
+along with SDK metadata, hooks and other components.
 
 
 .. _tut_publish:
