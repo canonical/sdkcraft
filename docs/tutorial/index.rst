@@ -94,18 +94,14 @@ Make sure it runs:
    $ sdkcraft --help
 
 
-Prepare an SDK
---------------
+.. _tut_init:
+
+Initialise your SDK
+-------------------
 
 Once you have installed |project_markup|,
 use it to initialise, define and pack your first :ref:`SDK <exp_sdks>`.
 Here, we'll build an SDK that installs a version of Python in the workshop.
-
-
-.. _tut_init:
-
-Define
-~~~~~~
 
 #. Create a directory
    named :file:`python-sdk`:
@@ -161,7 +157,7 @@ Define
 .. _tut_content_interface:
 
 Add interface plugs
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 In |project_markup|,
 :ref:`interfaces <exp_sdk_interfaces>` provide a controllable way
@@ -216,23 +212,27 @@ and maintained between refresh operations.
 
 
 Add hooks
-~~~~~~~~~
+---------
 
 To prepare an SDK for use,
 add some :ref:`hooks <exp_sdk_hooks>`
 that run at different stages of the workshop's life cycle,
 preparing the SDK for use or preserving its state during updates.
 
-#. Under :file:`python-sdk/`,
-   create a subdirectory
-   named :file:`hooks/`:
+Under :file:`python-sdk/`,
+create a subdirectory
+named :file:`hooks/`:
 
-   .. code-block:: console
+.. code-block:: console
 
-      $ mkdir hooks
-      $ cd hooks
+   $ mkdir hooks
+   $ cd hooks
 
-   This directory stores all the hooks for an SDK.
+This directory stores all the hooks for an SDK.
+
+
+Build: setup-base
+~~~~~~~~~~~~~~~~~
 
 #. Under :file:`python-sdk/hooks/`,
    create a file
@@ -266,67 +266,90 @@ preparing the SDK for use or preserving its state during updates.
    installing the prerequisites and preparing it.
 
 
-#. Also under :file:`python-sdk/hooks/`,
-   create two files
-   named :file:`save-state` and :file:`restore-state`:
+Persist: save-state, restore-state
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   .. code-block:: shell
-      :caption: save-state
+Also under :file:`python-sdk/hooks/`,
+create two files
+named :file:`save-state` and :file:`restore-state`:
 
-      #!/usr/bin/bash
-      rsync -a /home/workshop/my_python_work/ $SDK_STATE_DIR
+.. code-block:: shell
+   :caption: save-state
 
-
-   .. code-block:: shell
-      :caption: restore-state
-
-      #!/usr/bin/bash
-      rsync -a $SDK_STATE_DIR/ /home/workshop/my_python_work
+   #!/usr/bin/bash
+   rsync -a /home/workshop/my_python_work/ $SDK_STATE_DIR
 
 
-   During a :command:`workshop refresh` operation:
+.. code-block:: shell
+   :caption: restore-state
 
-   - The :file:`save-state` hook runs *before* the workshop is refreshed,
-     saving the state of the SDK.
-
-   - The :file:`restore-state` hook recovers the state
-     *after* the workshop has been successfully updated.
-
-   - Both hooks use the workshop's :envvar:`$SDK_STATE_DIR` directory
-     to store the SDK state.
+   #!/usr/bin/bash
+   rsync -a $SDK_STATE_DIR/ /home/workshop/my_python_work
 
 
-   .. important::
+During a :command:`workshop refresh` operation:
 
-      The SDK is also refreshed as a part of the workshop,
-      so any breaking changes in its save-restore logic will cause an error.
+- The :file:`save-state` hook runs *before* the workshop is refreshed,
+  saving the state of the SDK.
 
+- The :file:`restore-state` hook recovers the state
+  *after* the workshop has been successfully updated.
 
-#. Finally,
-   create a hook
-   named :file:`check-health`:
-
-   .. code-block:: shell
-      :caption: check-health
-
-      #!/usr/bin/bash
-      python3 -c "import os" || workshopctl set-health --code=installation-fails error "Python 3 installation fails"
+- Both hooks use the workshop's :envvar:`$SDK_STATE_DIR` directory
+  to store the SDK state.
 
 
-   It checks whether the Python installation is actually functional
-   and reports an error via :ref:`workshopctl <exp_workshopctl>` if it's not.
+.. important::
+
+   The SDK is also refreshed as a part of the workshop,
+   so any breaking changes in its save-restore logic will cause an error.
 
 
-#. Make all hooks executable so that :program:`Workshop` can run them:
+Report: check-health
+~~~~~~~~~~~~~~~~~~~~
 
-   .. code-block:: console
+Finally, create a hook named :file:`check-health`:
 
-      $ cd ..  # back to python-sdk/
-      $ chmod +x hooks/*
+.. code-block:: shell
+   :caption: check-health
+
+   #!/usr/bin/bash
+   python3 -c "import os" || workshopctl set-health --code=installation-fails error "Python 3 installation fails"
 
 
-Package
-~~~~~~~
+It checks whether the Python installation is actually functional
+and reports an error via :ref:`workshopctl <exp_workshopctl>` if it's not.
+
+
+Make hooks run
+~~~~~~~~~~~~~~
+
+Make all hooks executable so that :program:`Workshop` can run them:
+
+.. code-block:: console
+
+   $ cd ..  # back to python-sdk/
+   $ chmod +x hooks/*
+
+
+Build SDK
+---------
+
+Under :file:`python-sdk/`, run:
+
+.. code-block:: console
+
+   $ sdkcraft build
+
+
+This builds all :ref:`SDK parts <exp_sdk_parts>`
+defined in the :file:`sdkcraft.yaml` file,
+e.g. pulling source code, applying patches, configuring, and compiling it
+according to the build instructions there.
+
+
+Package SDK
+-----------
 
 Under :file:`python-sdk/`, run:
 
@@ -336,13 +359,14 @@ Under :file:`python-sdk/`, run:
 
 
 This creates the :file:`python-sdk.sdk` file,
-which contains the SDK metadata, hooks and other components.
+which contains the build artefacts from the previous step
+along with SDK metadata, hooks and other components.
 
 
 .. _tut_publish:
 
-Publish the SDK
----------------
+Publish SDK
+-----------
 
 When an SDK is ready and packed,
 you need to publish it to the SDK Store
