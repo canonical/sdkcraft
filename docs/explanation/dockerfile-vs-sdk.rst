@@ -37,26 +37,30 @@ This affects all aspects of their design and implementation,
 including how Dockerfiles and, respectively, SDKs are laid out.
 
 
-Bind mounts
-~~~~~~~~~~~
+Bind mounts and volumes
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Docker provides several ways to manage data persistence and storage
-such as the :option:`!--mount` run-time option or :samp:`VOLUME` instructions.
-It's important to note that
-the expectations for mount configuration are set by the image author
+such as the :samp:`VOLUME` instructions,
+the :command:`docker volume` command
+or the :option:`!--mount` and :option:`!-v` options in :command:`docker run`.
+The expectations for their configuration are set by the image author
 but the actual parameters are provided by users at the author's guidance;
 the resulting manual process is error-prone and adds unnecessary overhead.
 
-:program:`Workshop` internalises and reciprocates this
-with the :ref:`content interface <exp_content_interface>`
-and the :command:`workshop remount` command,
-but the key difference is
-that the person responsible for implementing the mount logic
-is the domain-savvy author of the SDK,
-not the user;
-unless the user absolutely needs to intervene,
-the workings of the mounts defined in the SDKs by their publishers
-are transparent to the workshop.
+:program:`Workshop` reciprocates this
+with :ref:`content interface <exp_content_interface>` plugs
+that are akin to Docker volumes
+and the :command:`workshop remount` command
+that enables remounting existing plugs to a given location.
+However, the user can't create arbitrary mounts;
+the choice is limited to what the SDKs offer.
+
+In turn, this implies that the mount logic in :program:`Workshop`
+is built into the SDK by its author,
+not implemented manually by the user;
+unless the user decides to intervene,
+the mounts are managed automatically and largely stay hidden.
 
 
 Resource usage
@@ -92,7 +96,7 @@ Build commands
 In Docker,
 build commands are typically bundled as :samp:`RUN` instructions.
 
-In our SDKs,
+In :program:`Workshop` SDKs,
 the :samp:`setup-base` :ref:`hook <exp_sdk_hooks>`
 is responsible for building the workshop,
 but other hooks add extra functionality with run-time events and health checks.
@@ -102,7 +106,7 @@ Feature mapping
 ---------------
 
 Any attempt at a straightforward comparison of these different,
-albeit vaguely similar, technologies is futile.
+albeit vaguely similar, technologies is mostly futile.
 Again, a key difference is that a Dockerfile is controlled by the user,
 but a workshop is *managed* by the user, yet it relies on publisher-defined SDKs
 whose layout is beyond the user's reach.
@@ -152,16 +156,16 @@ Important Dockerfile instructions are mapped to |project_markup| as follows:
      - :ref:`content interface <exp_content_interface>`
 
 
-In turn, Docker subcommands can be mapped to :program:`Workshop` like this:
+In turn, the CLI subcommands can be mapped like this:
 
 .. list-table::
    :header-rows: 1
 
    * - Docker CLI
-     - Workshop CLI
+     - Workshop/SDKcraft CLI
 
    * - :command:`docker build`
-     - :command:`workshop launch`
+     - :command:`sdkcraft build`, :command:`sdkcraft pack`
 
    * - :command:`docker exec`
      - :command:`workshop exec`, :command:`workshop shell`
@@ -176,10 +180,13 @@ In turn, Docker subcommands can be mapped to :program:`Workshop` like this:
      - :command:`workshop remove`
 
    * - :command:`docker run`
-     - :command:`workshop start`
+     - :command:`workshop launch`
 
    * - :command:`docker run --mount`, :command:`docker volume`
      - :command:`workshop remount`
+
+   * - :command:`docker start`
+     - :command:`workshop start`
 
    * - :command:`docker stop`
      - :command:`workshop stop`
@@ -220,30 +227,92 @@ For :program:`Workshop`, this translates to :samp:`ubuntu@24.04`
 in the :ref:`SDK definition <exp_sdk_definition>` and the workshop definition.
 
 
-Project files
-~~~~~~~~~~~~~
+.. _exp_docker_project:
+
+Project workspace
+~~~~~~~~~~~~~~~~~
 
 The
 `project workspace
-<https://docs.ros.org/en/jazzy/How-To-Guides/Setup-ROS-2-with-VSCode-and-Docker-Container.html#edit-devcontainer-json-for-your-environment>`_
-in the example is configured by the user at run-time:
+<https://docs.ros.org/en/jazzy/How-To-Guides/Setup-ROS-2-with-VSCode-and-Docker-Container.html#configure-workspace-in-docker-and-vs-code>`_
+in the example is defined as a bind mount that eventually becomes this:
 
-.. code-block:: json
+.. code-block:: console
+ 
+   $ docker run -it \
+     --mount type=bind,source=/home/user/ros-project,target=/home/ws/src,consistency=cached \
+     # ...
 
-   "workspaceMount": "source=${localWorkspaceFolder},target=/home/ws/src,type=bind"
 
-
-For :program:`Workshop`, this is auto-mounted project directory,
+Its counterpart in :program:`Workshop` is the *project directory*
 where the workshop was defined and launched;
-any files there appear under :file:`/project/` inside the workshop.
-Also, additional mounts are configured via the
-:ref:`content interface <exp_content_interface>`
-by the SDK author, not the user, so no manual setup is needed either.
+it is automatically mounted as :file:`/project/` when the workshop is started:
 
-If the user needs to adjust anything,
-the :command:`workshop remount` command provides
-the required degree of control and security
-without the need to redefine the workshop (or the ability to circumvent it).
+.. code-block:: console
+
+   $ workshop launch ros2jazzy  # must be run in the project directory
+
+
+No explicit configuration is needed;
+this behaviour is intentionally consistent across all workshops.
+
+
+Bind mounts
+~~~~~~~~~~~
+
+The ROS 2 example defines a
+`few more mounts
+<https://docs.ros.org/en/jazzy/How-To-Guides/Setup-ROS-2-with-VSCode-and-Docker-Container.html#edit-devcontainer-json-for-your-environment>`_;
+a complete :command:`docker run` command may look like this:
+
+.. code-block:: console
+
+   $ docker run -it \
+     --name ros2_container \
+     --mount type=bind,source=/home/user/ros-project,target=/home/ws/src,consistency=cached \
+     --mount type=bind,source=/home/user/.ros,target=/root/.ros,consistency=cached \
+     --mount type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix,consistency=cached \
+     --mount type=bind,source=/dev/dri,target=/dev/dri,consistency=cached \
+     ros2
+
+
+In :program:`Workshop`,
+additional file system mounts are defined by the SDK author
+using the :ref:`content interface <exp_content_interface>`:
+
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+
+   plugs:
+     ros-cache:
+       interface: content
+       target: /home/workshop/.ros
+   # ...
+
+
+Just like with the :ref:`project files <exp_docker_project>`,
+this avoids the need for manual setup when starting the workshop:
+
+.. code-block:: console
+
+   $ workshop launch ros2jazzy  # the plugs are mounted automatically
+
+
+Again,
+:program:`Workshop` has no direct counterpart to bind mounts;
+plugs are more similar to Docker volumes.
+Yet, the :command:`workshop remount` command
+enables remounting existing plugs to new host directories:
+
+.. code-block:: console
+
+   $ workshop remount ros2jazzy/ros2:ros-cache ~/new-cache-mount/
+
+
+Thus,
+:program:`Workshop` leaves the design of mount points to the SDK author,
+allowing the user to rely on their default, well-defined behaviour
+with the extra option of adjusting them if necessary.
 
 
 Build commands
