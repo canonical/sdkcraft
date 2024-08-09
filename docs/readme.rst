@@ -41,9 +41,9 @@ Download the latest snap from the
 `Releases <https://github.com/canonical/sdkcraft/releases/>`_
 page on GitHub and install it,
 using the options
-`--dangerous <https://snapcraft.io/docs/install-modes#heading--dangerous>`_
+`--dangerous <https://snapcraft.io/docs/install-modes>`_
 and
-`--classic <https://snapcraft.io/docs/install-modes#heading--confinement>`_,
+`--classic <https://snapcraft.io/docs/install-modes>`_,
 for example:
 
 .. code-block:: console
