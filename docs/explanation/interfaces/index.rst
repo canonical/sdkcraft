@@ -29,6 +29,8 @@ so the user doesn't have direct control over them in the workshop definition.
 Currently, |project_markup| supports the following interfaces:
 
 - :ref:`content interface <exp_content_interface>` (auto-connected)
+- :ref:`GPU interface <exp_gpu_interface>` (auto-connected)
+- :ref:`SSH interface <exp_ssh_interface>` (manually connected)
 
 
 .. _exp_interfaces_plugs_slots:
