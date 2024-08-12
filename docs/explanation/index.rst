@@ -19,6 +19,7 @@ These topics cover the key principles of SDK usage:
    :maxdepth: 1
 
    Data persistence and sharing <data-persistence-sharing>
+   Dockerfiles versus SDKs <dockerfile-vs-sdk>
    Health reports <workshopctl>
    Interface connections <connections>
 
