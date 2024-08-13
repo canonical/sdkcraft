@@ -299,6 +299,9 @@ for example:
    #!/usr/bin/bash
 
 
+A hook can signal an error by returning a non-zero exit code;
+a zero code indicates success.
+
 .. note::
 
    The hooks aren't mentioned in the :ref:`definition <ref_sdk_definition>`;
