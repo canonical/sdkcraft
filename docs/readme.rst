@@ -28,7 +28,7 @@ Installation
 ~~~~~~~~~~~~
 
 SDKcraft requires
-`LXD <https://canonical.com/lxd>`_
+`LXD 5.21+ <https://canonical.com/lxd>`_
 for low-level operation:
 
 .. code-block:: console
@@ -83,7 +83,20 @@ Packing an SDK
           plugin: nil
 
 
-#. Finally, pack the SDK:
+#. Under ``readme-sdk/``, run:
+
+   .. code-block:: console
+
+      $ sdkcraft build
+
+
+   This builds all SDK parts
+   defined in the ``sdkcraft.yaml`` file,
+   e.g. pulling source code, applying patches, configuring and compiling it
+   according to the part definition.
+
+
+#. Finally, pack the SDK for publishing:
 
    .. code-block:: console
 

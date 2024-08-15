@@ -8,8 +8,8 @@ SDK hooks
 |project_markup| allows you to define optional life cycle *hooks*
 that control and extend the of the SDK to match the logic of `Workshop`_.
 
-Each hook is a shell script with domain-aware actions
-that are executed in the workshop
+Each hook is a shell script
+that performs SDK-specific, domain-oriented actions in the workshop
 at a particular life cycle stage
 to ensure that the SDK stays functional.
 Specific examples include :samp:`setup-base`,
