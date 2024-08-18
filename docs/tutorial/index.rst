@@ -20,8 +20,8 @@ For more details, see the
 Check prerequisites
 -------------------
 
-|project_markup| requires
-`LXD <https://canonical.com/lxd>`_
+|project_markup| relies on
+`LXD 5.21+ <https://canonical.com/lxd>`_
 for low-level operation,
 using its
 `REST API <https://documentation.ubuntu.com/lxd/en/latest/restapi_landing/>`_
@@ -72,7 +72,7 @@ is enabled and running:
 Install |project_markup|
 ------------------------
 
-Download the latest snap from the
+Download the latest snap from |project_markup|'s
 `Releases <https://github.com/canonical/sdkcraft/releases/>`_
 page on GitHub and install it,
 using the options
@@ -214,8 +214,8 @@ and maintained between refresh operations.
 Add hooks
 ---------
 
-To prepare an SDK for use,
-add some :ref:`hooks <exp_sdk_hooks>`
+To prepare the SDK for use,
+add the :ref:`hooks <exp_sdk_hooks>`
 that run at different stages of the workshop's life cycle,
 preparing the SDK for use or preserving its state during updates.
 
@@ -295,8 +295,8 @@ During a :command:`workshop refresh` operation:
 - The :file:`restore-state` hook recovers the state
   *after* the workshop has been successfully updated.
 
-- Both hooks use the workshop's :envvar:`$SDK_STATE_DIR` directory
-  to store the SDK state.
+- Both hooks use :envvar:`$SDK_STATE_DIR`
+  for the workshop directory where the state is stored.
 
 
 .. important::
@@ -344,8 +344,8 @@ Under :file:`python-sdk/`, run:
 
 This builds all :ref:`SDK parts <exp_sdk_parts>`
 defined in the :file:`sdkcraft.yaml` file,
-e.g. pulling source code, applying patches, configuring, and compiling it
-according to the build instructions there.
+e.g. pulling source code, applying patches, configuring and compiling it
+according to the part definition.
 
 
 Package SDK

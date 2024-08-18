@@ -21,7 +21,6 @@ These topics cover the key principles of SDK usage:
    Data persistence and sharing <data-persistence-sharing>
    Dockerfiles versus SDKs <dockerfile-vs-sdk>
    Health reports <workshopctl>
-   Interface connections <connections>
 
 
 .. _exp_sdks:
