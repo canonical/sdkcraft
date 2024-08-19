@@ -9,7 +9,13 @@ on:
   workflow_dispatch:
 
 env:
-  SNAPCRAFT_BUILD_ENVIRONMENT: multipass
+  SNAPCRAFT_BUILD_ENVIRONMENT: lxd
+
+# Cancel currently-running builds when pushing new commits to a PR or branch
+# https://stackoverflow.com/a/72408109
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   snap-build:
@@ -28,8 +34,9 @@ jobs:
 
   snap-tests:
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-22.04-64, ubuntu-20.04-64]
+        os: [ubuntu-24.04, ubuntu-22.04, ubuntu-20.04]
     runs-on: [self-hosted, Linux, jammy, X64, xlarge]
     needs: [snap-build]
     steps:
@@ -38,22 +45,29 @@ jobs:
           rm -rf "${{ github.workspace }}"
           mkdir "${{ github.workspace }}"
       - name: Setup
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: "1.21"
+      - name: Install LXD
+        uses: canonical/setup-lxd@main
+        with:
+          channel: 5.21/stable
       - name: Checkout Workshop
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: true
       - name: Install spread
-        run: go install github.com/snapcore/spread/cmd/spread@latest
-      - name: Install multipass
-        run: sudo snap install multipass
+        run: |
+          # go install is not supported for forks...
+          git clone https://github.com/dmitry-lyfar/spread
+          pushd spread
+          go install ./...
+          popd
       - name: Download snap artifact
         uses: actions/download-artifact@v3
         with:
           name: snap
           path: tests
       - name: Run spread
-        run: spread multipass:${{matrix.os}}:tests/spread/
+        run: spread $SNAPCRAFT_BUILD_ENVIRONMENT:${{matrix.os}}:tests/spread/
