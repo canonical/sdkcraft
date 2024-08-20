@@ -4,58 +4,20 @@ path: /sdkcraft
 environment:
   PROJECT_PATH: /sdkcraft
   PATH: /snap/bin:$PROJECT_PATH/tests/tools:$PATH
-  CRAFT_DEBUG: 1      # Show exception tracebacks.
+  CRAFT_DEBUG: 1 # Show exception tracebacks.
 
 include:
   - tests/
 
 backends:
-  multipass:
-    type: adhoc
-    allocate: |
-      sleep 0.$RANDOM  # Minimize chances of a race condition
-      if [[ ! -f $HOME/.spread/multipass-count ]]; then
-        mkdir -p $HOME/.spread
-        echo 0 > $HOME/.spread/multipass-count
-      fi
-      instance_num=$(< $HOME/.spread/multipass-count)
-      echo $(( $instance_num + 1 )) > $HOME/.spread/multipass-count
-      multipass_image=$(echo ${SPREAD_SYSTEM} | sed -e s/ubuntu-// -e s/-64//)
-
-      system=$(echo "${SPREAD_SYSTEM}" | tr . -)
-      instance_name="spread-${SPREAD_BACKEND}-${instance_num}-${system}"
-
-      multipass launch --cpus 8 --disk 20G --memory 4G --name "${instance_name}" "${multipass_image}"
-
-      # Enable PasswordAuthentication for root over SSH.
-      multipass exec "$instance_name" -- \
-        sudo sh -c "echo root:ubuntu | sudo chpasswd"
-      multipass exec "$instance_name" -- \
-        sudo sh -c \
-        "sed -i /etc/ssh/sshd_config -e 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/' -e 's/^#PermitRootLogin.*/PermitRootLogin yes/' -e 's/^KbdInteractiveAuthentication.*/KbdInteractiveAuthentication yes/'"
-
-      # this config file may or may not present in the image
-      multipass exec "$instance_name" -- \
-        sudo sh -c \
-        "sed -i /etc/ssh/sshd_config.d/60-cloudimg-settings.conf -e 's/^PasswordAuthentication.*/PasswordAuthentication yes/' || true"
-      multipass exec "$instance_name" -- \
-        sudo systemctl restart ssh
-
-      # Get the IP from the instance
-      ip=$(multipass info --format csv "$instance_name" | tail -1 | cut -d\, -f3)
-      ADDRESS "$ip"
-    discard: |
-      instance_name=$(multipass list --format csv | grep $SPREAD_SYSTEM_ADDRESS | cut -f1 -d\,)
-      multipass delete --purge "${instance_name}"
+  lxd:
     systems:
-      - ubuntu-20.04-64:
-          workers: 1
-          username: root
-          password: ubuntu
-      - ubuntu-22.04-64:
-          workers: 1
-          username: root
-          password: ubuntu
+      - ubuntu-20.04:
+          workers: 2
+      - ubuntu-22.04:
+          workers: 2
+      - ubuntu-24.04:
+          workers: 2
 prepare: |
   set -e
 
@@ -77,7 +39,7 @@ prepare: |
       journalctl -xe
   fi
 
-  lxd waitready --timeout=30
+  lxd waitready --timeout=60
   lxd init --auto
 
   install_sdkcraft
