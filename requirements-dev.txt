@@ -14,7 +14,7 @@ mypy[reports]~=1.8
 codespell[toml]~=2.2
 ruff~=0.1.10
 yamllint==1.32
-pylint==3.2.0
-pylint-fixme-info==1.0.3
-pylint-pytest==1.1.7
+pylint==3.2.6
+pylint-fixme-info==1.0.4
+pylint-pytest==1.1.8
 codespell==2.2.6
