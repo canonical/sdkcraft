@@ -1,4 +1,5 @@
 AUTH
+Charmcraft
 CLIs
 Dockerfile
 Dockerfiles
