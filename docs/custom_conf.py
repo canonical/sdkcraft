@@ -18,7 +18,7 @@ import sys
 
 # Product name
 project = "SDKcraft"
-author = "Canonical Group Ltd"
+author = "Canonical Ltd"
 html_title = ""
 
 # Uncomment if your product uses release numbers
@@ -30,7 +30,7 @@ html_title = ""
 #   -H 'Accept: application/vnd.github.v3.raw' \
 #   https://api.github.com/repos/canonical/<REPO> | jq '.created_at'
 
-copyright = f"{datetime.date.today().year}, {author}"
+copyright = f"{datetime.date.today().year} CC-BY-SA, {author}"
 
 ## Open Graph configuration - defines what is displayed in the website preview
 # The URL of the documentation output
