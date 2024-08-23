@@ -13,19 +13,20 @@ by separating its deployment into sourcing, building and staging phases.
 Summary
 -------
 
-Parts can be though of as the building blocks of an SDK.
+Parts can be thought of as the building blocks of an SDK.
 Each part in the :ref:`definition <exp_sdk_definition>`
 encapsulates a different aspect of the SDK
 and focuses on a specific feature or resource;
 these can be libraries, binaries, or configuration files.
 
-A part defines a set of attributes and life cycle stages in YAML;
-|project_markup| executes these definitions,
-eventually packaging a complete SDK, ready for publishing and installation.
-
-During installation, the SDK is unpacked, and its parts are set up,
-ensuring that all dependencies are met
-and the SDK is ready to run in the workshop.
+A part defines a number of preset attributes and life cycle stages in YAML;
+|project_markup| executes these definitions stage by stage
+and iteratively resolves any dependencies between parts.
+Eventually, this results in a uniform SDK,
+ready for publishing and installation;
+such SDKs arrive to the users pre-built,
+allowing to factor out build activities from :ref:`SDK hooks <exp_sdk_hooks>`
+that run inside the workshop.
 
 
 Implementation notes

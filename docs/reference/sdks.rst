@@ -142,7 +142,7 @@ formalises the description above:
 SDK parts
 ---------
 
-Parts can be though of as the building blocks of |project_markup|.
+Parts can be thought of as the building blocks of |project_markup|.
 Each part in the :file:`sdkcraft.yaml` :ref:`definition <ref_sdk_definition>`
 describes a specific component or piece of the SDK being packaged,
 providing a way to modularise the package and manage its dependencies.
