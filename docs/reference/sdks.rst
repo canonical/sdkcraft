@@ -142,18 +142,23 @@ formalises the description above:
 SDK parts
 ---------
 
-Parts can be though of as the building blocks of |project_markup|.
+Parts can be thought of as the building blocks of |project_markup|.
 Each part in the :file:`sdkcraft.yaml` :ref:`definition <ref_sdk_definition>`
 describes a specific component or piece of the SDK being packaged,
 providing a way to modularise the package and manage its dependencies.
 
 |project_markup| is built as a
-`craft-application <https://github.com/canonical/craft-application>`_,
+`craft-application <https://github.com/canonical/craft-application/>`_,
 which affects how :samp:`parts` are implemented.
 However, note that :samp:`stage-packages` and :samp:`stage-snaps`
 aren't enabled yet;
 instead, rely on the :ref:`hooks <ref_sdk_hooks>`
 to implement custom logic of package and snap installation.
+
+For a complete reference of :samp:`parts` and their properties,
+refer to the corresponding Craft Parts
+`documentation section
+<https://canonical-craft-parts.readthedocs-hosted.com/en/latest/common/craft-parts/reference/part_properties.html>`_.
 
 
 .. _ref_sdk_interfaces:
