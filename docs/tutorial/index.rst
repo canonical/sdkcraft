@@ -104,12 +104,12 @@ use it to initialise, define and pack your first :ref:`SDK <exp_sdks>`.
 Here, we'll build an SDK that installs a version of Python in the workshop.
 
 #. Create a directory
-   named :file:`python-sdk`:
+   named :file:`python`:
 
    .. code-block:: console
 
-      $ mkdir python-sdk
-      $ cd python-sdk
+      $ mkdir python
+      $ cd python
 
 
    It will contain your :ref:`SDK definition <exp_sdk_definition>`
@@ -219,7 +219,7 @@ add the :ref:`hooks <exp_sdk_hooks>`
 that run at different stages of the workshop's life cycle,
 preparing the SDK for use or preserving its state during updates.
 
-Under :file:`python-sdk/`,
+Under :file:`python/`,
 create a subdirectory
 named :file:`hooks/`:
 
@@ -234,7 +234,7 @@ This directory stores all the hooks for an SDK.
 Build: setup-base
 ~~~~~~~~~~~~~~~~~
 
-#. Under :file:`python-sdk/hooks/`,
+#. Under :file:`python/hooks/`,
    create a file
    named :file:`setup-base`:
 
@@ -269,7 +269,7 @@ Build: setup-base
 Persist: save-state, restore-state
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Also under :file:`python-sdk/hooks/`,
+Also under :file:`python/hooks/`,
 create two files
 named :file:`save-state` and :file:`restore-state`:
 
@@ -314,11 +314,14 @@ Finally, create a hook named :file:`check-health`:
    :caption: check-health
 
    #!/usr/bin/bash
-   python3 -c "import os" || workshopctl set-health --code=installation-fails error "Python 3 installation fails"
+   python3 -c "import os" && workshopctl set-health okay \
+     || workshopctl set-health --code=installation-fails error "Python 3 installation fails"
 
 
-It checks whether the Python installation is actually functional
-and reports an error via :ref:`workshopctl <exp_workshopctl>` if it's not.
+It checks whether the Python installation is actually functional.
+If it is, the health is set to :samp:`okay`
+using the :ref:`workshopctl set-health <exp_workshopctl>` command;
+otherwise, a similar command reports an error.
 
 
 Make hooks run
@@ -328,14 +331,14 @@ Make all hooks executable so that :program:`Workshop` can run them:
 
 .. code-block:: console
 
-   $ cd ..  # back to python-sdk/
+   $ cd ..  # back to python/
    $ chmod +x hooks/*
 
 
 Build SDK
 ---------
 
-Under :file:`python-sdk/`, run:
+Under :file:`python/`, run:
 
 .. code-block:: console
 
@@ -351,14 +354,14 @@ according to the part definition.
 Package SDK
 -----------
 
-Under :file:`python-sdk/`, run:
+Under :file:`python/`, run:
 
 .. code-block:: console
 
    $ sdkcraft pack
 
 
-This creates the :file:`python-sdk.sdk` file,
+This creates the :file:`python.sdk` file,
 which contains the build artefacts from the previous step
 along with SDK metadata, hooks and other components.
 
@@ -374,7 +377,7 @@ for use with :program:`Workshop`:
 
 .. code-block:: console
 
-   $ sdkcraft.publish ./python-sdk.sdk beta
+   $ sdkcraft.publish ./python.sdk latest/beta
 
 
 This publishes the newly created SDK
@@ -388,7 +391,7 @@ where it can be accessed by :program:`Workshop` as follows:
       name: python
       base: ubuntu@24.04
       sdks:
-        python-sdk:
+        python:
           channel: latest/beta
 
 
