@@ -7,3 +7,8 @@ execute: |
 
   test -f my-sdk-name.sdk
   test ! -d parts -a ! -d stage -a ! -d prime
+
+  rm my-sdk-name.sdk
+  run_sdkcraft
+  test -f my-sdk-name.sdk
+  test ! -d parts -a ! -d stage -a ! -d prime
