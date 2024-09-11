@@ -78,7 +78,9 @@ At their core, both projects build upon Canonical's mature tech.
 They use `LXD <https://documentation.ubuntu.com/lxd/>`_
 to handle the low-level details that make the magic happen;
 they also follow the tooling paradigm exemplified by
-`Snap <https://snapcraft.io/docs/>`_.
+`Snap <https://snapcraft.io/docs/>`_
+and implemented with
+`Craft CLI <https://craft-cli.readthedocs.io/>`_.
 
 Talk to us if you have a project
 you’d like to try with |project_markup| and :program:`Workshop`:
