@@ -73,10 +73,12 @@ within the Enterprise Engineering department here at Canonical;
 `Workshop <https://canonical-workshop.readthedocs-hosted.com/>`_
 is its older sibling,
 aimed at users who consume SDKs built with |project_markup|.
-The design of both tools follows the paradigm exemplified by
-`Snap <https://snapcraft.io/docs/>`_
-and implemented with
-`Craft CLI <https://craft-cli.readthedocs.io/>`_.
+
+At their core, both projects build upon Canonical's mature tech.
+They use `LXD <https://documentation.ubuntu.com/lxd/>`_
+to handle the low-level details that make the magic happen;
+they also follow the tooling paradigm exemplified by
+`Snap <https://snapcraft.io/docs/>`_.
 
 Talk to us if you have a project
 you’d like to try with |project_markup| and :program:`Workshop`:
