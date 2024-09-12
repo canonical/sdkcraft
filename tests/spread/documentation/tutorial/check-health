@@ -1,2 +1,7 @@
 #!/usr/bin/bash
-python3 -c "import os" || workshopctl set-health --code=installation-fails error "Python 3 installation fails"
+
+if go version > /dev/null 2>&1; then
+  workshopctl set-health okay
+else
+  workshopctl set-health --code=installation-fails error "Go installation fails"
+fi

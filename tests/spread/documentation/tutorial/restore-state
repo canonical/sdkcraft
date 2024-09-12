@@ -1,2 +1,2 @@
 #!/usr/bin/bash
-rsync -a "$SDK_STATE_DIR"/ /home/workshop/my_python_work
+rsync -a "$SDK_STATE_DIR"/ /home/workshop/my_work

@@ -1,19 +1,11 @@
 #!/usr/bin/bash
 
-# NOTE: we use apt-get instead of apt for non-interactive package installation.
-# apt will prompt services restart for some of the packages below which will
-# make the SDK installation stall forever.
+snap install --classic go
+echo "PATH=/home/workshop/go/bin:$PATH" >> /home/workshop/.bashrc
 
-# Update package list
-apt-get -y update
+# Create a mod cache directory to be mounted using the content interface
+cache=$(sudo -u workshop -- go env GOMODCACHE)
+sudo -u workshop -- mkdir -p "$cache"
 
-# Ensure the Ubuntu Universe repos are enabled
-apt-get -y install software-properties-common
-add-apt-repository universe
-
-# Install Python 3.11
-apt-get -y update
-apt-get -y install python3.11 python3.11-dev python3.11-venv
-
-# Create working directory
-sudo -u workshop -- mkdir -p /home/workshop/my_python_work/
+# Create a working directory
+sudo -u workshop -- mkdir -p /home/workshop/my_work/
