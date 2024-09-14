@@ -76,7 +76,7 @@ aimed at users who consume SDKs built with |project_markup|.
 
 At their core, both projects build upon Canonical's mature tech.
 They use `LXD <https://documentation.ubuntu.com/lxd/>`_
-to handle the low-level details that make the magic happen;
+as the underlying container technology;
 they also follow the tooling paradigm exemplified by
 `Snap <https://snapcraft.io/docs/>`_
 and implemented with
