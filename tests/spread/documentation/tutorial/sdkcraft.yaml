@@ -1,9 +1,9 @@
-name: python
-base: ubuntu@22.04
+name: go
+base: ubuntu@24.04
 version: '0.1'
-summary: Python SDK
+summary: Go SDK
 description: |
-  This is my Python SDK's description.
+  This is my Go SDK description.
 license: GPL-3.0
 platforms:
   amd64:
@@ -13,6 +13,6 @@ parts:
     plugin: nil
 
 plugs:
-  packages:
+  mod-cache:
     interface: content
-    target: /usr/local/lib/python3.11
+    target: /home/workshop/go/pkg/mod

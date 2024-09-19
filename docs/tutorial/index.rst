@@ -9,7 +9,7 @@ of the essential |project_markup| activities.
 
 Here, you will initialise, define, pack and publish an :ref:`SDK <exp_sdks>`:
 a set of hooks, interfaces and parts that is bundled into a single package,
-suitable for use with `Workshop`_.
+suitable for use with `Workshop`_, the user-oriented CLI utility.
 The commands you're about to run
 cover most of your daily needs with |project_markup|.
 
@@ -17,15 +17,15 @@ For more details, see the
 :ref:`reference <ref_index>` and :ref:`explanation <exp_index>` sections.
 
 
-Check prerequisites
--------------------
+Check the prerequisites
+-----------------------
 
 |project_markup| relies on
 `LXD 5.21+ <https://canonical.com/lxd>`_
 for low-level operation,
 using its
 `REST API <https://documentation.ubuntu.com/lxd/en/latest/restapi_landing/>`_
-to configure and build the SDKs.
+to craft the SDKs.
 
 First, install and
 `initialise <https://documentation.ubuntu.com/lxd/en/latest/howto/initialize/>`_
@@ -74,12 +74,13 @@ Install |project_markup|
 
 Download the latest snap from |project_markup|'s
 `Releases <https://github.com/canonical/sdkcraft/releases/>`_
-page on GitHub and install it,
-using the options
+page on GitHub.
+
+Install it using the
 `--dangerous <https://snapcraft.io/docs/install-modes>`_
 and
-`--classic <https://snapcraft.io/docs/install-modes>`_,
-for example:
+`--classic <https://snapcraft.io/docs/install-modes>`_
+options, for example:
 
 .. code-block:: console
 
@@ -96,62 +97,89 @@ Make sure it runs:
 
 .. _tut_init:
 
-Initialise your SDK
--------------------
+Initialise the SDK
+------------------
 
 Once you have installed |project_markup|,
 use it to initialise, define and pack your first :ref:`SDK <exp_sdks>`.
-Here, we'll build an SDK that installs a version of Python in the workshop.
+Here, we'll build an SDK that installs a version of Go in the workshop.
 
-#. Create a directory
-   named :file:`python`:
+First, create a directory named :file:`go/`:
 
-   .. code-block:: console
+.. code-block:: console
 
-      $ mkdir python
-      $ cd python
+   $ mkdir go/
 
 
-   It will contain your :ref:`SDK definition <exp_sdk_definition>`
-   and other source files.
+It will contain your :ref:`SDK definition <exp_sdk_definition>`
+and other source files.
+
+Next, browse to the SDK directory and initialise it:
+
+.. code-block:: console
+
+   $ cd go/
+   $ sdkcraft init
 
 
-#. Initialise the SDK directory:
+This command creates a template definition file
+named :file:`sdkcraft.yaml`;
+although it's almost empty,
+it can already be :ref:`built <tut_build_sdk>`.
 
-   .. code-block:: console
-
-      $ sdkcraft init
-
-   This command creates a template definition file
-   named :file:`sdkcraft.yaml`;
-   although it's almost empty,
-   it's ready to be built and published.
-
-   However, let's take a few extra steps
-   to explore what can go into an SDK.
+However, let's take a few extra steps
+to explore what goes into an SDK.
 
 
-#. Update the metadata in :file:`sdkcraft.yaml`;
-   at the very least,
-   adjust its :samp:`name`, :samp:`summary` and :samp:`description`:
+Update metadata
+---------------
 
-   .. code-block:: yaml
-      :caption: sdkcraft.yaml
-      :emphasize-lines: 1,4-6
+Update the metadata in :file:`sdkcraft.yaml`,
+adjusting its :samp:`name`, :samp:`summary` and :samp:`description`:
 
-      name: python
-      base: ubuntu@24.04
-      version: '0.1'
-      summary: Python SDK
-      description: |
-        This is my Python SDK's description.
-      license: GPL-3.0
-      platforms:
-        amd64:
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+   :emphasize-lines: 1,4-6
 
-      parts:
-        my-part:
-          plugin: nil
+   name: go
+   base: ubuntu@24.04
+   version: '0.1'
+   summary: Go SDK
+   description: |
+     This is my Go SDK description.
+   license: GPL-3.0
+   platforms:
+     amd64:
+
+   parts:
+     my-part:
+       plugin: nil
+
+
+.. _tut_parts:
+
+Define parts
+------------
+
+|project| leverages the :ref:`parts mechanism <exp_sdk_parts>`
+to obtain data from different sources, process it in various ways
+and prepare an SDK package for publishing.
+
+In our example, the :samp:`parts` section of the definition can be used as is:
+
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+
+   # ...
+   parts:
+     my-part:
+       plugin: nil
+
+
+For in-depth details,
+refer to the `Parts
+<https://canonical-craft-parts.readthedocs-hosted.com/en/latest/common/craft-parts/explanation/parts.html>`_
+section in Craft Parts documentation.
 
 
 .. _tut_content_interface:
@@ -165,25 +193,25 @@ of exposing the resources of the host system to the workshops,
 and you can use them in a variety of ways
 to extend the functionality of your SDK.
 
-Suppose you want to preserve the installed Python packages
-when a workshop using your SDK is rebuilt from scratch.
-You can use a :ref:`content interface <exp_content_interface>` plug:
+Suppose you want to preserve the Go module cache
+when a workshop using your SDK is rebuilt from scratch, or *refreshed*.
+You can use a :ref:`content interface <exp_content_interface>` plug for that:
 it mounts a host directory to a target directory in the workshop,
 so that the files remain on the host.
 
 Open :file:`sdkcraft.yaml` again
-and add a plug named :samp:`packages` to the :samp:`plugs` section:
+and add a plug named :samp:`mod-cache` to the :samp:`plugs` section:
 
    .. code-block:: yaml
       :caption: sdkcraft.yaml
       :emphasize-lines: 15-18
 
-      name: python
+      name: go
       base: ubuntu@24.04
       version: '0.1'
-      summary: Python SDK
+      summary: Go SDK
       description: |
-        This is my Python SDK's description.
+        This is my Go SDK description.
       license: GPL-3.0
       platforms:
         amd64:
@@ -193,19 +221,19 @@ and add a plug named :samp:`packages` to the :samp:`plugs` section:
           plugin: nil
 
       plugs:
-        packages:
+        mod-cache:
           interface: content
-          target: /usr/local/lib/python3.11
+          target: /home/workshop/go/pkg/mod
 
 
-Now, when a workshop using this SDK is started,
+Now, when a workshop using this SDK will be started,
 :program:`Workshop` will map the plug's :samp:`target` in the workshop
 to a host directory that will be automatically created
 and maintained between refresh operations.
 
 .. note::
 
-   You can't explicitly set the host directory here;
+   You can't explicitly set the *host* directory here;
    this prevents SDKs from accessing any arbitrary data on the host file system.
    However, users who add your SDK to their workshops
    will be able to remount the plug elsewhere at run-time.
@@ -219,57 +247,49 @@ add the :ref:`hooks <exp_sdk_hooks>`
 that run at different stages of the workshop's life cycle,
 preparing the SDK for use or preserving its state during updates.
 
-Under :file:`python/`,
+Under :file:`go/`,
 create a subdirectory
 named :file:`hooks/`:
 
 .. code-block:: console
 
-   $ mkdir hooks
-   $ cd hooks
+   $ mkdir hooks/
+   $ cd hooks/
 
 This directory stores all the hooks for an SDK.
 
 
-Build: setup-base
+Build: setup base
 ~~~~~~~~~~~~~~~~~
 
-#. Under :file:`python/hooks/`,
-   create a file
-   named :file:`setup-base`:
+Under :file:`go/hooks/`,
+create a file
+named :file:`setup-base`:
 
-   .. code-block:: shell
-      :caption: setup-base
+.. code-block:: shell
+   :caption: setup-base
 
-      #!/usr/bin/bash
+   #!/usr/bin/bash
 
-      # NOTE: we use apt-get instead of apt for non-interactive package installation.
-      # apt will prompt services restart for some of the packages below which will
-      # make the SDK installation stall forever.
+   snap install --classic go
+   echo "PATH=/home/workshop/go/bin:$PATH" >> /home/workshop/.bashrc
+   
+   # Create a mod cache directory to be mounted using the content interface
+   cache=$(sudo -u workshop -- go env GOMODCACHE)
+   sudo -u workshop -- mkdir -p "$cache"
 
-      # Update package list
-      apt-get -y update
-
-      # Ensure the Ubuntu Universe repos are enabled
-      apt-get -y install software-properties-common
-      add-apt-repository universe
-
-      # Install Python 3.11
-      apt-get -y update
-      apt-get -y install python3.11 python3.11-dev python3.11-venv
-
-      # Create working directory
-      sudo -u workshop -- mkdir -p /home/workshop/my_python_work/
+   # Create a working directory
+   sudo -u workshop -- mkdir -p /home/workshop/my_work/
 
 
-   It runs when the workshop is launched or refreshed,
-   installing the prerequisites and preparing it.
+It runs when the workshop is launched or refreshed,
+installing the prerequisites and preparing it for use.
 
 
-Persist: save-state, restore-state
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Persist: save and restore
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Also under :file:`python/hooks/`,
+Also under :file:`go/hooks/`,
 create two files
 named :file:`save-state` and :file:`restore-state`:
 
@@ -277,14 +297,14 @@ named :file:`save-state` and :file:`restore-state`:
    :caption: save-state
 
    #!/usr/bin/bash
-   rsync -a /home/workshop/my_python_work/ $SDK_STATE_DIR
+   rsync -a /home/workshop/my_work/ $SDK_STATE_DIR
 
 
 .. code-block:: shell
    :caption: restore-state
 
    #!/usr/bin/bash
-   rsync -a $SDK_STATE_DIR/ /home/workshop/my_python_work
+   rsync -a $SDK_STATE_DIR/ /home/workshop/my_work
 
 
 During a :command:`workshop refresh` operation:
@@ -305,7 +325,7 @@ During a :command:`workshop refresh` operation:
    so any breaking changes in its save-restore logic will cause an error.
 
 
-Report: check-health
+Report: check health
 ~~~~~~~~~~~~~~~~~~~~
 
 Finally, create a hook named :file:`check-health`:
@@ -314,31 +334,37 @@ Finally, create a hook named :file:`check-health`:
    :caption: check-health
 
    #!/usr/bin/bash
-   python3 -c "import os" && workshopctl set-health okay \
-     || workshopctl set-health --code=installation-fails error "Python 3 installation fails"
+
+   if go version > /dev/null 2>&1; then
+     workshopctl set-health okay
+   else
+     workshopctl set-health --code=installation-fails error "Go installation fails"
+   fi
 
 
-It checks whether the Python installation is actually functional.
+It checks whether the Go installation is functional.
 If it is, the health is set to :samp:`okay`
 using the :ref:`workshopctl set-health <exp_workshopctl>` command;
 otherwise, a similar command reports an error.
 
 
-Make hooks run
-~~~~~~~~~~~~~~
+Make the hooks executable
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Make all hooks executable so that :program:`Workshop` can run them:
+Make all hooks executable so that :program:`Workshop` can use them later:
 
 .. code-block:: console
 
-   $ cd ..  # back to python/
+   $ cd ..  # back to go/
    $ chmod +x hooks/*
 
 
-Build SDK
----------
+.. _tut_build_sdk:
 
-Under :file:`python/`, run:
+Build the SDK
+-------------
+
+Under :file:`go/`, run:
 
 .. code-block:: console
 
@@ -350,26 +376,40 @@ defined in the :file:`sdkcraft.yaml` file,
 e.g. pulling source code, applying patches, configuring and compiling it
 according to the part definition.
 
+.. note::
 
-Package SDK
------------
+   For a detailed explanation of the build process,
+   see the respective Craft Parts
+   `documentation section
+   <https://canonical-craft-parts.readthedocs-hosted.com/en/latest/common/craft-parts/explanation/lifecycle.html>`_.
 
-Under :file:`python/`, run:
+
+Optionally, you can clean the build cache before a build attempt:
+
+.. code-block:: console
+
+   $ sdkcraft clean && sdkcraft build
+
+
+Package the SDK
+---------------
+
+Under :file:`go/`, run:
 
 .. code-block:: console
 
    $ sdkcraft pack
 
 
-This creates the :file:`python.sdk` file,
+This creates the :file:`go.sdk` file,
 which contains the build artefacts from the previous step
 along with SDK metadata, hooks and other components.
 
 
 .. _tut_publish:
 
-Publish SDK
------------
+Publish the SDK
+---------------
 
 When an SDK is ready and packed,
 you need to publish it to the SDK Store
@@ -377,29 +417,34 @@ for use with :program:`Workshop`:
 
 .. code-block:: console
 
-   $ sdkcraft.publish ./python.sdk latest/beta
+   $ sdkcraft.publish ./go.sdk latest/beta
 
 
 This publishes the newly created SDK
-under the :samp:`latest/beta` channel in the SDK Store,
-where it can be accessed by :program:`Workshop` as follows:
+under the :samp:`latest/beta` channel in the SDK Store.
 
-   .. code-block:: yaml
-      :caption: .workshop.python.yaml
-      :emphasize-lines: 4,5
 
-      name: python
-      base: ubuntu@24.04
-      sdks:
-        python:
-          channel: latest/beta
+Use the SDK
+-----------
+
+The resulting SDK can be accessed by `Workshop`_ as follows:
+
+.. code-block:: yaml
+   :caption: .workshop.golang.yaml
+   :emphasize-lines: 2,4,5
+
+   name: golang
+   base: ubuntu@24.04
+   sdks:
+     go:
+       channel: latest/beta
 
 
 Mind that the :samp:`base` of the workshop must match the SDK :samp:`base`.
 
 .. note::
 
-   Currently, there's no way to reference local SDK packages in a workshop.
+   Currently, you can't use unpublished SDKs in a workshop.
 
 
 This was the last step of the tutorial;
