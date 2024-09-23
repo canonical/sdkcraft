@@ -61,6 +61,21 @@
                 ],
                 "additionalProperties":true
             }
+        },
+        "slots":{
+            "type":"object",
+            "additionalProperties":{
+                "type":"object",
+                "properties":{
+                    "interface":{
+                        "type":"string"
+                    }
+                },
+                "required":[
+                    "interface"
+                ],
+                "additionalProperties":true
+            }
         }
     },
     "required":[

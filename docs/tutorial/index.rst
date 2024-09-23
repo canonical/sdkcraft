@@ -182,7 +182,7 @@ refer to the `Parts
 section in Craft Parts documentation.
 
 
-.. _tut_content_interface:
+.. _tut_mount_interface:
 
 Add interface plugs
 -------------------
@@ -195,7 +195,7 @@ to extend the functionality of your SDK.
 
 Suppose you want to preserve the Go module cache
 when a workshop using your SDK is rebuilt from scratch, or *refreshed*.
-You can use a :ref:`content interface <exp_content_interface>` plug for that:
+You can use a :ref:`mount interface <exp_mount_interface>` plug for that:
 it mounts a host directory to a target directory in the workshop,
 so that the files remain on the host.
 
@@ -222,8 +222,8 @@ and add a plug named :samp:`mod-cache` to the :samp:`plugs` section:
 
       plugs:
         mod-cache:
-          interface: content
-          target: /home/workshop/go/pkg/mod
+          interface: mount
+          workshop-target: /home/workshop/go/pkg/mod
 
 
 Now, when a workshop using this SDK will be started,
@@ -274,7 +274,7 @@ named :file:`setup-base`:
    snap install --classic go
    echo "PATH=/home/workshop/go/bin:$PATH" >> /home/workshop/.bashrc
    
-   # Create a mod cache directory to be mounted using the content interface
+   # Create a mod cache directory to be mounted using the mount interface
    cache=$(sudo -u workshop -- go env GOMODCACHE)
    sudo -u workshop -- mkdir -p "$cache"
 

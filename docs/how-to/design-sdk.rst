@@ -45,9 +45,9 @@ Let's review the less trivial sections:
        may move here.
 
    * - :samp:`plugs`
-     - This section defines two content plugs and a GPU plug.
+     - This section defines two mount plugs and a GPU plug.
 
-       - The first content plug, :samp:`ros-cache`, maps ROS 2 configuration
+       - The first mount plug, :samp:`ros-cache`, maps ROS 2 configuration
          to a host directory to preserve it between refreshes.
 
        - The second one, :samp:`colcon-artefacts`,
@@ -62,7 +62,7 @@ persisting the important reusable parts of the setup on the host
 and making its GPU capabilities directly available.
 
 However,
-the SDK should actually make use of the directories defined in content plugs.
+the SDK should actually make use of the directories defined in mount plugs.
 For :samp:`ros-cache`,
 this occurs automatically because it's a default,
 but we need to explicitly tip the SDK
@@ -291,7 +291,7 @@ Explanation:
 
 Reference:
 
-- :ref:`ref_content_interface`
+- :ref:`ref_mount_interface`
 - :ref:`ref_gpu_interface`
 - :ref:`ref_sdk_definition`
 - :ref:`ref_sdk_hooks`
