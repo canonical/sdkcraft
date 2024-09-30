@@ -20,7 +20,7 @@ kiwisolver==1.4.7
 livereload==2.6.3
 lxd-sphinx-extensions==0.0.16
 lxml==4.9.4
-Markdown==3.6
+Markdown==3.7
 MarkupSafe==2.1.5
 matplotlib==3.7.1
 numpy==1.24.2
