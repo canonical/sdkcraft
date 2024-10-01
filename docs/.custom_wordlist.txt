@@ -63,4 +63,5 @@ workspace
 workspaces
 worktree
 worktrees
+XDG
 yaml
