@@ -227,6 +227,8 @@ and the target directory:
 
 This mounts a directory automatically created by :program:`Workshop` on the host
 to the :samp:`workshop-target` directory.
+The host directory will be created under the path
+designated by the :envvar:`$XDG_DATA_HOME` variable.
 
 A mount *slot* in the definition must specify the slot name, the interface,
 and the *source* directory:
