@@ -1,18 +1,22 @@
 How to contribute
 =================
 
-We believe everyone has something valuable to contribute, whether you're
-a coder, a writer, or a tester. Here's how and why you could get involved:
+We believe everyone has something valuable to contribute,
+whether you're a coder, a writer or a tester.
+Here's how and why you could get involved:
 
-- **Why join us?** Work with like-minded people, grow your skills,
-  connect with diverse professionals, and make a difference.
+- **Why join us**:
+  Work with like-minded people, grow your skills,
+  connect with diverse professionals and make a difference.
 
-- **What do you get?** Personal growth, recognition for your contributions,
-  early access to new features, and the joy of seeing your work appreciated.
+- **What do you get**:
+  Personal growth, recognition for your contributions,
+  early access to new features and the joy of seeing your work appreciated.
 
-- **Start early, start simple**: Dive into code contributions,
-  improve documentation, or be among the first testers. Your presence
-  matters, regardless of experience or the scale of your input.
+- **Start early, start simple**:
+  Dive into code contributions,
+  improve documentation or be among the first testers.
+  Your presence matters, regardless of experience or the scale of your input.
 
 The guidelines below will keep your contributions effective and meaningful.
 
@@ -29,8 +33,9 @@ Environment setup
         python3-pkg-resources python3-apt python3-pip-whl
 
 
-#. `Snapcraft <https://snapcraft.io/docs/snapcraft>`_ is used to build, package,
-   and publish ``sdkcraft`` snaps. All these processes run in a self-launched
+#. `Snapcraft <https://snapcraft.io/docs/snapcraft>`_
+   is used to build, package and publish ``sdkcraft`` snaps.
+   All these processes run in a self-launched
    `LXD <https://documentation.ubuntu.com/lxd/en/latest/>`_ container.
    Install ``snapcraft`` and ``lxd`` using ``snap``:
 
@@ -40,8 +45,8 @@ Environment setup
       sudo snap install lxd
 
 
-   Add the current user to the ``lxd`` group to give permission to access
-   its resources:
+   Add the current user to the ``lxd`` group
+   to give permission to access its resources:
 
    .. code-block:: console
 
@@ -142,12 +147,14 @@ In SDKcraft, commit messages differ from conventional commits in capitalisation:
    - ...
 
 
-The messages rarely, if ever, state the type of the commit (e.g. ``fix``,
-``feat``, etc.); these are used for branch naming, for example:
+The messages rarely, if ever, state the type of the commit
+(e.g. ``fix``, ``feat``, etc.);
+these are used for branch naming, for example:
 
 - ``canonical/feat/workspace-start``
 - ``canonical/fix/spread-tests-github``
 - ``canonical/chore/update-lxd``
+
 
 Commits that focus on docs must use the ``Doc:`` type prefix
 with an optional scope in square brackets:
@@ -156,6 +163,7 @@ with an optional scope in square brackets:
 
    Doc[chore]: Align references
 
+
 PR descriptions should follow the PR template checklist,
 which largely reiterates this section.
 
@@ -163,44 +171,53 @@ which largely reiterates this section.
 Reversibility
 ~~~~~~~~~~~~~
 
-When making decisions that might be costly to reverse, explicitly state the
-rationale in the PR description. This helps to clarify reasoning and improves
-collaboration.
+When making decisions that might be costly to reverse,
+explicitly state the rationale in the PR description.
+This helps to understand the reasoning and collaborate better.
 
 
 Coding Standards
 ~~~~~~~~~~~~~~~~
 
-- **Avoid nested conditions**: Refrain from nesting conditions to enhance
-  readability and maintainability.
+- **Avoid nested conditions**:
+  Refrain from nesting conditions to enhance readability and maintainability.
 
-- **Eliminate dead code and redundant comments**: Remove unused or obsolete
-  code and comments. This promotes a cleaner code base and reduces confusion.
+- **Eliminate dead code and redundant comments**:
+  Remove unused or obsolete code and comments.
+  This promotes a cleaner code base and reduces confusion.
 
-- **Normalise symmetries**: Handle identical operations consistently using
-  a uniform approach. This improves consistency and readability.
+- **Normalise symmetries**:
+  Handle identical operations consistently, using a uniform approach.
+  This also improves consistency and readability.
 
 
-Code Structure
+Code structure
 ~~~~~~~~~~~~~~
 
-- **Check coupled code elements**: Ensure that coupled code elements, files,
-  and directories are adjacent. For instance, store test data close to the
-  corresponding test code.
+- **Check coupled code elements**:
+  Verify that coupled code elements, files and directories are adjacent.
+  For instance, store test data close to the corresponding test code.
 
-- **Group variable declaration and initialisation**: Declare and initialise
-  variables together to improve code organisation and readability.
+- **Group variable declaration and initialisation**:
+  Declare and initialise variables together
+  to improve code organisation and readability.
 
-- **Divide large expressions**: Break down large expressions into smaller
-  self-explanatory parts. Use multiple variables if necessary to improve
-  understanding, and choose names that reflect their purpose.
+- **Divide large expressions**:
+  Break down large expressions
+  into smaller self-explanatory parts.
+  Use multiple variables if necessary
+  to make the code more understandable
+  and choose names to reflect their purpose.
 
-- **Use blank lines for logical separation**: Insert blank lines between
-  logically distinct sections of code to improve structure and readability.
+- **Use blank lines for logical separation**:
+  Insert a blank line between two logically distinct sections of code.
+  This improves its structure and makes it easier to comprehend.
 
 
 Testing
 -------
+
+Make sure to run unit and integration tests before submitting a PR.
 
 Run unit tests:
 
@@ -234,6 +251,6 @@ To build and run it at ``127.0.0.1:8000``:
 
 
 To suggest changes online, use the GitHub link in the footer of the page
-or submit a PR, limiting it to the `docs/` directory
+or submit a PR, limiting it to the ``docs/`` directory
 and following our internal `Sphinx and Read the Docs guide
 <https://canonical-documentation-with-sphinx-and-readthedocscom.readthedocs-hosted.com/>`_.
