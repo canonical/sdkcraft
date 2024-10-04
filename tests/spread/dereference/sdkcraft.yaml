@@ -1,13 +1,13 @@
-name: my-sdk-name # the name of your SDK
-base: ubuntu@22.04 # the base environment for this SDK
-version: "0.1" # just for humans. Semantic versioning is recommended
-summary: Single-line elevator pitch for your amazing SDK # 79 char long summary
+name: my-sdk-name
+base: ubuntu@22.04
+version: "0.1"
+summary: Single-line elevator pitch for your amazing SDK
 description: |
   This is my my-sdk-name's description. You have a paragraph or two to tell the
   most important story about it. Keep it under 100 words though,
   we live in tweetspace.
-license: GPL-3.0 # your SDK's SPDX license
-platforms: # The platforms this SDK should be built on and run on
+license: GPL-3.0
+platforms:
   amd64:
 
 parts:
