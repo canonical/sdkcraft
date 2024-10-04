@@ -1,91 +1,176 @@
 {
-    "$schema":"https://json-schema.org/draft/2020-12/schema",
-    "$id":"https://canonical.com/sdkcraft.yaml",
-    "properties":{
-        "name":{
-            "type":"string"
-        },
-        "base":{
-            "type":"string",
-            "enum":[
-                "ubuntu@20.04",
-                "ubuntu@22.04",
-                "ubuntu@24.04"
-            ]
-        },
-        "summary":{
-            "type":"string",
-            "maxLength": 79
-        },
-        "description":{
-            "type":"string"
-        },
-        "version":{
-            "type":"string"
-        },
-        "license":{
-            "type":"string"
-        },
-        "platforms":{
-            "type":"object",
-            "additionalProperties":{
-                "type":"object"
-            }
-        },
-        "parts":{
-            "type":"object",
-            "additionalProperties":{
-                "type":"object",
-                "properties":{
-                    "plugin":{
-                        "type":"string"
-                    }
-                },
-                "required":[
-                    "plugin"
-                ],
-                "additionalProperties":true
-            }
-        },
-        "plugs":{
-            "type":"object",
-            "additionalProperties":{
-                "type":"object",
-                "properties":{
-                    "interface":{
-                        "type":"string"
-                    }
-                },
-                "required":[
-                    "interface"
-                ],
-                "additionalProperties":true
-            }
-        },
-        "slots":{
-            "type":"object",
-            "additionalProperties":{
-                "type":"object",
-                "properties":{
-                    "interface":{
-                        "type":"string"
-                    }
-                },
-                "required":[
-                    "interface"
-                ],
-                "additionalProperties":true
-            }
-        }
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canonical.com/sdkcraft.yaml",
+  "title": "Project",
+  "description": "SDKcraft project definition.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "title": "Name",
+      "minLength": 1,
+      "maxLength": 40,
+      "pattern": "^([a-z0-9][a-z0-9-]?)*[a-z]+([a-z0-9-]?[a-z0-9])*$",
+      "type": "string"
     },
-    "required":[
-        "name",
-        "base",
-        "summary",
-        "description",
-        "version",
-        "license",
-        "platforms",
-        "parts"
-    ]
+    "title": {
+      "title": "Title",
+      "minLength": 2,
+      "maxLength": 40,
+      "type": "string"
+    },
+    "version": {
+      "title": "Version",
+      "maxLength": 32,
+      "pattern": "^[a-zA-Z0-9](?:[a-zA-Z0-9:.+~-]*[a-zA-Z0-9+~])?$",
+      "type": "string"
+    },
+    "summary": {
+      "title": "Summary",
+      "maxLength": 78,
+      "type": "string"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "base": {
+      "title": "Base"
+    },
+    "build-base": {
+      "title": "Build-Base"
+    },
+    "platforms": {
+      "title": "Platforms",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Platform"
+      }
+    },
+    "contact": {
+      "title": "Contact",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "issues": {
+      "title": "Issues",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "source-code": {
+      "title": "Source-Code",
+      "minLength": 1,
+      "maxLength": 65536,
+      "format": "uri",
+      "type": "string"
+    },
+    "license": {
+      "title": "License",
+      "type": "string"
+    },
+    "adopt-info": {
+      "title": "Adopt-Info",
+      "type": "string"
+    },
+    "parts": {
+      "title": "Parts",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "package-repositories": {
+      "title": "Package-Repositories",
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "plugs": {
+      "title": "Plugs",
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/ContentPlug"
+          },
+          {}
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "platforms",
+    "parts"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "Platform": {
+      "title": "Platform",
+      "description": "Project platform definition.",
+      "type": "object",
+      "properties": {
+        "build-on": {
+          "title": "Build-On",
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "build-for": {
+          "title": "Build-For",
+          "minItems": 1,
+          "maxItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ContentPlug": {
+      "title": "ContentPlug",
+      "description": "Sdkcraft project content plug definition.",
+      "type": "object",
+      "properties": {
+        "interface": {
+          "title": "Interface",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        }
+      },
+      "required": [
+        "interface",
+        "target"
+      ],
+      "additionalProperties": false
+    }
+  }
 }

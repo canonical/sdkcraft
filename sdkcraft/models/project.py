@@ -20,6 +20,8 @@ This module defines a sdkcraft.yaml file, exportable to a JSON schema.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 import craft_parts
@@ -87,3 +89,18 @@ class Project(models.Project):
                     raise SdkcraftError(message=f"Plug '{plug_name}' cannot be a list.")
 
         return plugs
+
+
+def export_schema() -> None:
+    """Sdkcraft project schema export.
+
+    To run: PYTHONPATH=. python sdkcraft/models/project.py.
+    """
+    schema = Project.schema()
+    with Path("schema.json").open("w") as file:
+        json.dump(schema, file, indent=2)
+
+
+if __name__ == "__main__":
+    # Call the export function
+    export_schema()
