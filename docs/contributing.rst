@@ -120,7 +120,7 @@ That's where the ``sdkcraft`` command starts its logic.
 By following the ``sdkcraft/__main__.py`` file,
 you can gradually trace how the code is executed step by step.
 
-It's worthy mentioning that ``sdkcraft`` is built on top of the `craft-parts
+It's worth mentioning that ``sdkcraft`` is built on top of the `craft-parts
 <https://github.com/canonical/craft-parts>`_ project.
 
 Using a Python virtual environment makes it convenient
