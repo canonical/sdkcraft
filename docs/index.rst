@@ -13,6 +13,7 @@
    how-to/index
    explanation/index
    reference/index
+   Contribution <contributing>
 
 
 **A tool that packages and publishes SDKs

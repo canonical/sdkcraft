@@ -19,7 +19,9 @@ import copy
 from typing import Any
 
 import craft_parts
-from craft_application import Application, AppMetadata
+from craft_application import Application, AppMetadata, commands
+from craft_cli import Dispatcher
+from typing_extensions import override
 
 from sdkcraft import models
 
@@ -35,6 +37,17 @@ class Sdkcraft(Application):
 
     def configure(self, global_args: dict[str, Any]) -> None:
         """Configure the application using global command-line arguments."""
+
+    @override
+    def _create_dispatcher(self) -> Dispatcher:
+        """Overridden to set the default command to "pack"."""
+        return Dispatcher(
+            self.app.name,
+            self.command_groups,
+            summary=str(self.app.summary),
+            extra_global_args=self._global_arguments,
+            default_command=commands.lifecycle.PackCommand,
+        )
 
     def _extra_yaml_transform(
         self,
