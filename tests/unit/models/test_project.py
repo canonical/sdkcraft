@@ -92,9 +92,9 @@ def test_project_stage_packages_prohibited():
 
 def test_project_plugs():
     valid_plugs = {
-        "content": {"interface": "content", "target": "/data"},
+        "mount": {"interface": "mount", "workshop-target": "/data"},
         "randomg": {"interface": "existing"},
-        "content2": {"target": "/data"},
+        "mount2": {"workshop-target": "/data"},
     }
     try:
         default._validate_plugs(valid_plugs)
@@ -102,14 +102,14 @@ def test_project_plugs():
         pytest.fail(reason=f"unexpected exception {e}")
 
     no_target = {
-        "content": {"interface": "content"},
+        "mount": {"interface": "mount"},
     }
     with pytest.raises(
-        SdkcraftError, match="ContentPlug 'content' must have a 'target' parameter."
+        SdkcraftError, match="MountPlug 'mount' must have a 'workshop-target' parameter."
     ):
         default._validate_plugs(no_target)
 
-    incorrect_type = {"content": ["interface", "content"]}
+    incorrect_type = {"mount": ["interface", "mount"]}
     with pytest.raises(SdkcraftError, match="cannot be a list"):
         default._validate_plugs(incorrect_type)
 

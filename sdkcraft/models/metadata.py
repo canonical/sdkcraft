@@ -25,7 +25,7 @@ from craft_application.models import (
 )
 from pydantic import AnyUrl
 
-from sdkcraft.models.project import ContentPlug
+from sdkcraft.models.project import MountPlug
 
 
 class Metadata(BaseMetadata):
@@ -41,7 +41,7 @@ class Metadata(BaseMetadata):
     contact: str | UniqueStrList | None
     issues: str | UniqueStrList | None
     source_code: AnyUrl | None
-    plugs: dict[str, ContentPlug | Any] | None
+    plugs: dict[str, MountPlug | Any] | None
 
     def __init__(self, **kwargs: dict[Any, Any]) -> None:
         super().__init__(**kwargs)
