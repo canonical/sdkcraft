@@ -32,17 +32,17 @@ from craft_application.models import (
 from sdkcraft.errors import SdkcraftError
 
 
-class ContentPlug(models.CraftBaseModel):
-    """Sdkcraft project content plug definition."""
+class MountPlug(models.CraftBaseModel):
+    """Sdkcraft project mount plug definition."""
 
     interface: str
-    target: str
+    workshop_target: str
 
 
 class Project(models.Project):
     """Sdkcraft project definition."""
 
-    plugs: dict[str, ContentPlug | Any] | None
+    plugs: dict[str, MountPlug | Any] | None
 
     @pydantic.validator("name")
     def _validate_project_name(cls, name: ProjectName) -> ProjectName:
@@ -70,17 +70,17 @@ class Project(models.Project):
 
     @pydantic.validator("plugs")
     def _validate_plugs(
-        cls, plugs: dict[str, ContentPlug | Any]
-    ) -> dict[str, ContentPlug | Any]:
+        cls, plugs: dict[str, MountPlug | Any]
+    ) -> dict[str, MountPlug | Any]:
         if plugs is not None:
             for plug_name, plug in plugs.items():
                 if (
                     isinstance(plug, dict)
-                    and plug.get("interface") == "content"
-                    and not plug.get("target")
+                    and plug.get("interface") == "mount"
+                    and not plug.get("workshop-target")
                 ):
                     raise SdkcraftError(
-                        message=f"ContentPlug '{plug_name}' must have a 'target' parameter."
+                        message=f"MountPlug '{plug_name}' must have a 'workshop-target' parameter."
                     )
 
                 if isinstance(plug, list):

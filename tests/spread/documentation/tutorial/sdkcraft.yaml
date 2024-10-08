@@ -1,6 +1,6 @@
 name: go
 base: ubuntu@24.04
-version: '0.1'
+version: "0.1"
 summary: Go SDK
 description: |
   This is my Go SDK description.
@@ -14,5 +14,5 @@ parts:
 
 plugs:
   mod-cache:
-    interface: content
-    target: /home/workshop/go/pkg/mod
+    interface: mount
+    workshop-target: /home/workshop/go/pkg/mod
