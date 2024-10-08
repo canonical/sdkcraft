@@ -14,6 +14,7 @@
    explanation/index
    reference/index
    Contribution <contributing>
+   security
 
 
 **A tool that packages and publishes SDKs
