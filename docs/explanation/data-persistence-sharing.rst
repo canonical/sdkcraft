@@ -23,10 +23,10 @@ can quickly become an overhead.
 to reuse and share content between the host and the workshop via SDKs
 while keeping manual intervention to a necessary minimum.
 Typically, workshops are isolated from each other and from the host system;
-all data exchange is via the content interface.
+all data exchange is via the mount interface.
 
 To use this interface, your SDK defines a
-:ref:`content interface plug <exp_content_plug>`.
+:ref:`mount interface plug <exp_mount_plug>`.
 When a workshop uses the SDK,
 an auto-assigned, non-customisable source directory on the host
 is mounted to the plug-defined target directory inside the workshop.
@@ -47,7 +47,7 @@ Persistence and reuse between workshops
 ---------------------------------------
 
 This is the simplest scenario;
-you use the :samp:`content` interface
+you use the :samp:`mount` interface
 to define the target directory
 where the content will be mounted inside the workshop
 per each directory you want to retain during the workshop's life cycle.
@@ -66,18 +66,18 @@ per each directory you want to retain during the workshop's life cycle.
 
    plugs:
      share-cache:
-       interface: content
-       target: /opt/cache
+       interface: mount
+       workshop-target: /opt/cache
 
      training-data:
-       interface: content
-       target: /opt/training
+       interface: mount
+       workshop-target: /opt/training
 
 
-This SDK defines two content plugs;
+This SDK defines two mount plugs;
 for each,
 `Workshop`_ creates a source directory on the host at run-time.
-Both :samp:`target` directories inside the workshop
+Both :samp:`workshop-target` directories inside the workshop
 can be used by the SDK-specific logic
 implemented via :ref:`hooks <exp_sdk_hooks>` and other features.
 
@@ -99,12 +99,12 @@ is pre-defined as follows:
 
 .. code-block:: none
 
-   $XDG_DATA_HOME/workshop/project/<PROJECT ID>/content/<WORKSHOP>_<SDK>_<PLUG>.sdk/
+   $XDG_DATA_HOME/workshop/project/<PROJECT ID>/mount/<WORKSHOP>_<SDK>_<PLUG>.sdk/
 
 
 In the above example,
 this would be
-:file:`~/.local/share/workshop/project/<PROJECT ID>/content/data_data-science_share-cache.sdk/`.
+:file:`~/.local/share/workshop/project/<PROJECT ID>/mount/data_data-science_share-cache.sdk/`.
 In particular,
 this means that the SDK's plug in each workshop
 will have its own unique source directory.
@@ -127,7 +127,7 @@ and the :command:`workshop remount` command is the key to it:
 
 
 This mounts a specific source location on the host, :file:`~/.local/cache/`,
-to the target directory of the :samp:`share-cache` content interface plug
+to the target directory of the :samp:`share-cache` mount interface plug
 under the :samp:`data-science` SDK in the :samp:`data` workshop defined above.
 
 
@@ -136,10 +136,10 @@ See also
 
 Explanation:
 
-- :ref:`exp_content_interface`
+- :ref:`exp_mount_interface`
 - :ref:`exp_sdks`
 
 
 Reference:
 
-- :ref:`ref_content_interface`
+- :ref:`ref_mount_interface`

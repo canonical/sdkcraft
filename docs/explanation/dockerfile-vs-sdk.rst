@@ -49,7 +49,7 @@ but the actual parameters are provided by users at the author's guidance;
 the resulting manual process is error-prone and adds unnecessary overhead.
 
 :program:`Workshop` reciprocates this
-with :ref:`content interface <exp_content_interface>` plugs
+with :ref:`mount interface <exp_mount_interface>` plugs
 that are akin to Docker volumes
 and the :command:`workshop remount` command
 that enables remounting existing plugs to a given location.
@@ -126,7 +126,7 @@ Important Dockerfile instructions are mapped to |project_markup| as follows:
 
    * - :samp:`ADD`
      - :ref:`parts <exp_sdk_parts>`,
-       :ref:`content interface <exp_content_interface>`
+       :ref:`mount interface <exp_mount_interface>`
 
    * - :samp:`CMD`
      - :samp:`setup-base` :ref:`hook <exp_sdk_hooks>`
@@ -153,7 +153,7 @@ Important Dockerfile instructions are mapped to |project_markup| as follows:
      - :samp:`setup-base` :ref:`hook <exp_sdk_hooks>`
 
    * - :samp:`VOLUME`
-     - :ref:`content interface <exp_content_interface>`
+     - :ref:`mount interface <exp_mount_interface>`
 
 
 In turn, the CLI subcommands can be mapped like this:
@@ -278,15 +278,15 @@ a complete :command:`docker run` command may look like this:
 
 In :program:`Workshop`,
 additional file system mounts are defined by the SDK author
-using the :ref:`content interface <exp_content_interface>`:
+using the :ref:`mount interface <exp_mount_interface>`:
 
 .. code-block:: yaml
    :caption: sdkcraft.yaml
 
    plugs:
      ros-cache:
-       interface: content
-       target: /home/workshop/.ros
+       interface: mount
+       workshop-target: /home/workshop/.ros
    # ...
 
 

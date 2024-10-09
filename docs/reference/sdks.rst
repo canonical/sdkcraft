@@ -96,7 +96,11 @@ The :samp:`plugs` field is optional.
 
    * - :samp:`plugs`
      - object
-     - See :ref:`ref_sdk_interfaces` for a detailed discussion.
+     - See :ref:`ref_sdk_plugs_slots` for a detailed discussion.
+
+   * - :samp:`slots`
+     - object
+     - See :ref:`ref_sdk_plugs_slots` for a detailed discussion.
 
 
 For example:
@@ -122,8 +126,13 @@ For example:
 
     plugs:
       mod-cache:
-        interface: content
-        target: /home/workshop/go/pkg/mod
+        interface: mount
+        workshop-target: /home/workshop/go/pkg/mod
+
+   slots:
+      tools:
+        interface:  mount
+        workshop-source: $SDK/go
 
 
 JSON Schema
@@ -133,8 +142,10 @@ The following
 `JSON Schema <https://json-schema.org/>`__
 formalises the description above:
 
-.. literalinclude:: schema.json
-   :language: json
+.. dropdown:: SDK definition schema
+
+   .. literalinclude:: schema.json
+      :language: json
 
 
 .. _ref_sdk_parts:
@@ -161,38 +172,19 @@ refer to the corresponding Craft Parts
 <https://canonical-craft-parts.readthedocs-hosted.com/en/latest/common/craft-parts/reference/part_properties.html>`_.
 
 
-.. _ref_sdk_interfaces:
+.. _ref_sdk_plugs_slots:
 
-SDK interfaces
---------------
+SDK plugs and slots
+-------------------
 
-Currently, |project_markup| supports the following interfaces:
+Currently, |project_markup| supports defining the following interface plugs:
 
-- :ref:`content <ref_content_interface>`
 - :ref:`GPU <ref_gpu_interface>`
+- :ref:`mount <ref_mount_interface>`
 - :ref:`SSH <ref_ssh_interface>`
 
 
-.. _ref_content_interface:
-
-Content interface
-~~~~~~~~~~~~~~~~~
-
-A content plug in the definition must name the plug, the interface
-and the target directory:
-
-.. code-block:: yaml
-   :caption: sdkcraft.yaml
-
-    # ...
-    plugs:
-      <NAME>:
-        interface: content
-        target: <DIRECTORY>
-
-
-This mounts a directory created by :program:`Workshop` on the host
-to the :samp:`target` directory inside the workshop.
+Slots can only be defined for the :samp:`mount` interface.
 
 
 .. _ref_gpu_interface:
@@ -200,7 +192,7 @@ to the :samp:`target` directory inside the workshop.
 GPU interface
 ~~~~~~~~~~~~~
 
-A GPU plug in the definition must name the plug and the interface:
+A GPU plug in the definition must specify the plug name and the interface:
 
 .. code-block:: yaml
    :caption: sdkcraft.yaml
@@ -215,12 +207,53 @@ This makes the host's GPUs directly available inside the workshop
 via the GPU pass-through mechanism.
 
 
+.. _ref_mount_interface:
+
+Mount interface
+~~~~~~~~~~~~~~~
+
+A mount plug in the definition must specify the plug name, the interface
+and the target directory:
+
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+
+    # ...
+    plugs:
+      <NAME>:
+        interface: mount
+        workshop-target: <WORKSHOP DIRECTORY>
+
+
+This mounts a directory automatically created by :program:`Workshop` on the host
+to the :samp:`workshop-target` directory.
+The host directory will be created under the path
+designated by the :envvar:`$XDG_DATA_HOME` variable.
+
+A mount *slot* in the definition must specify the slot name, the interface,
+and the *source* directory:
+
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+
+    # ...
+    slots:
+      <NAME>:
+        interface: mount
+        workshop-source: <WORKSHOP DIRECTORY>
+
+This exposes the :samp:`workshop-source` directory inside the workshop
+to be mounted to another directory within the workshop.
+The :envvar:`$SDK` variable can be used to refer to the SDK installation path
+inside the workshop.
+
+
 .. _ref_ssh_interface:
 
 SSH interface
 ~~~~~~~~~~~~~
 
-An SSH plug in the definition must name the plug and the interface:
+An SSH plug in the definition must specify the plug name and the interface:
 
 .. code-block:: yaml
    :caption: sdkcraft.yaml
