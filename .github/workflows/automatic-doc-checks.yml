@@ -1,9 +1,11 @@
-name: Automatic documentation checks
+name: Main Documentation Checks
 
 on:
   push:
     branches: [main]
   pull_request:
+  # Manual trigger
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,4 +15,4 @@ jobs:
   documentation-checks:
     uses: canonical/documentation-workflows/.github/workflows/documentation-checks.yaml@main
     with:
-      working-directory: './docs/'
+      working-directory: "docs"
