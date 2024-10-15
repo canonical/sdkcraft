@@ -66,7 +66,9 @@ Risks
 Although safeguards are in place,
 the security of an SDK largely depends on how it's designed.
 For instance, it is advisable not to store sensitive data within workshops.
-Instead, use mounts to provide access to sensitive data if your SDKs need it.
+Instead, use environment variables in ``Workshop`` commands for access tokens
+or the :ref:`SSH interface <exp_ssh_interface>` for transparent key-based access
+to securely handle sensitive data in your SDKs.
 
 
 Supported versions
