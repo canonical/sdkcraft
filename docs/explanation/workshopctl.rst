@@ -65,7 +65,7 @@ depends on the run-time results of the hook:
   or if 5 seconds pass without :samp:`set-health` being invoked,
   the SDK health is changed to :samp:`error`.
 
-- *Error*: the hook exits with an non-zero code
+- *Error*: the hook exits with a non-zero code
   or explicitly sets SDK health to :samp:`error`.
 
 

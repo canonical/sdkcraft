@@ -347,6 +347,16 @@ If it is, the health is set to :samp:`okay`
 using the :ref:`workshopctl set-health <exp_workshopctl>` command;
 otherwise, a similar command reports an error.
 
+In general, the hook should set the health to :samp:`okay`
+or return a zero code if everything is fine.
+To signal an error, set the health to :samp:`error`
+or return a non-zero code.
+
+You can also set the health to :samp:`waiting`
+to signal that the hook should be retried for a few seconds.
+Unless the hook sets the health to a different value during such a retry,
+the health is eventually set to :samp:`error` automatically.
+
 
 Make the hooks executable
 ~~~~~~~~~~~~~~~~~~~~~~~~~
