@@ -99,6 +99,6 @@ and we'll see what we can do.
 
 - `Product map <https://warthogs.atlassian.net/jira/software/c/projects/WSP/boards/1645>`__
 
-- `Contribution and participation <https://github.com/canonical/sdkcraft/pulls>`__
+- :doc:`Contribution and participation <contributing>`
 
 - `Product and documentation feedback <https://github.com/canonical/sdkcraft/issues>`__
