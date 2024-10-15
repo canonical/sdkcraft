@@ -114,7 +114,7 @@ To release an SDK in the ``edge`` track of the latest channel:
 
 .. code-block:: console
 
-   sdkcraft.publish ./readme-sdk.sdk edge
+   sdkcraft.publish ./readme-sdk.sdk latest/edge
 
 
 Testing
