@@ -13,7 +13,7 @@ These articles iterate over the core set of SDK-related concepts:
    Parts <parts>
 
 
-These topics cover the key principles of SDK usage:
+These topics cover the key principles and aspects of |project_markup| and SDKs:
 
 .. toctree::
    :maxdepth: 1
@@ -21,6 +21,7 @@ These topics cover the key principles of SDK usage:
    Data persistence and sharing <data-persistence-sharing>
    Dockerfiles versus SDKs <dockerfile-vs-sdk>
    Health reports <workshopctl>
+   Security <../security>
 
 
 .. _exp_sdks:
