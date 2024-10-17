@@ -57,7 +57,7 @@ The status of a workshop, such as *Ready*, *Pending* or *Error*,
 depends on the run-time results of the hook:
 
 - *Ready* means success: the hook sets SDK health to :samp:`okay`
-  or gracefully exits with a zero code.
+  and gracefully exits with a zero code.
 
 - *Pending*: The hook sets the SDK health to :samp:`waiting`.
   This means it will be retried, one attempt per second.
@@ -65,7 +65,7 @@ depends on the run-time results of the hook:
   or if 5 seconds pass without :samp:`set-health` being invoked,
   the SDK health is changed to :samp:`error`.
 
-- *Error*: the hook exits with an non-zero code
+- *Error*: the hook exits with a non-zero code
   or explicitly sets SDK health to :samp:`error`.
 
 

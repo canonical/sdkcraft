@@ -1,9 +1,9 @@
 .. _exp_dockerfile_vs_sdk:
 
-How a Dockerfile compares to an SDK
-===================================
+How Dockerfiles compare to SDKs
+===============================
 
-:program:`Workshop` and |project_markup| didn't happen in a vacuum;
+:program:`Workshop` and |project_markup| didn't occur in a vacuum;
 there have been many attempts to provide developers with robust environments.
 A common approach is to use Docker
 to achieve repeatability, persistence, layering, and various other benefits
@@ -24,7 +24,7 @@ Feature discussion
 ------------------
 
 To begin with, it's perfectly reasonable to draw a few comparisons
-between Docker and :program:`Workshop`.
+between Docker and the combination of |project_markup| and :program:`Workshop`.
 
 
 :spellexception:`(Im)mutability`
@@ -34,7 +34,7 @@ The first contrast comes from the overall approach:
 Docker images are conceived to be immutable,
 whereas workshops are designed to evolve over time.
 This affects all aspects of their design and implementation,
-including how Dockerfiles and, respectively, SDKs are laid out.
+including how Dockerfiles and SDKs are laid out, respectively.
 
 
 Bind mounts and volumes
@@ -48,7 +48,7 @@ The expectations for their configuration are set by the image author
 but the actual parameters are provided by users at the author's guidance;
 the resulting manual process is error-prone and adds unnecessary overhead.
 
-:program:`Workshop` reciprocates this
+|project_markup| and :program:`Workshop` reciprocate this
 with :ref:`mount interface <exp_mount_interface>` plugs
 that are akin to Docker volumes
 and the :command:`workshop remount` command
@@ -56,7 +56,8 @@ that enables remounting existing plugs to a given location.
 However, the user can't create arbitrary mounts;
 the choice is limited to what the SDKs offer.
 
-In turn, this implies that the mount logic in :program:`Workshop`
+In turn, this implies that the mount logic
+in |project_markup| and :program:`Workshop`
 is built into the SDK by its author,
 not implemented manually by the user;
 unless the user decides to intervene,
@@ -71,7 +72,7 @@ the Docker way of accessing various host resources
 can be notably inconsistent;
 for example, enabling GPU pass-through is visibly different from SSH forwarding.
 
-In contrast, :program:`Workshop` aims to unify these mechanisms
+In contrast, |project_markup| and :program:`Workshop` unify these mechanisms
 under the single concept of an :ref:`interface <exp_sdk_interfaces>`,
 providing a consistent way to uniformly manage host resource access.
 
@@ -79,7 +80,7 @@ providing a consistent way to uniformly manage host resource access.
 Parts and layers
 ~~~~~~~~~~~~~~~~
 
-Docker relies on temporally layered approach,
+Docker relies on a temporally layered approach,
 where each change is built on top of the previous one.
 
 Our SDKs are structured using :ref:`parts <exp_sdk_parts>`;
@@ -87,7 +88,7 @@ their expressiveness makes them more diverse and semantically rich,
 allowing the layout of an SDK to be formalised in a modular way.
 If necessary, the layered approach
 can be mimicked using :ref:`SDK hooks <exp_sdk_hooks>`,
-although :program:`Workshop` doesn't yet support layering.
+although |project_markup| and :program:`Workshop` don't yet support layering.
 
 
 Build commands
@@ -96,7 +97,7 @@ Build commands
 In Docker,
 build commands are typically bundled as :samp:`RUN` instructions.
 
-In :program:`Workshop` SDKs,
+In |project_markup| SDKs,
 the :samp:`setup-base` :ref:`hook <exp_sdk_hooks>`
 is responsible for building the workshop,
 but other hooks add extra functionality with run-time events and health checks.
@@ -135,9 +136,6 @@ Important Dockerfile instructions are mapped to |project_markup| as follows:
      - :samp:`setup-base` :ref:`hook <exp_sdk_hooks>`
 
    * - :samp:`ENTRYPOINT`
-     - :samp:`setup-base` :ref:`hook <exp_sdk_hooks>`
-
-   * - :samp:`ENV`
      - :samp:`setup-base` :ref:`hook <exp_sdk_hooks>`
 
    * - :samp:`FROM`
@@ -216,14 +214,15 @@ Base image
 The example suggests using the :samp:`ros:rolling` tag for the
 `Dockerfile <https://docs.ros.org/en/jazzy/How-To-Guides/Setup-ROS-2-with-VSCode-and-Docker-Container.html#edit-dockerfile>`_;
 with a few `levels of indirection <https://hub.docker.com/_/ros/>`_,
-it come down to this (or similar) instruction:
+it comes down to this (or similar) instruction:
 
 .. code-block:: docker
 
    FROM ubuntu:noble
 
 
-For :program:`Workshop`, this translates to :samp:`ubuntu@24.04`
+For |project_markup| and :program:`Workshop`,
+this translates to :samp:`ubuntu@24.04`
 in the :ref:`SDK definition <exp_sdk_definition>` and the workshop definition.
 
 
@@ -276,8 +275,8 @@ a complete :command:`docker run` command may look like this:
      ros2
 
 
-In :program:`Workshop`,
-additional file system mounts are defined by the SDK author
+In |project_markup| and :program:`Workshop`,
+additional file system mounts are defined by the SDK author or the user
 using the :ref:`mount interface <exp_mount_interface>`:
 
 .. code-block:: yaml
@@ -299,7 +298,8 @@ this avoids the need for manual setup when starting the workshop:
 
 
 Again,
-:program:`Workshop` has no direct counterpart to bind mounts;
+|project_markup| and :program:`Workshop`
+have no direct counterpart to bind mounts;
 plugs are more similar to Docker volumes.
 Yet, the :command:`workshop remount` command
 enables remounting existing plugs to new host directories:
@@ -310,7 +310,8 @@ enables remounting existing plugs to new host directories:
 
 
 Thus,
-:program:`Workshop` leaves the design of mount points to the SDK author,
+|project_markup| and :program:`Workshop`
+largely leave the design of mount points to the SDK author,
 allowing the user to rely on their default, well-defined behaviour
 with the extra option of adjusting them if necessary.
 
