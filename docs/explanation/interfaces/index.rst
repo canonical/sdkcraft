@@ -8,6 +8,7 @@ These articles explain individual interfaces in more detail.
 .. toctree::
    :maxdepth: 1
 
+   Desktop interface <desktop-interface>
    GPU interface <gpu-interface>
    Mount interface <mount-interface>
    SSH interface <ssh-interface>
@@ -41,6 +42,7 @@ Currently,
 
 - :ref:`mount interface <exp_mount_interface>` (auto-connected)
 - :ref:`GPU interface <exp_gpu_interface>` (auto-connected)
+- :ref:`desktop interface <exp_desktop_interface>` (manually connected)
 - :ref:`SSH interface <exp_ssh_interface>` (manually connected)
 
 

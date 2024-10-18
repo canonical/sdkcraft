@@ -186,6 +186,25 @@ Currently, |project_markup| supports defining the following interface plugs:
 
 Slots can only be defined for the :samp:`mount` interface.
 
+.. _ref_desktop_interface:
+
+Desktop interface
+~~~~~~~~~~~~~~~~~
+
+A desktop plug in the definition must specify the plug name and the interface:
+
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+
+    # ...
+    plugs:
+      <NAME>:
+        interface: desktop
+
+
+This proxies the host's Wayland socket and
+associated configuration inside the workshop
+via a Unix domain socket.
 
 .. _ref_gpu_interface:
 
@@ -287,7 +306,7 @@ SDK hooks
    * - :samp:`check-health`
      - At :command:`workshop launch`:
        after running :samp:`setup-base` hooks for *all* SDKs.
-     
+
        At :command:`workshop refresh`:
        after running :samp:`restore-state` hooks for *all* SDKs.
 
