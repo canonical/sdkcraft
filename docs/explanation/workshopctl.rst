@@ -18,7 +18,7 @@ Introduction
 that an SDK author can use with some :ref:`hooks <exp_sdk_hooks>`
 to communicate with the :program:`workshopd` daemon.
 Under the hood, :program:`workshopctl` uses a socket exposed by the daemon
-to fit seamlessly into the workshop environment.
+to fit into the workshop environment.
 
 This interaction between SDKs and the :program:`workshopd` daemon
 focuses on health checks in post-launch or refresh operations.

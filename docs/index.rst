@@ -86,7 +86,7 @@ and implemented with
 Talk to us if you have a project
 you’d like to try with |project_markup| and :program:`Workshop`:
 we'll help you get it out there.
-Tell us about the frustrating parts of your experience,
+Tell us about the frustrating parts of your journey,
 and we'll see what we can do.
 
 
