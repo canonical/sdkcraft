@@ -1,0 +1,186 @@
+name: amd-vitis-ai
+base: ubuntu@22.04
+version: "0.3"
+summary: AMD Vitis AI sysroot SDK
+description: |
+  AMD Vitis AI SDK which contains necessary development packages pre-installed
+  in "/usr/share/xilinx-sdk/sysroot" to enable users to cross-compile for AMD VitisAI targets.
+license: GPL-3.0
+platforms:
+  arm64:
+parts:
+# [download-chroot-base-start]
+  download-chroot-base:
+    plugin: nil
+    build-packages:
+      - wget
+    override-build: |
+      mkdir -p sysroot
+      wget https://cdimage.ubuntu.com/ubuntu-base/releases/jammy/release/ubuntu-base-22.04.4-base-arm64.tar.gz
+      tar -C ./sysroot -xf ubuntu-base-22.04.4-base-arm64.tar.gz
+      cp -R . $CRAFT_STAGE/
+# [download-chroot-base-end]
+# [prepare-chroot-start]
+  prepare-chroot:
+    after:
+      - download-chroot-base
+    plugin: nil
+    build-packages:
+      - devscripts
+    override-build: |
+      cd $CRAFT_STAGE/sysroot
+      mount --rbind --make-rslave /dev dev
+      mount -t proc none proc
+      mount -t sysfs none sys
+      mount -t tmpfs none tmp
+      mount -t tmpfs none var/lib/apt
+      mount -t tmpfs none var/cache/apt
+      mv etc/resolv.conf etc/resolv.conf.bak
+      cp /etc/resolv.conf etc/resolv.conf
+
+
+      chroot . sh -c "DEBIAN_FRONTEND=noninteractive apt update"
+      chroot . sh -c "DEBIAN_FRONTEND=noninteractive apt install software-properties-common"
+
+      ###################### Add Public PPAs that has correct packages ######################
+      chroot . sh -c "DEBIAN_FRONTEND=noninteractive apt update"
+      chroot . sh -c "DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends gnupg"
+
+      sources="deb http://oem.archive.canonical.com/updates/ jammy-limerick public"
+      key_hash=F9FDA6BED73CDC22
+
+      printf "%s\n" "$sources" >etc/apt/sources.list.d/devel.list
+      chroot . apt-key adv --recv-keys \
+        --keyserver keyserver.ubuntu.com --verbose $key_hash
+
+      chroot . sh -c "add-apt-repository ppa:ubuntu-xilinx/sdk -y"
+      ######################################################################################
+
+      chroot . sh -c "DEBIAN_FRONTEND=noninteractive apt update"
+      chroot . sh -c "DEBIAN_FRONTEND=noninteractive apt dist-upgrade -y"
+
+      rm -f etc/resolv.conf
+      mv etc/resolv.conf.bak etc/resolv.conf
+
+      umount var/cache/apt 
+      umount var/lib/apt 
+      umount tmp
+      umount sys
+      umount proc
+      umount -R dev
+# [prepare-chroot-end]
+# [xilinx-sdk-start]
+  xilinx-sdk:
+    after:
+      - prepare-chroot
+    plugin: nil
+    build-packages:
+      - wget
+      - devscripts
+      - build-essential
+    override-build: |
+      cd $CRAFT_STAGE/sysroot
+
+      mount --rbind --make-rslave /dev dev
+      mount -t tmpfs none tmp
+      mount -t tmpfs none var/lib/apt
+      mount -t tmpfs none var/cache/apt
+      mount -t proc none proc
+      mount -t sysfs none sys
+
+      mv etc/resolv.conf etc/resolv.conf.bak
+      cp /etc/resolv.conf etc/resolv.conf
+
+      # oem-archive key
+      key_hash=F9FDA6BED73CDC22
+      chroot . apt-key adv --recv-keys \
+        --keyserver keyserver.ubuntu.com --verbose $key_hash
+
+      chroot . sh -c "DEBIAN_FRONTEND=noninteractive apt update"
+
+      PACKAGES=(
+        ca-certificates
+        cmake-data
+        gnupg
+        libboost-dev
+        libboost-filesystem-dev
+        libboost-program-options-dev
+        libbsd-dev
+        libegl-dev
+        libegl-mali-xlnx
+        libeigen3-dev
+        libgbm-dev
+        libgles-dev
+        libgoogle-glog-dev
+        libgtest-dev
+        libjson-c-dev
+        libncurses-dev
+        libopencv-dev
+        libprotobuf-dev
+        libssl-dev
+        libxdamage-dev
+        libxfixes-dev
+        libxilinx-vcu-dev
+        libxilinx-vcu-omx-dev
+        ocl-icd-dev
+        ocl-icd-opencl-dev
+        opencl-headers
+        uuid-dev
+        vitis-ai-library
+        vitis-ai-runtime
+        xrt
+       )
+      chroot . sh -c "DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends ${PACKAGES[*]}"
+
+      # Make all links relative. Reasons are
+      # 1) gcc's --sysroot option is not that clever and will use files from
+      # the host if it finds absolute paths, instead of considering them as
+      # inside the sysroot. This is problematic for libblas and liblapack.
+      # 2) snap store will not accepts snaps that contain absolute paths
+      make_all_links_relative() {
+          local link slashes num_up target abs_path
+          printf "Making symbolic links relative...\n"
+          # Disable tracing, this loop is too noisy
+          set +x
+          while read -r link; do
+              # Avoid mounted filesystems
+              if [[ $link =~ ^./dev ]] || [[ $link =~ ^./proc ]] ||
+                  [[ $link =~ ^./sys ]] || [[ $link =~ ^./tmp ]] ||
+                  [[ $link =~ ^./var/lib/apt ]] || [[ $link =~ ^./var/cache/apt ]]; then
+                  continue
+              fi
+              # Get number of directories we need to go up
+              slashes=${link//[^\/]/}
+              num_up=$((${#slashes} - 1))
+              target=
+              for ((i = 0; i < num_up; i++)); do
+                  target=${target}../
+              done
+              abs_path=$(readlink "$link")
+              # Remove leadin '/' from original path
+              target=${target}${abs_path:1}
+              rm "$link"
+              ln -sf "$target" "$link"
+          done < <(find . -not -path './proc/*' -not -path './sys/*' -not -path './dev/*' \
+              -type l -lname '/*')
+          set -x
+      }
+      shutdown_chroot() {
+        local chroot_d=$1
+        local mountpoint_match submount
+
+        rm -f etc/resolv.conf
+        mv etc/resolv.conf.bak etc/resolv.conf
+
+        umount var/cache/apt 
+        umount var/lib/apt 
+        umount tmp
+        umount sys
+        umount proc
+        umount -R dev
+      }
+
+      make_all_links_relative
+      shutdown_chroot .
+      cp -R $CRAFT_STAGE/sysroot $CRAFT_PRIME/
+# [xilinx-sdk-end]

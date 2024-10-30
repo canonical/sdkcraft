@@ -1,6 +1,8 @@
 AUTH
 Charmcraft
+chroot
 CLIs
+DNS
 Dockerfile
 Dockerfiles
 EdTech
@@ -56,7 +58,9 @@ subcommands
 subdirectory
 transactional
 uid
+unmounting
 unmounts
+Vitis
 webhook
 workshopctl
 workshopd

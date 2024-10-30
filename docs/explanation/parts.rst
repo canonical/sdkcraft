@@ -54,6 +54,116 @@ A detailed explanation is available in the corresponding Craft Parts
 <https://canonical-craft-parts.readthedocs-hosted.com/en/latest/explanation/index.html>`_.
 
 
+Case study: Vitis AI
+--------------------
+
+To explore what parts can do for you, we'll use the `AMD Vitis AI
+<https://github.com/Xilinx/Vitis-AI-Tutorials>`_ SDK (:samp:`amd-vitis-ai`)
+as an example.
+It relies on parts to gradually build an SDK
+that's ready to use immediately after download.
+The only task left after the SDK is extracted
+is adding a symbolic link to its location within the workshop,
+which is handled by the :samp:`setup-base` :ref:`hook <exp_sdk_hooks>`.
+
+The structure and layout of parts are mostly flexible,
+but the key is to ensure they interact well with each other
+and align with the overall `life cycle
+<https://craft-parts.readthedocs.io/en/latest/explanation/lifecycle.html>`_.
+
+.. dropdown:: :samp:`download-chroot-base`
+
+   .. literalinclude:: parts/sdkcraft.yaml
+      :language: yaml
+      :start-after: [download-chroot-base-start]
+      :end-before: [download-chroot-base-end]
+
+
+This part downloads and sets up a basic Ubuntu root file system (chroot).
+The properties referenced here demonstrate how parts work,
+so let's discuss them in more detail:
+
+- The :samp:`plugin` property is set to :samp:`nil`,
+  indicating that the part doesn't rely on a specific build tool,
+  but instead provides generic steps.
+  In your own definition, you can choose between a `range of options
+  <https://craft-parts.readthedocs.io/en/latest/reference/part_properties.html#plugin>`_
+  depending on the tools needed to build the SDK.
+
+- The `build-packages
+  <https://craft-parts.readthedocs.io/en/latest/reference/part_properties.html#build-packages>`_
+  property lists a single prerequisite package, :samp:`wget`.
+  This package will be installed using the default package manager
+  of the SDK's :samp:`base` system.
+
+- The `override-build
+  <https://craft-parts.readthedocs.io/en/latest/reference/part_properties.html#override-build>`_
+  property provides shell commands to perform SDK-specific actions.
+  Here, they fetch a tarball for the architecture set by :samp:`platforms`,
+  extract it into a directory called :file:`sysroot`,
+  and copy it to the staging area
+  defined by the :envvar:`$CRAFT_STAGE` environment variable,
+  which contains the absolute path to where the SDK files should be staged.
+
+
+Overall, this step ensures that the necessary base environment is available
+before proceeding to additional setup,
+such as configuring package management and adding external repositories.
+
+.. dropdown:: :samp:`prepare-chroot`
+
+   .. literalinclude:: parts/sdkcraft.yaml
+      :language: yaml
+      :start-after: [prepare-chroot-start]
+      :end-before: [prepare-chroot-end]
+
+
+This step builds on the base chroot environment
+created by :samp:`download-chroot-base`,
+listed as a prerequisite in the `after
+<https://craft-parts.readthedocs.io/en/latest/reference/part_properties.html#after>`_
+property.
+The other properties used here are the same as above.
+
+The commands set up essential system mounts for
+:file:`/dev/`, :file:`/proc/`, :file:`/sys/` and other directories
+necessary for package management operations within the chroot.
+A DNS configuration is copied to enable network access inside the chroot.
+Afterwards, the part updates the package index
+and installs packages
+such as :samp:`software-properties-common` and :samp:`gnupg`
+to allow further package management tasks.
+Finally, it performs a system upgrade within the chroot
+before unmounting the directories and restoring the environment.
+
+
+.. dropdown:: :samp:`xilinx-sdk`
+
+   .. literalinclude:: parts/sdkcraft.yaml
+      :language: yaml
+      :start-after: [xilinx-sdk-start]
+      :end-before: [xilinx-sdk-end]
+
+
+The properties used here are similar to those above.
+Overall, this part focuses on preparing the chroot environment for development.
+
+Building on the prepared chroot,
+the :samp:`override-build` script mounts the required file systems
+and installs a list of essential development packages inside the chroot,
+ensuring that all dependencies are present.
+An important element is the :samp:`make_all_links_relative()` function,
+which converts absolute symbolic links into relative ones,
+improving the portability of the resulting setup.
+Finally, the chroot is properly shut down
+by unmounting system directories and cleaning up.
+
+.. dropdown:: Complete :file:`sdkcraft.yaml`
+
+   .. literalinclude:: parts/sdkcraft.yaml
+      :language: yaml
+
+
 See also
 --------
 
