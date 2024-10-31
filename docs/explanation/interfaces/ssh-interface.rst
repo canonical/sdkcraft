@@ -16,8 +16,8 @@ SSH interface plug
 An essential element here is the SSH interface plug,
 which is declared in the SDK definition.
 
-A basic structure would include just the name of the plug itself
-and the interface (:samp:`ssh-agent`).
+Its structure includes just the name of the plug and the interface;
+both must be set to :samp:`ssh-agent`.
 
 Defining the plug in an SDK
 allows the workshops using this SDK to connect to the host's SSH agent,

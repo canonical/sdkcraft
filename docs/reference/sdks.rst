@@ -238,7 +238,7 @@ A GPU plug in the definition must specify the plug name and the interface:
 
     # ...
     plugs:
-      <NAME>:
+      gpu:
         interface: gpu
 
 
@@ -299,7 +299,7 @@ An SSH plug in the definition must specify the plug name and the interface:
 
     # ...
     plugs:
-      <NAME>:
+      ssh-agent:
         interface: ssh-agent
 
 
