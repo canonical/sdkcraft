@@ -371,14 +371,14 @@ Make all hooks executable so that :program:`Workshop` can use them later:
 
 .. _tut_build_sdk:
 
-Build the SDK
--------------
+Build and pack
+--------------
 
 Under :file:`go/`, run:
 
 .. code-block:: console
 
-   $ sdkcraft build
+   $ sdkcraft
 
 
 This builds all :ref:`SDK parts <exp_sdk_parts>`
@@ -398,20 +398,11 @@ Optionally, you can clean the build cache before a build attempt:
 
 .. code-block:: console
 
-   $ sdkcraft clean && sdkcraft build
+   $ sdkcraft clean && sdkcraft
 
 
-Package the SDK
----------------
-
-Under :file:`go/`, run:
-
-.. code-block:: console
-
-   $ sdkcraft pack
-
-
-This creates the :file:`go.sdk` file,
+Ran without arguments,
+:command:`sdkcraft` builds and packs the SDK into the :file:`go.sdk` file,
 which contains the build artefacts from the previous step
 along with SDK metadata, hooks and other components.
 

@@ -9,5 +9,5 @@ execute: |
   mkdir hooks
   mv ../{setup-base,save-state,restore-state,check-health} hooks/
   chmod +x hooks/*
-  run_sdkcraft build
-  run_sdkcraft pack
+  run_sdkcraft clean
+  run_sdkcraft
