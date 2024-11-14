@@ -179,12 +179,32 @@ SDK plugs and slots
 
 Currently, |project_markup| supports defining the following interface plugs:
 
+- :ref:`Camera <ref_camera_interface>`
 - :ref:`GPU <ref_gpu_interface>`
-- :ref:`mount <ref_mount_interface>`
+- :ref:`Mount <ref_mount_interface>`
 - :ref:`SSH <ref_ssh_interface>`
 
 
 Slots can only be defined for the :samp:`mount` interface.
+
+.. _ref_camera_interface:
+
+Camera interface
+~~~~~~~~~~~~~~~~
+
+A camera plug in the definition must specify the plug name and the interface:
+
+.. code-block:: yaml
+   :caption: sdkcraft.yaml
+
+    # ...
+    plugs:
+      <NAME>:
+        interface: camera
+
+
+This makes the host's USB-based cameras directly available inside the workshop
+as video capture devices.
 
 
 .. _ref_gpu_interface:
