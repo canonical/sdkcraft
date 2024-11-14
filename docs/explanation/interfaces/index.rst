@@ -6,11 +6,10 @@ SDK interfaces
 These articles explain individual interfaces in more detail.
 
 .. toctree::
+   :glob:
    :maxdepth: 1
 
-   GPU interface <gpu-interface>
-   Mount interface <mount-interface>
-   SSH interface <ssh-interface>
+   *
 
 
 Summary
@@ -39,8 +38,9 @@ which enables handling SDKs consistently and uniformly.
 Currently,
 :program:`Workshop` and |project_markup| support the following interfaces:
 
-- :ref:`mount interface <exp_mount_interface>` (auto-connected)
+- :ref:`Camera interface <exp_camera_interface>` (manually connected)
 - :ref:`GPU interface <exp_gpu_interface>` (auto-connected)
+- :ref:`Mount interface <exp_mount_interface>` (auto-connected)
 - :ref:`SSH interface <exp_ssh_interface>` (manually connected)
 
 
