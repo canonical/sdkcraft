@@ -1,7 +1,7 @@
 .. _exp_mount_interface:
 
-SDK mount interface
-=====================
+Mount interface
+===============
 
 The mount interface
 exposes host file system locations
