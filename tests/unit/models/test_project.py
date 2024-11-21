@@ -46,6 +46,7 @@ default = project.Project(
                 license="gplv3",
                 parts={},
                 plugs={},
+                slots={},
             )
 
 @pytest.mark.parametrize(
@@ -71,6 +72,7 @@ default = project.Project(
                 "license": "gplv3",
                 "parts": {},
                 "plugs": {},
+                "slots": {},
             },
             default,
         ),
@@ -112,6 +114,26 @@ def test_project_plugs():
     incorrect_type = {"mount": ["interface", "mount"]}
     with pytest.raises(SdkcraftError, match="cannot be a list"):
         default._validate_plugs(incorrect_type)
+
+def test_project_slots():
+    valid_slots = {
+        "mount-slot": {"interface": "mount", "workshop-source": "/data"},
+        "random-slot-1": {"interface": "xxx"},
+        "random-slot-2": {"yyy": "zzz"},
+    }
+    try:
+        default._validate_slots(valid_slots)
+    except ValueError as e:
+        pytest.fail(reason=f"unexpected exception {e}")
+
+    invalid_slots = {
+        "try_mount": {"interface": "mount"},
+        "try_mount": {"interface": "mount", "workshop-source": 123},
+    }
+    with pytest.raises(
+        SdkcraftError, match="MountSlot 'try_mount' must have a 'workshop-source' string parameter."
+    ):
+        default._validate_slots(invalid_slots)
 
 
 def test_project_reserved_name_forbidden():
