@@ -126,14 +126,21 @@ def test_project_slots():
     except ValueError as e:
         pytest.fail(reason=f"unexpected exception {e}")
 
-    invalid_slots = {
-        "try_mount": {"interface": "mount"},
-        "try_mount": {"interface": "mount", "workshop-source": 123},
+    no_source = {
+        "try_mount_1": {"interface": "mount"},
     }
     with pytest.raises(
-        SdkcraftError, match="MountSlot 'try_mount' must have a 'workshop-source' string parameter."
+        SdkcraftError, match="MountSlot 'try_mount_1' must have a 'workshop-source' string parameter."
     ):
-        default._validate_slots(invalid_slots)
+        default._validate_slots(no_source)
+
+    incorrect_type = {
+        "try_mount_2": {"interface": "mount", "workshop-source": 123},
+    }
+    with pytest.raises(
+        SdkcraftError, match="MountSlot 'try_mount_2' must have a 'workshop-source' string parameter."
+    ):
+        default._validate_slots(incorrect_type)
 
 
 def test_project_reserved_name_forbidden():

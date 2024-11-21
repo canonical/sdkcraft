@@ -106,10 +106,12 @@ class Project(models.Project):
                     raise SdkcraftError(
                         message=f"Slot '{slot_name}' must be a dict.")
 
-                if slot.get("interface") == "mount":
-                    if not slot.get("workshop-source") or not isinstance(slot.get("workshop-source"), str):
-                        raise SdkcraftError(
-                            message=f"MountSlot '{slot_name}' must have a 'workshop-source' string parameter.")
+                if (
+                    slot.get("interface") == "mount"
+                    and (not slot.get("workshop-source") or not isinstance(slot.get("workshop-source"), str))
+                ):
+                    raise SdkcraftError(
+                        message=f"MountSlot '{slot_name}' must have a 'workshop-source' string parameter.")
 
         return slots
 
