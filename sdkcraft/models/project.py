@@ -30,6 +30,7 @@ from craft_application import models
 from craft_application.models import (
     ProjectName,
 )
+from typing_extensions import Self
 
 from sdkcraft.errors import SdkcraftError
 
@@ -51,7 +52,14 @@ class Project(models.Project):
 
     plugs: dict[str, MountPlug | Any] | None
     slots: dict[str, MountSlot | Any] | None
-    parts: dict[str, dict[str, Any]] | None
+    parts: dict[str, dict[str, Any]]
+
+    @classmethod
+    def unmarshal(cls, data: dict[str, Any]) -> Self:
+        """Insert a dummy part before real unmarshal, when no parts in sdkcraft.yml."""
+        if 'parts' not in data:
+            data['parts'] = {'dummy': {'plugin': 'nil'}}
+        return super().unmarshal(data)
 
     @pydantic.validator("name")
     def _validate_project_name(cls, name: ProjectName) -> ProjectName:
