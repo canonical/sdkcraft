@@ -67,3 +67,15 @@ class Sdkcraft(Application):
     def _set_global_environment(self, info: craft_parts.ProjectInfo) -> None:
         """Populate the global environment to use when running the parts lifecycle."""
         super()._set_global_environment(info)
+
+    @override
+    def get_project(
+        self,
+        *,
+        platform: str | None = None,
+        build_for: str | None = None,
+    ) -> models.Project:
+        project = super().get_project(platform=platform, build_for=build_for)
+        if project.parts is None:
+            project.parts = {'dummy': {'plugin': 'nil'}}
+        return project

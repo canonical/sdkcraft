@@ -51,6 +51,7 @@ class Project(models.Project):
 
     plugs: dict[str, MountPlug | Any] | None
     slots: dict[str, MountSlot | Any] | None
+    parts: dict[str, dict[str, Any]] | None
 
     @pydantic.validator("name")
     def _validate_project_name(cls, name: ProjectName) -> ProjectName:
@@ -63,16 +64,17 @@ class Project(models.Project):
     @pydantic.validator("parts", each_item=True)
     def _validate_parts(cls, item: dict[str, Any]) -> dict[str, Any]:
         """Verify each part (craft-parts will re-validate this)."""
-        craft_parts.validate_part(item)
-        if item.get("stage-packages") is not None:
-            raise NotImplementedError(
-                '"stage-packages" are not supported by sdkcraft. Consider using "setup-base" hook to install packages required by your SDK'
-            )
+        if item is not None:
+            craft_parts.validate_part(item)
+            if item.get("stage-packages") is not None:
+                raise NotImplementedError(
+                    '"stage-packages" are not supported by sdkcraft. Consider using "setup-base" hook to install packages required by your SDK'
+                )
 
-        if item.get("stage-snaps") is not None:
-            raise NotImplementedError(
-                '"stage-snaps" are not supported by sdkcraft. Consider using "setup-base" hook to install snaps required by your SDK'
-            )
+            if item.get("stage-snaps") is not None:
+                raise NotImplementedError(
+                    '"stage-snaps" are not supported by sdkcraft. Consider using "setup-base" hook to install snaps required by your SDK'
+                )
 
         return item
 
