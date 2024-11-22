@@ -21,3 +21,7 @@ plugs:
     interface: gpu
   test3:
     interface: desktop
+slots:
+  test4:
+    interface: mount
+    workshop-source: /data

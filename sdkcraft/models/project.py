@@ -40,11 +40,17 @@ class MountPlug(models.CraftBaseModel):
     interface: str
     workshop_target: str
 
+class MountSlot(models.CraftBaseModel):
+    """Sdkcraft project mount slot definition."""
+
+    interface: str
+    workshop_source: str
 
 class Project(models.Project):
     """Sdkcraft project definition."""
 
     plugs: dict[str, MountPlug | Any] | None
+    slots: dict[str, MountSlot | Any] | None
 
     @pydantic.validator("name")
     def _validate_project_name(cls, name: ProjectName) -> ProjectName:
@@ -90,6 +96,21 @@ class Project(models.Project):
 
         return plugs
 
+    @pydantic.validator("slots")
+    def _validate_slots(
+        cls, slots: dict[str, MountSlot | Any]
+    ) -> dict[str, MountPlug | Any]:
+        if slots is not None:
+            for slot_name, slot in slots.items():
+                if (
+                    isinstance(slot, dict)
+                    and slot.get("interface") == "mount"
+                    and (not slot.get("workshop-source") or not isinstance(slot.get("workshop-source"), str))
+                ):
+                    raise SdkcraftError(
+                        message=f"MountSlot '{slot_name}' must have a 'workshop-source' string parameter.")
+
+        return slots
 
 def export_schema() -> None:
     """Sdkcraft project schema export.
