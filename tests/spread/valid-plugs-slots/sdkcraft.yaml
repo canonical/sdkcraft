@@ -25,5 +25,3 @@ slots:
   test4:
     interface: mount
     workshop-source: /data
-  test5:
-    interface: gpu
