@@ -102,12 +102,9 @@ class Project(models.Project):
     ) -> dict[str, MountPlug | Any]:
         if slots is not None:
             for slot_name, slot in slots.items():
-                if not isinstance(slot, dict):
-                    raise SdkcraftError(
-                        message=f"Slot '{slot_name}' must be a dict.")
-
                 if (
-                    slot.get("interface") == "mount"
+                    isinstance(slot, dict)
+                    and slot.get("interface") == "mount"
                     and (not slot.get("workshop-source") or not isinstance(slot.get("workshop-source"), str))
                 ):
                     raise SdkcraftError(
