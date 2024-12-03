@@ -1,2 +1,0 @@
-#!/usr/bin/bash
-rsync -a /home/workshop/my_work/ "$SDK_STATE_DIR"

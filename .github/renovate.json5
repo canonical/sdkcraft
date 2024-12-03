@@ -69,14 +69,6 @@
       automerge: true
     },
     {
-      // Documentation related updates
-      groupName: "documentation dependencies",
-      groupSlug: "doc-dependencies",
-      matchPackageNames: ["Sphinx", "furo"],
-      matchPackagePatterns: ["[Ss]phinx.*$"],
-      matchPackagePrefixes: ["docs"],
-    },
-    {
       // Other major dependencies get deprioritised below minor dev dependencies.
       matchUpdateTypes: ["major"],
       prPriority: -2
