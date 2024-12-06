@@ -30,7 +30,6 @@ from craft_application import models
 from craft_application.models import (
     ProjectName,
 )
-from typing_extensions import Self
 
 from sdkcraft.errors import SdkcraftError
 
