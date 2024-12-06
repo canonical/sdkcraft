@@ -54,13 +54,6 @@ class Project(models.Project):
     slots: dict[str, MountSlot | Any] | None
     parts: dict[str, dict[str, Any]]
 
-    @classmethod
-    def unmarshal(cls, data: dict[str, Any]) -> Self:
-        """Insert a dummy part before real unmarshal, when no parts in sdkcraft.yml."""
-        if 'parts' not in data:
-            data['parts'] = {'dummy': {'plugin': 'nil'}}
-        return super().unmarshal(data)
-
     @pydantic.validator("name")
     def _validate_project_name(cls, name: ProjectName) -> ProjectName:
         if name == "agent":
