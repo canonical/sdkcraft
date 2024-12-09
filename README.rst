@@ -1,10 +1,6 @@
 SDKcraft
 ========
 
-.. image:: https://readthedocs.com/projects/canonical-sdkcraft/badge/?version=latest&token=3b181ca357f8968cf17221c27353866e63087d6b2f1ced225db4978acb38c0a7
-   :target: https://canonical-sdkcraft.readthedocs-hosted.com/en/latest/?badge=latest
-   :alt: Documentation Status
-
 **A tool that packages and publishes SDKs to be used with Workshop,
 a related user-facing product**.
 
@@ -14,11 +10,11 @@ Getting Started
 
 Follow the sections below
 or refer to the
-`Tutorial
-<https://canonical-sdkcraft.readthedocs-hosted.com/en/latest/tutorial/>`_
+`how-to guide
+<https://canonical-workshop.readthedocs-hosted.com/en/latest/how-to/use-sdkcraft/>`_
 in our docs for a more detailed introduction to SDKcraft.
 
-To know more about `Workshop <https://github.com/canonical/workshop>`_,
+To know more about `Workshop <https://github.com/canonical/workshop/>`_,
 the user-facing counterpart to SDKcraft,
 start with its own `Tutorial
 <https://canonical-workshop.readthedocs-hosted.com/en/latest/tutorial/>`_.
@@ -59,7 +55,7 @@ Packing an SDK
 
    .. code-block:: console
 
-      cd readme-sdk
+      cd readme
       sdkcraft init
 
 
@@ -68,7 +64,7 @@ Packing an SDK
 
    .. code-block:: yaml
 
-      name: readme-sdk
+      name: readme
       base: ubuntu@22.04
       version: '0.1'
       summary: Readme SDK
@@ -83,11 +79,11 @@ Packing an SDK
           plugin: nil
 
 
-#. Under ``readme-sdk/``, run:
+#. Under ``readme/``, run:
 
    .. code-block:: console
 
-      $ sdkcraft build
+      $ sdkcraft
 
 
    This builds all SDK parts
@@ -95,12 +91,9 @@ Packing an SDK
    e.g. pulling source code, applying patches, configuring and compiling it
    according to the part definition.
 
-
-#. Finally, pack the SDK for publishing:
-
-   .. code-block:: console
-
-      sdkcraft pack
+   After the build, SDKcraft packs the SDK.
+   The resulting ``readme.sdk`` file contains the build artefacts
+   along with SDK metadata, hooks and other components.
 
 
 Publishing the SDK
@@ -114,16 +107,17 @@ To release an SDK in the ``edge`` track of the latest channel:
 
 .. code-block:: console
 
-   sdkcraft.publish ./readme-sdk.sdk latest/edge
+   sdkcraft.publish ./readme.sdk latest/edge
 
 
 Testing
 -------
 
-To run end-to-end tests and integration tests with
-`Spread <https://github.com/snapcore/spread>`_:
+To run end-to-end tests and integration tests,
+install our fork of `Spread <https://github.com/snapcore/spread>`_:
 
 .. code-block:: console
 
-   go install github.com/snapcore/spread/cmd/spread@latest
-   spread
+   git clone https://github.com/dmitry-lyfar/spread
+   cd spread
+   go install ./...
