@@ -33,16 +33,6 @@ lint = [
 types = [
     "mypy[reports]~=1.8"
 ]
-docs = [
-    "furo~=2023.9.10",
-    "sphinx~=7.4.7",
-    "sphinx-autobuild~=2021.3",
-    "sphinx-copybutton~=0.5.2",
-    "sphinx-design~=0.6.1",
-    "sphinx-pydantic~=0.1.1",
-    "sphinx-toolbox~=3.8.0",
-    "sphinx-lint~=0.9.1",
-]
 
 [build-system]
 requires = [
@@ -52,7 +42,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.dynamic]
-readme = {file = "docs/README.rst"}
+readme = {file = "README.rst"}
 
 [tool.setuptools_scm]
 write_to = "sdkcraft/_version.py"
@@ -114,7 +104,6 @@ exclude = [
     "build",
     "tests",
     "results",
-    "docs",
     "venv",
 ]
 warn_unused_configs = true
@@ -142,7 +131,6 @@ line-length = 88
 target-version = "py310"
 src = ["sdkcraft", "tests"]
 extend-exclude = [
-    "docs",
     "__pycache__",
 ]
 # Follow ST063 - Maintaining and updating linting specifications for updating these.

@@ -47,5 +47,3 @@ prepare: |
 suites:
   tests/spread/:
     summary: tests for sdkcraft core functionality
-  tests/spread/documentation/:
-    summary: tests for sdkcraft documentation

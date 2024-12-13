@@ -1,7 +1,0 @@
-#!/usr/bin/bash
-
-if go version > /dev/null 2>&1; then
-  workshopctl set-health okay
-else
-  workshopctl set-health --code=installation-fails error "Go installation fails"
-fi

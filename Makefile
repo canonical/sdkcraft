@@ -5,10 +5,6 @@ clean: ## Clean artefacts from building, testing, etc.
 	rm -rf .eggs/
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -f {} +
-	rm -rf docs/_build/
-	rm -f docs/sdkcraft.*
-	rm -f docs/modules.rst
-	rm -rf docs/reference/commands
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
@@ -17,7 +13,6 @@ clean: ## Clean artefacts from building, testing, etc.
 	rm -f .coverage
 	rm -rf htmlcov/
 	rm -rf .pytest_cache
-	$(MAKE) -C docs clean
 	rm -rf .mypy_cache
 
 .PHONY: dist
