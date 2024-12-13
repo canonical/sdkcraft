@@ -51,6 +51,7 @@ class Project(models.Project):
 
     plugs: dict[str, MountPlug | Any] | None
     slots: dict[str, MountSlot | Any] | None
+    parts: dict[str, dict[str, Any]]
 
     @pydantic.validator("name")
     def _validate_project_name(cls, name: ProjectName) -> ProjectName:
