@@ -78,10 +78,10 @@ class Package(services.PackageService):
                 include={
                     "name",
                     "base",
+                    "title",
                     "summary",
                     "license",
                     "description",
-                    "website",
                     "contact",
                     "issues",
                     "source_code",

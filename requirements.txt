@@ -2,6 +2,6 @@
 # https://github.com/msabramo/requests-unixsocket/pull/69
 # When updating, remove the urllib3 constraint from renovate config.
 urllib3==1.26.15
-craft-application~=3.2
-requests==2.30.0
+craft-application~=4.5
+requests==2.32.3
 requests-unixsocket==0.3.0

@@ -17,15 +17,14 @@
 
 import pytest
 from craft_application import models
-from craft_application.models import ProjectName, ProjectTitle, SummaryStr, VersionStr
 from sdkcraft.errors import SdkcraftError
 from sdkcraft.models import project
 
 default = project.Project(
-                name=ProjectName("my-project"),
-                version=VersionStr("git"),
-                title=ProjectTitle("Sample"),
-                summary=SummaryStr("A sample project"),
+                name="my-project",
+                version="git",
+                title="Sample",
+                summary="A sample project",
                 description="description",
                 base="ubuntu@22.04",
                 contact="contact@canonical.com",
@@ -79,17 +78,17 @@ default = project.Project(
     ],
 )
 def test_project_create_valid(obj, expected):
-    assert project.Project.parse_obj(obj) == expected
+    assert project.Project.model_validate(obj) == expected
 
 
 def test_project_stage_packages_prohibited():
     part_packages = {"plugin": "nil", "stage-packages": ["python3-apt"]}
     with pytest.raises(NotImplementedError):
-        default._validate_parts(part_packages)
+        project._validate_part(part_packages)
 
     part_snaps = {"plugin": "nil", "stage-snaps": ["shellcheck"]}
     with pytest.raises(NotImplementedError):
-        default._validate_parts(part_snaps)
+        project._validate_part(part_snaps)
 
 
 def test_project_plugs():
@@ -148,7 +147,7 @@ def test_project_reserved_name_forbidden():
         SdkcraftError,
         match="'agent' is a reserved SDK name, please choose another name.",
     ):
-        project.Project.parse_obj(
+        project.Project.model_validate(
             {
                 "name": "agent",
                 "version": "git",

@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 
 import pytest
+from pydantic import AnyUrl
 from sdkcraft import services
 
 
@@ -27,19 +28,22 @@ def extra_project_params():
 
 @pytest.fixture()
 def default_project(extra_project_params):
-    from craft_application.models import Platform, ProjectName, SummaryStr, VersionStr
+    from craft_application.models import Platform
     from sdkcraft.models.project import Project
 
     parts = extra_project_params.pop("parts", {})
     plugs = {"content": {"target": "/path"}}
 
     return Project(
-        name=ProjectName("default"),
-        version=VersionStr("1.0"),
-        summary=SummaryStr("default project"),
+        name="default",
+        title="default title",
+        version="1.0",
+        summary="default project",
         description="default project",
+        source_code=AnyUrl("https://github.com/canonical/sdk-store/"),
         base="ubuntu@22.04",
         parts=parts,
+        slots=None,
         license="MIT",
         platforms={"amd64": Platform(build_on=["amd64"], build_for=["amd64"])},
         contact="requests@canonical.com",
