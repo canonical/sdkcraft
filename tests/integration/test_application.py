@@ -23,19 +23,23 @@ jammy_only = pytest.mark.skipif(
 
 pytestmark = [pytest.mark.usefixtures("_reset_callbacks")]
 
-
-SDKCRAFT_YAML = """\
+def get_sdkcraft_yaml_string(release_version: str) -> str:
+    return ("""\
 name: my-project
 title: My Project
 version: 1.2.3
 base: ubuntu@22.04
-build-base: "ubuntu@22.04"
-summary: "example of global variables"
+""" f"""build-base: "ubuntu@{release_version}"
+""" """summary: "example of global variables"
 description: "example of global variables"
 license: Apache-2.0
 
 platforms:
     amd64:
+
+plugs:
+
+slots:
 
 parts:
     foo:
@@ -46,11 +50,12 @@ parts:
             echo "project_name:    \\"${CRAFT_PROJECT_NAME}\\""    >> $target_file
             echo "project_dir:     \\"${CRAFT_PROJECT_DIR}\\""     >> $target_file
             echo "project_version: \\"${CRAFT_PROJECT_VERSION}\\"" >> $target_file
-"""
+""")
 
 
 def test_global_environment(
     new_dir,
+    release_version,
     monkeypatch,
 ):
     """Test our additions to the global environment that is available to the
@@ -59,7 +64,10 @@ def test_global_environment(
     rootfs = Path(new_dir) / "rootfs"
     rootfs.mkdir()
 
-    Path("sdkcraft.yaml").write_text(SDKCRAFT_YAML)
+    # TODO(yan.jiang): to be removed
+    full_yaml = get_sdkcraft_yaml_string(release_version)
+    print("jyjyjy", full_yaml)
+    Path("sdkcraft.yaml").write_text(full_yaml)
 
     monkeypatch.setattr(sys, "argv", ["sdkcraft", "prime", "--destructive-mode"])
 

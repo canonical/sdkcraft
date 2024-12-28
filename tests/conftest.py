@@ -13,6 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+from logging import warning
 from pathlib import Path
 
 import pytest
@@ -88,6 +89,20 @@ def new_dir(tmpdir):
 
     os.chdir(cwd)
 
+@pytest.fixture()
+def release_version():
+    version = "22.04"
+    try:
+        with Path("/etc/os-release").open() as f:
+            os_release = f.read()
+        if "Ubuntu" in os_release:
+            for line in os_release.splitlines():
+                if line.startswith("VERSION_ID="):
+                    version = line.split("=")[1].strip('"')
+    except FileNotFoundError as e:
+        # For non-Ubuntu platform, just skip this test case
+        warning(f"failed to read Ubuntu release version, err={e}")
+    return version
 
 @pytest.fixture()
 def _reset_callbacks():
