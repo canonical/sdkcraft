@@ -37,6 +37,10 @@ license: Apache-2.0
 platforms:
     amd64:
 
+plugs:
+
+slots:
+
 parts:
     foo:
         plugin: nil
