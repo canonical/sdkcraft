@@ -59,10 +59,10 @@ def default_factory(default_project):
     from sdkcraft.application import APP_METADATA
     from sdkcraft.services import ServiceFactory
 
+    ServiceFactory.register("package", services.Package)
+    ServiceFactory.register("lifecycle", services.Lifecycle)
     return ServiceFactory(
         app=APP_METADATA,
-        LifecycleClass=services.Lifecycle,
-        PackageClass=services.Package,
     )
 
 

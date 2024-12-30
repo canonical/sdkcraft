@@ -33,6 +33,9 @@ base: ubuntu@22.04
 """ """summary: "example of global variables"
 description: "example of global variables"
 license: Apache-2.0
+contact: yan.jiang@canonical.com
+source-code: https://github.com/canonical/sdkcraft
+issues: https://github.com/canonical/sdkcraft
 
 platforms:
     amd64:
@@ -64,18 +67,16 @@ def test_global_environment(
     rootfs = Path(new_dir) / "rootfs"
     rootfs.mkdir()
 
-    # TODO(yan.jiang): to be removed
-    full_yaml = get_sdkcraft_yaml_string(release_version)
-    print("jyjyjy", full_yaml)
-    Path("sdkcraft.yaml").write_text(full_yaml)
+    Path("sdkcraft.yaml").write_text(get_sdkcraft_yaml_string(release_version))
 
     monkeypatch.setattr(sys, "argv", ["sdkcraft", "prime", "--destructive-mode"])
+
+    ServiceFactory.register("package", Package)
+    ServiceFactory.register("lifecycle", Lifecycle)
 
     service = ServiceFactory(
         # type: ignore[call-arg]
         app=APP_METADATA,
-        LifecycleClass=Lifecycle,
-        PackageClass=Package,
     )
 
     app = Sdkcraft(app=APP_METADATA, services=service)
