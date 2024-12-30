@@ -49,10 +49,7 @@ parts:
 """
 
 
-def test_global_environment(
-    new_dir,
-    monkeypatch,
-):
+def test_global_environment(new_dir, monkeypatch):
     """Test our additions to the global environment that is available to the
     build process."""
 
