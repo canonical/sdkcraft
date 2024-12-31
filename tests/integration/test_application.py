@@ -35,7 +35,7 @@ description: "example of global variables"
 license: Apache-2.0
 contact: yan.jiang@canonical.com
 source-code: https://github.com/canonical/sdkcraft
-issues: https://github.com/canonical/sdkcraft
+issues: example issue
 
 platforms:
     amd64:
