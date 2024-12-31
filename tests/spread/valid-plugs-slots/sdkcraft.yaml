@@ -1,5 +1,4 @@
 name: my-sdk-name
-title: my-sdk-name
 base: ubuntu@22.04
 version: "0.1"
 summary: Single-line elevator pitch for your amazing SDK
@@ -8,10 +7,6 @@ description: |
   most important story about it. Keep it under 100 words though,
   we live in tweetspace.
 license: GPL-3.0
-contact: yan.jiang@canonical.com
-source-code: https://github.com/canonical/sdkcraft
-issues: example issue
-
 platforms:
   amd64:
 
