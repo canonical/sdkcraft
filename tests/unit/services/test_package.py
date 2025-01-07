@@ -6,12 +6,14 @@ import pytest
     [
         {
             "name": "default",
+            "title": "default title",
             "base": "ubuntu@22.04",
             "summary": "default project",
             "license": "MIT",
             "description": "default project",
             "contact": "requests@canonical.com",
             "issues": "https://github.com/canonical/sdk-store/issues",
+            'source-code': 'https://github.com/canonical/sdk-store/',
             "plugs": {"content": {"target": "/path"}},
         },
     ],

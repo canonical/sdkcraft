@@ -37,7 +37,6 @@ class Metadata(BaseMetadata):
     summary: SummaryStr
     license: str
     description: str
-    website: AnyUrl | None
     contact: str | UniqueStrList | None
     issues: str | UniqueStrList | None
     source_code: AnyUrl | None
@@ -47,4 +46,4 @@ class Metadata(BaseMetadata):
         super().__init__(**kwargs)
 
         # Setting attributes of Config
-        self.Config.use_enum_values = True
+        self.model_config["use_enum_values"] = True

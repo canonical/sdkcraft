@@ -13,9 +13,11 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+from logging import warning
 from pathlib import Path
 
 import pytest
+from pydantic import AnyUrl
 from sdkcraft import services
 
 
@@ -27,19 +29,22 @@ def extra_project_params():
 
 @pytest.fixture()
 def default_project(extra_project_params):
-    from craft_application.models import Platform, ProjectName, SummaryStr, VersionStr
+    from craft_application.models import Platform
     from sdkcraft.models.project import Project
 
     parts = extra_project_params.pop("parts", {})
     plugs = {"content": {"target": "/path"}}
 
     return Project(
-        name=ProjectName("default"),
-        version=VersionStr("1.0"),
-        summary=SummaryStr("default project"),
+        name="default",
+        title="default title",
+        version="1.0",
+        summary="default project",
         description="default project",
+        source_code=AnyUrl("https://github.com/canonical/sdk-store/"),
         base="ubuntu@22.04",
         parts=parts,
+        slots=None,
         license="MIT",
         platforms={"amd64": Platform(build_on=["amd64"], build_for=["amd64"])},
         contact="requests@canonical.com",
@@ -54,10 +59,10 @@ def default_factory(default_project):
     from sdkcraft.application import APP_METADATA
     from sdkcraft.services import ServiceFactory
 
+    ServiceFactory.register("package", services.Package)
+    ServiceFactory.register("lifecycle", services.Lifecycle)
     return ServiceFactory(
         app=APP_METADATA,
-        LifecycleClass=services.Lifecycle,
-        PackageClass=services.Package,
     )
 
 
@@ -84,6 +89,20 @@ def new_dir(tmpdir):
 
     os.chdir(cwd)
 
+@pytest.fixture()
+def release_version():
+    version = "22.04"
+    try:
+        with Path("/etc/os-release").open() as f:
+            os_release = f.read()
+        if "Ubuntu" in os_release:
+            for line in os_release.splitlines():
+                if line.startswith("VERSION_ID="):
+                    version = line.split("=")[1].strip('"')
+    except FileNotFoundError as e:
+        # For non-Ubuntu platform, just skip this test case
+        warning(f"failed to read Ubuntu release version, err={e}")
+    return version
 
 @pytest.fixture()
 def _reset_callbacks():
