@@ -16,6 +16,7 @@ import pytest
             "issues": "https://github.com/canonical/sdk-store/issues",
             "source-code": "https://github.com/canonical/sdk-store/",
             "plugs": {"content": {"target": "/path"}},
+            "sdkcraft-started-at": "1970-01-01T00:00:00+00:00",
         },
     ],
 )
