@@ -28,7 +28,7 @@ lint = [
     "black~=23.10",
     "codespell[toml]~=2.2",
     "ruff~=0.1.10",
-    "yamllint==1.32"
+    "yamllint==1.35.1"
 ]
 types = [
     "mypy[reports]~=1.8"
