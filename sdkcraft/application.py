@@ -49,13 +49,10 @@ class Sdkcraft(Application):
             default_command=commands.lifecycle.PackCommand,
         )
 
-    def add_default_parts(self, yaml_data: dict[str, Any]) -> None:
+    def set_defaults(self, yaml_data: dict[str, Any]) -> None:
         """Apply the expected default parts to a project if it doesn't contain any."""
         if 'parts' not in yaml_data:  # Only operate if there aren't any parts.
             yaml_data["parts"] = {'dummy': {'plugin': 'nil'}}
-
-    def add_required_fields_if_not_exist(self, yaml_data: dict[str, Any]) -> None:
-        """Apply the expected default parts to a project if it doesn't contain any."""
         if 'slots' not in yaml_data:
             yaml_data["slots"] = None
         if 'plugs' not in yaml_data:
@@ -69,7 +66,6 @@ class Sdkcraft(Application):
         if 'issues' not in yaml_data:
             yaml_data["issues"] = None
 
-
     def _extra_yaml_transform(
         self,
         yaml_data: dict[str, Any],
@@ -82,8 +78,7 @@ class Sdkcraft(Application):
 
         # Put your transforms here.
         yaml_data.update({})
-        self.add_default_parts(yaml_data)
-        self.add_required_fields_if_not_exist(yaml_data)
+        self.set_defaults(yaml_data)
 
         return yaml_data
 
