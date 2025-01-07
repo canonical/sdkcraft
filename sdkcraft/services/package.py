@@ -78,6 +78,7 @@ class Package(services.PackageService):
                 include={
                     "name",
                     "base",
+                    "version",
                     "title",
                     "summary",
                     "license",

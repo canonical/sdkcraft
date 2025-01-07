@@ -34,6 +34,7 @@ class Metadata(BaseMetadata):
     name: str
     title: ProjectTitle | None
     base: Any
+    version: str | None
     summary: SummaryStr
     license: str
     description: str
