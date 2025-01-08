@@ -96,7 +96,7 @@ class Package(services.PackageService):
                 },
                 exclude_unset=True,
             ),
-            sdkcraft_started_at=self._started_at.isoformat(),
+            sdkcraft_started_at=datetime_as_utc_str(self._started_at),
         )
 
     @override
@@ -108,3 +108,15 @@ class Package(services.PackageService):
         path = path / "meta"
         path.mkdir(parents=True, exist_ok=True)
         self.metadata.to_yaml_file(path / "sdk.yaml")
+
+
+def datetime_as_utc_str(dt: datetime) -> str:
+    """Convert to UTC and format as ISO 8601.
+
+    :param dt: A timezone-aware date and time.
+    """
+    if dt.tzinfo is None:
+        raise NotImplementedError("timezone required")
+
+    # Append Z because Go does not recognize +00:00 as UTC.
+    return dt.astimezone(timezone.utc).replace(tzinfo=None).isoformat() + "Z"
