@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import pathlib
 import tarfile
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import cast
 
@@ -37,8 +38,13 @@ class Package(services.PackageService):
         app: AppMetadata,
         project: models.Project,
         services: services.ServiceFactory,
+        started_at: datetime | None = None
     ) -> None:
         super().__init__(app, services, project=project)
+
+        if started_at is None:
+            started_at = datetime.now(timezone.utc)
+        self._started_at = started_at
 
     def _pack_hooks(self, arch: tarfile.TarFile) -> None:
         """Add provided hooks to the package."""
@@ -78,6 +84,7 @@ class Package(services.PackageService):
                 include={
                     "name",
                     "base",
+                    "version",
                     "title",
                     "summary",
                     "license",
@@ -88,7 +95,8 @@ class Package(services.PackageService):
                     "plugs",
                 },
                 exclude_unset=True,
-            )
+            ),
+            sdkcraft_started_at=self._started_at.isoformat(),
         )
 
     @override

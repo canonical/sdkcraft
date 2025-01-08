@@ -13,6 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+from datetime import datetime, timezone
 from logging import warning
 from pathlib import Path
 
@@ -75,6 +76,7 @@ def package_service(default_project, default_factory):
         app=APP_METADATA,
         project=default_project,
         services=default_factory,
+        started_at=datetime.fromtimestamp(0, timezone.utc),
     )
 
 

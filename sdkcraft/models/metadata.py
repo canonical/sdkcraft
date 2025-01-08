@@ -34,15 +34,17 @@ class Metadata(BaseMetadata):
     name: str
     title: ProjectTitle | None
     base: Any
+    version: str | None
     summary: SummaryStr
     license: str
     description: str
     contact: str | UniqueStrList | None
     issues: str | UniqueStrList | None
     source_code: AnyUrl | None
+    sdkcraft_started_at: str
     plugs: dict[str, MountPlug | Any] | None
 
-    def __init__(self, **kwargs: dict[Any, Any]) -> None:
+    def __init__(self, **kwargs: Any) -> None:  # noqa: ANN401
         super().__init__(**kwargs)
 
         # Setting attributes of Config
