@@ -70,7 +70,8 @@ class Package(services.PackageService):
         binary_package_name = f"{self._project.name}.sdk"
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
             tar.dereference=True
-            tar.add(prime_dir, arcname=".", recursive=True)
+            for entry in sorted(prime_dir.iterdir()):
+                tar.add(entry, arcname=entry.name, recursive=True)
             self._pack_hooks(tar)
         return [dest / binary_package_name]
 

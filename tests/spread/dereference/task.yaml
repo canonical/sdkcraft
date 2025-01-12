@@ -3,4 +3,4 @@ summary: sdkcraft tar dereference test
 execute: |
   run_sdkcraft pack
   test -f my-sdk-name.sdk
-  tar xf my-sdk-name.sdk ./fileb
+  tar xf my-sdk-name.sdk fileb
