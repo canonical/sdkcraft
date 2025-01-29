@@ -96,6 +96,12 @@ def test_project_plugs():
         "mount": {"interface": "mount", "workshop-target": "/data"},
         "randomg": {"interface": "existing"},
         "mount2": {"workshop-target": "/data"},
+        "mount_mode_true": {"interface": "mount", "workshop-target": "/data", "read-only": True},
+        "mount_mode_false": {"interface": "mount", "workshop-target": "/data", "read-only": False},
+        "mount_mode_string_true": {"interface": "mount", "workshop-target": "/data", "read-only": "true"},
+        "mount_mode_string_false": {"interface": "mount", "workshop-target": "/data", "read-only": "false"},
+        "mount_mode_string_true_caps": {"interface": "mount", "workshop-target": "/data", "read-only": "TRUE"},
+        "mount_mode_string_true_mixed": {"interface": "mount", "workshop-target": "/data", "read-only": "TrUe"},
     }
     try:
         default._validate_plugs(valid_plugs)
@@ -113,6 +119,12 @@ def test_project_plugs():
     incorrect_type = {"mount": ["interface", "mount"]}
     with pytest.raises(SdkcraftError, match="cannot be a list"):
         default._validate_plugs(incorrect_type)
+
+    incorrect_mode = {"incorrect_mode": {"interface": "mount", "workshop-target": "/data", "read-only": "invalid-value"}}
+    with pytest.raises(
+        SdkcraftError, match="Value 'invalid-value' in optional parameter 'read-only' for MountPlug 'incorrect_mode' is invalid."
+    ):
+        default._validate_plugs(incorrect_mode)
 
 def test_project_slots():
     valid_slots = {

@@ -18,8 +18,6 @@
 This module defines a sdkcraft.yaml file, exportable to a JSON schema.
 """
 
-from __future__ import annotations
-
 import json
 from pathlib import Path
 from typing import Annotated, Any
@@ -39,6 +37,7 @@ class MountPlug(models.CraftBaseModel):
 
     interface: str
     workshop_target: str
+    read_only: bool
 
 class MountSlot(models.CraftBaseModel):
     """Sdkcraft project mount slot definition."""
@@ -60,6 +59,17 @@ def _validate_part(item: dict[str, Any]) -> dict[str, Any]:
         )
 
     return item
+
+def _validate_readonly(plug_name: str, plug: MountPlug | dict[str, Any]) -> None:
+    # Accept either boolean or string "true"/"false"
+    read_only = plug.get("read-only") if isinstance(plug, dict) else plug.read_only
+    if isinstance(read_only, str):
+        read_only = read_only.lower()
+    allowed_values = {"true", "false", True, False, None}
+    if read_only not in allowed_values:
+        raise SdkcraftError(
+            message=f"Value '{read_only}' in optional parameter 'read-only' for MountPlug '{plug_name}' is invalid. Must be one of: '\"true\"', '\"false\"', 'true', 'false'"
+        )
 
 class Project(models.Project):
     """Sdkcraft project definition."""
@@ -97,6 +107,8 @@ class Project(models.Project):
                 if isinstance(plug, list):
                     raise SdkcraftError(message=f"Plug '{plug_name}' cannot be a list.")
 
+                _validate_readonly(plug_name, plug)
+
         return plugs
 
     @pydantic.field_validator("slots")
@@ -123,7 +135,6 @@ def export_schema() -> None:
     schema = Project.schema()
     with Path("schema.json").open("w") as file:
         json.dump(schema, file, indent=2)
-
 
 if __name__ == "__main__":
     # Call the export function
