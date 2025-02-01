@@ -11,4 +11,4 @@ yamllint==1.35.1
 pylint==3.3.1
 pylint-fixme-info==1.0.4
 pylint-pytest==1.1.8
-codespell==2.3.0
+codespell==2.4.1
