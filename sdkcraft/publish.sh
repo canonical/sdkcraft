@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 print_help() {
     echo "Usage: $0 <filename> <track>/<stable|candidate|beta|edge>"
@@ -13,7 +13,7 @@ print_installation_instructions() {
 }
 
 # Check if gsutil is installed
-if ! command -v gsutil &> /dev/null; then
+if ! command -v gsutil &>/dev/null; then
     echo "Error: gsutil is not installed."
     print_installation_instructions
     exit 1
@@ -44,11 +44,11 @@ fi
 
 SDK_FILE=$(basename "$1")
 SDK_NAME="${SDK_FILE%%.*}"
-BUCKET_DIR="gs://sdk-store/$SDK_NAME/$channel/"
+BUCKET_DIR="gs://sdkstore/$SDK_NAME/$channel/"
 
 echo "Uploading $SDK_FILE to $BUCKET_DIR..."
 gsutil -h "Cache-Control: no-store" cp "$SDK_FILE" "$BUCKET_DIR"
 
 echo "Publishing SDK meta data..."
-meta=$(tar -xOf "$SDK_FILE" ./meta/sdk.yaml | yq -r -o=j -I=0)
+meta=$(tar -xOf "$SDK_FILE" meta/sdk.yaml | yq -r -o=j -I=0)
 gcloud storage objects update "$BUCKET_DIR""$SDK_FILE" --custom-metadata=^DELIM^sdk-yaml="$meta"

@@ -42,7 +42,7 @@ def default_project(extra_project_params):
         version="1.0",
         summary="default project",
         description="default project",
-        source_code=AnyUrl("https://github.com/canonical/sdk-store/"),
+        source_code=AnyUrl("https://github.com/canonical/sdks/"),
         base="ubuntu@22.04",
         parts=parts,
         slots=None,
@@ -50,7 +50,7 @@ def default_project(extra_project_params):
         platforms={"amd64": Platform(build_on=["amd64"], build_for=["amd64"])},
         contact="requests@canonical.com",
         plugs=plugs,
-        issues="https://github.com/canonical/sdk-store/issues",
+        issues="https://github.com/canonical/sdks/issues",
         **extra_project_params,
     )
 
