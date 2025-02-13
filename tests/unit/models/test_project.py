@@ -28,7 +28,7 @@ default = project.Project(
                 description="description",
                 base="ubuntu@22.04",
                 contact="contact@canonical.com",
-                issues="https://github.com/canonical/sdk-store/issues",
+                issues="https://github.com/canonical/sdks/issues",
                 source_code=None,
                 adopt_info=None,
                 package_repositories=None,
@@ -60,7 +60,7 @@ default = project.Project(
                 "title": "Sample",
                 "description": "description",
                 "contact": "contact@canonical.com",
-                "issues": "https://github.com/canonical/sdk-store/issues",
+                "issues": "https://github.com/canonical/sdks/issues",
                 "platforms": {
                     "amd64": {"build-for": ["amd64"], "build-on": ["amd64"]},
                     "riscv64": {

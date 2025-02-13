@@ -100,7 +100,7 @@ Publishing the SDK
 ------------------
 
 An SDK can be released on the `SDK Store
-<https://github.com/canonical/sdk-store>`_.
+<https://github.com/canonical/sdks>`_.
 The store is currently on public GCS storage,
 and publishers need write permissions.
 To release an SDK in the ``edge`` track of the latest channel:
