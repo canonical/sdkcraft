@@ -44,7 +44,7 @@ for example:
 
 .. code-block:: console
 
-   sudo snap install --dangerous --classic ./sdkcraft_0.1_amd64.snap
+   sudo snap install --dangerous --classic ./sdkcraft_0.1.5_amd64.snap
 
 
 Packing an SDK
