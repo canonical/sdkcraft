@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -306,9 +307,10 @@ toml = [
 
 [[package]]
 name = "craft-application"
-version = "4.5.0"
+version = "4.9.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "annotated-types" },
     { name = "craft-archives" },
     { name = "craft-cli" },
     { name = "craft-grammar" },
@@ -325,9 +327,9 @@ dependencies = [
     { name = "snap-helpers" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/31/f3/2e6c2e6262b30c2c39303e8123dc1a84d6c1736553653f9a98741dc1f317/craft_application-4.5.0.tar.gz", hash = "sha256:688f92f36f87f5d52cafa819272af15b7d215052ce0a04e602ea58b669a70f96", size = 213232 }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/c5/0e7e7f712e5024c106641ef7b0b77e40964a3f79747ea0d5308e0e97d3f2/craft_application-4.9.1.tar.gz", hash = "sha256:71e674c89cb492e16011741ee9d423dde9d851aa895c8073a2925c583a2d505b", size = 314097 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/86/ed/c53a2228afec08855e1fa0689626e10aa04f7f25c48267e77c2f701bff71/craft_application-4.5.0-py3-none-any.whl", hash = "sha256:5077f2c6f3bbb0c72c30b6b9bf360222d3bc8b8a18c84b522bcec80d16e325e0", size = 137554 },
+    { url = "https://files.pythonhosted.org/packages/c9/4d/811a0a81a8e7f24797ce478a81262156ccae79c3583af996a77ea08c54ce/craft_application-4.9.1-py3-none-any.whl", hash = "sha256:e59e21a2ab4c3d91cba98a6a53e635b267946d4abbe8af45e99b32e8a2c38339", size = 146733 },
 ]
 
 [[package]]
@@ -745,6 +747,15 @@ wheels = [
 ]
 
 [[package]]
+name = "nodeenv"
+version = "1.9.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/16/fc88b08840de0e0a72a2f9d8c6bae36be573e475a6326ae854bcc549fc45/nodeenv-1.9.1.tar.gz", hash = "sha256:6ec12890a2dab7946721edbfbcd91f3319c6ccc9aec47be7c7e6b7011ee6645f", size = 47437 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d2/1d/1b658dbd2b9fa9c4c9f32accbfc0205d532c8c6194dc0f2a4c0428e7128a/nodeenv-1.9.1-py2.py3-none-any.whl", hash = "sha256:ba11c9782d29c27c70ffbdda2d7415098754709be8a7056d79a737cd901155c9", size = 22314 },
+]
+
+[[package]]
 name = "oauthlib"
 version = "3.2.2"
 source = { registry = "https://pypi.org/simple" }
@@ -945,6 +956,19 @@ wheels = [
 ]
 
 [[package]]
+name = "pyright"
+version = "1.1.394"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nodeenv" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b1/e4/79f4d8a342eed6790fdebdb500e95062f319ee3d7d75ae27304ff995ae8c/pyright-1.1.394.tar.gz", hash = "sha256:56f2a3ab88c5214a451eb71d8f2792b7700434f841ea219119ade7f42ca93608", size = 3809348 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d6/4c/50c74e3d589517a9712a61a26143b587dba6285434a17aebf2ce6b82d2c3/pyright-1.1.394-py3-none-any.whl", hash = "sha256:5f74cce0a795a295fb768759bbeeec62561215dea657edcaab48a932b031ddbb", size = 5679540 },
+]
+
+[[package]]
 name = "pytest"
 version = "7.4.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1139,6 +1163,7 @@ name = "sdkcraft"
 source = { editable = "." }
 dependencies = [
     { name = "craft-application" },
+    { name = "pyright" },
 ]
 
 [package.optional-dependencies]
@@ -1162,6 +1187,7 @@ types = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-check" },
 ]
@@ -1172,8 +1198,9 @@ requires-dist = [
     { name = "build", marker = "extra == 'dev'" },
     { name = "codespell", extras = ["toml"], marker = "extra == 'lint'", specifier = "~=2.2" },
     { name = "coverage", extras = ["toml"], marker = "extra == 'dev'", specifier = "~=7.3" },
-    { name = "craft-application", specifier = "~=4.5.0" },
+    { name = "craft-application", specifier = "~=4.9" },
     { name = "mypy", extras = ["reports"], marker = "extra == 'types'", specifier = "~=1.8" },
+    { name = "pyright", specifier = ">=1.1.394" },
     { name = "pytest", marker = "extra == 'dev'", specifier = "~=7.4" },
     { name = "pytest-check", marker = "extra == 'dev'" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = "~=4.1" },
@@ -1181,9 +1208,11 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'lint'", specifier = "~=0.1.10" },
     { name = "yamllint", marker = "extra == 'lint'", specifier = "==1.35.1" },
 ]
+provides-extras = ["dev", "lint", "types"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "pyright", specifier = ">=1.1.394" },
     { name = "pytest", specifier = ">=7.4.4" },
     { name = "pytest-check", specifier = ">=2.4.1" },
 ]
