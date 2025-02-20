@@ -132,7 +132,7 @@ def export_schema() -> None:
 
     To run: PYTHONPATH=. python sdkcraft/models/project.py.
     """
-    schema = Project.schema()
+    schema = Project.model_json_schema()
     with Path("schema.json").open("w") as file:
         json.dump(schema, file, indent=2)
 
