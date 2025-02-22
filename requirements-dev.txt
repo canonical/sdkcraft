@@ -6,7 +6,7 @@ pytest-mock~=3.12
 craft-application~=4.5
 mypy[reports]~=1.8
 codespell[toml]~=2.2
-ruff~=0.1.10
+ruff~=0.9.7
 yamllint==1.35.1
 pylint==3.3.1
 pylint-fixme-info==1.0.4
