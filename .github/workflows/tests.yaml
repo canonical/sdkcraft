@@ -29,6 +29,8 @@ jobs:
           uv sync
       - name: Run codespell
         run: make test-codespell
+      - name: Run ruff format
+        run: make test-ruff-format
       - name: Run ruff
         run: make test-ruff
       - name: Run my-py

@@ -39,11 +39,13 @@ class MountPlug(models.CraftBaseModel):
     workshop_target: str
     read_only: bool
 
+
 class MountSlot(models.CraftBaseModel):
     """Sdkcraft project mount slot definition."""
 
     interface: str
     workshop_source: str
+
 
 def _validate_part(item: dict[str, Any]) -> dict[str, Any]:
     """Verify each part (craft-parts will re-validate this)."""
@@ -60,6 +62,7 @@ def _validate_part(item: dict[str, Any]) -> dict[str, Any]:
 
     return item
 
+
 def _validate_readonly(plug_name: str, plug: MountPlug | dict[str, Any]) -> None:
     # Accept either boolean or string "true"/"false"
     read_only = plug.get("read-only") if isinstance(plug, dict) else plug.read_only
@@ -70,6 +73,7 @@ def _validate_readonly(plug_name: str, plug: MountPlug | dict[str, Any]) -> None
         raise SdkcraftError(
             message=f"Value '{read_only}' in optional parameter 'read-only' for MountPlug '{plug_name}' is invalid. Must be one of: '\"true\"', '\"false\"', 'true', 'false'"
         )
+
 
 class Project(models.Project):
     """Sdkcraft project definition."""
@@ -120,12 +124,17 @@ class Project(models.Project):
                 if (
                     isinstance(slot, dict)
                     and slot.get("interface") == "mount"
-                    and (not slot.get("workshop-source") or not isinstance(slot.get("workshop-source"), str))
+                    and (
+                        not slot.get("workshop-source")
+                        or not isinstance(slot.get("workshop-source"), str)
+                    )
                 ):
                     raise SdkcraftError(
-                        message=f"MountSlot '{slot_name}' must have a 'workshop-source' string parameter.")
+                        message=f"MountSlot '{slot_name}' must have a 'workshop-source' string parameter."
+                    )
 
         return slots
+
 
 def export_schema() -> None:
     """Sdkcraft project schema export.
@@ -135,6 +144,7 @@ def export_schema() -> None:
     schema = Project.model_json_schema()
     with Path("schema.json").open("w") as file:
         json.dump(schema, file, indent=2)
+
 
 if __name__ == "__main__":
     # Call the export function

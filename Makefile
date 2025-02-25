@@ -22,7 +22,7 @@ dist: clean ## Build python package.
 	ls -l dist
 
 .PHONY: lint
-lint: test-codespell test-ruff test-mypy test-yamllint test-shellcheck test-pyright ## Run all linting tests.
+lint: test-codespell test-ruff-format test-ruff test-mypy test-yamllint test-shellcheck test-pyright ## Run all linting tests.
 
 .PHONY: test-codespell
 test-codespell:
@@ -31,6 +31,10 @@ test-codespell:
 .PHONY: test-ruff
 test-ruff:
 	uv run ruff check sdkcraft tests
+
+.PHONY: test-ruff-format
+test-ruff-format:
+	uv run ruff format --diff --respect-gitignore .
 
 .PHONY: test-mypy
 test-mypy:

@@ -91,6 +91,7 @@ def new_dir(tmpdir):
 
     os.chdir(cwd)
 
+
 @pytest.fixture
 def release_version():
     version = "22.04"
@@ -105,6 +106,7 @@ def release_version():
         # For non-Ubuntu platform, just skip this test case
         warning(f"failed to read Ubuntu release version, err={e}")
     return version
+
 
 @pytest.fixture
 def _reset_callbacks():

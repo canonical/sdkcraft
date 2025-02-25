@@ -51,19 +51,19 @@ class Sdkcraft(Application):
 
     def set_defaults(self, yaml_data: dict[str, Any]) -> None:
         """Apply the expected default parts to a project if it doesn't contain any."""
-        if 'parts' not in yaml_data:  # Only operate if there aren't any parts.
-            yaml_data["parts"] = {'dummy': {'plugin': 'nil'}}
-        if 'slots' not in yaml_data:
+        if "parts" not in yaml_data:  # Only operate if there aren't any parts.
+            yaml_data["parts"] = {"dummy": {"plugin": "nil"}}
+        if "slots" not in yaml_data:
             yaml_data["slots"] = None
-        if 'plugs' not in yaml_data:
+        if "plugs" not in yaml_data:
             yaml_data["plugs"] = None
-        if 'title' not in yaml_data:
+        if "title" not in yaml_data:
             yaml_data["title"] = None
-        if 'contact' not in yaml_data:
+        if "contact" not in yaml_data:
             yaml_data["contact"] = None
-        if 'source-code' not in yaml_data:
+        if "source-code" not in yaml_data:
             yaml_data["source-code"] = None
-        if 'issues' not in yaml_data:
+        if "issues" not in yaml_data:
             yaml_data["issues"] = None
 
     def _extra_yaml_transform(

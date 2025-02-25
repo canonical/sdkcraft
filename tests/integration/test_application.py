@@ -23,14 +23,18 @@ jammy_only = pytest.mark.skipif(
 
 pytestmark = [pytest.mark.usefixtures("_reset_callbacks")]
 
+
 def get_sdkcraft_yaml_string(release_version: str) -> str:
-    return ("""\
+    return (
+        """\
 name: my-project
 title: My Project
 version: 1.2.3
 base: ubuntu@22.04
-""" f"""build-base: "ubuntu@{release_version}"
-""" """summary: "example of global variables"
+"""
+        f"""build-base: "ubuntu@{release_version}"
+"""
+        """summary: "example of global variables"
 description: "example of global variables"
 license: Apache-2.0
 platforms:
@@ -45,7 +49,8 @@ parts:
             echo "project_name:    \\"${CRAFT_PROJECT_NAME}\\""    >> $target_file
             echo "project_dir:     \\"${CRAFT_PROJECT_DIR}\\""     >> $target_file
             echo "project_version: \\"${CRAFT_PROJECT_VERSION}\\"" >> $target_file
-""")
+"""
+    )
 
 
 def test_global_environment(
@@ -74,7 +79,7 @@ def test_global_environment(
     app = Sdkcraft(app=APP_METADATA, services=service)
     app.run()
 
-    variables_yaml = Path(new_dir) / "stage/variables.yaml"
+    variables_yaml = Path(new_dir) / "stage" / "variables.yaml"
     assert variables_yaml.is_file()
     variables = yaml.safe_load(variables_yaml.read_text())
 

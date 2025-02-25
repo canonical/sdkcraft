@@ -21,32 +21,33 @@ from sdkcraft.errors import SdkcraftError
 from sdkcraft.models import project
 
 default = project.Project(
-                name="my-project",
-                version="git",
-                title="Sample",
-                summary="A sample project",
-                description="description",
-                base="ubuntu@22.04",
-                contact="contact@canonical.com",
-                issues="https://github.com/canonical/sdks/issues",
-                source_code=None,
-                adopt_info=None,
-                package_repositories=None,
-                platforms={
-                    "amd64": models.Platform(
-                        build_for=["amd64"],
-                        build_on=["amd64"],
-                    ),
-                    "riscv64": models.Platform(
-                        build_on=["amd64", "arm64"],
-                        build_for=["riscv64"],
-                    ),
-                },
-                license="gplv3",
-                parts={},
-                plugs={},
-                slots={},
-            )
+    name="my-project",
+    version="git",
+    title="Sample",
+    summary="A sample project",
+    description="description",
+    base="ubuntu@22.04",
+    contact="contact@canonical.com",
+    issues="https://github.com/canonical/sdks/issues",
+    source_code=None,
+    adopt_info=None,
+    package_repositories=None,
+    platforms={
+        "amd64": models.Platform(
+            build_for=["amd64"],
+            build_on=["amd64"],
+        ),
+        "riscv64": models.Platform(
+            build_on=["amd64", "arm64"],
+            build_for=["riscv64"],
+        ),
+    },
+    license="gplv3",
+    parts={},
+    plugs={},
+    slots={},
+)
+
 
 @pytest.mark.parametrize(
     ("obj", "expected"),
@@ -96,12 +97,36 @@ def test_project_plugs():
         "mount": {"interface": "mount", "workshop-target": "/data"},
         "randomg": {"interface": "existing"},
         "mount2": {"workshop-target": "/data"},
-        "mount_mode_true": {"interface": "mount", "workshop-target": "/data", "read-only": True},
-        "mount_mode_false": {"interface": "mount", "workshop-target": "/data", "read-only": False},
-        "mount_mode_string_true": {"interface": "mount", "workshop-target": "/data", "read-only": "true"},
-        "mount_mode_string_false": {"interface": "mount", "workshop-target": "/data", "read-only": "false"},
-        "mount_mode_string_true_caps": {"interface": "mount", "workshop-target": "/data", "read-only": "TRUE"},
-        "mount_mode_string_true_mixed": {"interface": "mount", "workshop-target": "/data", "read-only": "TrUe"},
+        "mount_mode_true": {
+            "interface": "mount",
+            "workshop-target": "/data",
+            "read-only": True,
+        },
+        "mount_mode_false": {
+            "interface": "mount",
+            "workshop-target": "/data",
+            "read-only": False,
+        },
+        "mount_mode_string_true": {
+            "interface": "mount",
+            "workshop-target": "/data",
+            "read-only": "true",
+        },
+        "mount_mode_string_false": {
+            "interface": "mount",
+            "workshop-target": "/data",
+            "read-only": "false",
+        },
+        "mount_mode_string_true_caps": {
+            "interface": "mount",
+            "workshop-target": "/data",
+            "read-only": "TRUE",
+        },
+        "mount_mode_string_true_mixed": {
+            "interface": "mount",
+            "workshop-target": "/data",
+            "read-only": "TrUe",
+        },
     }
     try:
         default._validate_plugs(valid_plugs)
@@ -112,7 +137,8 @@ def test_project_plugs():
         "mount": {"interface": "mount"},
     }
     with pytest.raises(
-        SdkcraftError, match="MountPlug 'mount' must have a 'workshop-target' parameter."
+        SdkcraftError,
+        match="MountPlug 'mount' must have a 'workshop-target' parameter.",
     ):
         default._validate_plugs(no_target)
 
@@ -120,11 +146,19 @@ def test_project_plugs():
     with pytest.raises(SdkcraftError, match="cannot be a list"):
         default._validate_plugs(incorrect_type)
 
-    incorrect_mode = {"incorrect_mode": {"interface": "mount", "workshop-target": "/data", "read-only": "invalid-value"}}
+    incorrect_mode = {
+        "incorrect_mode": {
+            "interface": "mount",
+            "workshop-target": "/data",
+            "read-only": "invalid-value",
+        }
+    }
     with pytest.raises(
-        SdkcraftError, match="Value 'invalid-value' in optional parameter 'read-only' for MountPlug 'incorrect_mode' is invalid."
+        SdkcraftError,
+        match="Value 'invalid-value' in optional parameter 'read-only' for MountPlug 'incorrect_mode' is invalid.",
     ):
         default._validate_plugs(incorrect_mode)
+
 
 def test_project_slots():
     valid_slots = {
@@ -141,7 +175,8 @@ def test_project_slots():
         "try_mount_1": {"interface": "mount"},
     }
     with pytest.raises(
-        SdkcraftError, match="MountSlot 'try_mount_1' must have a 'workshop-source' string parameter."
+        SdkcraftError,
+        match="MountSlot 'try_mount_1' must have a 'workshop-source' string parameter.",
     ):
         default._validate_slots(no_source)
 
@@ -149,7 +184,8 @@ def test_project_slots():
         "try_mount_2": {"interface": "mount", "workshop-source": 123},
     }
     with pytest.raises(
-        SdkcraftError, match="MountSlot 'try_mount_2' must have a 'workshop-source' string parameter."
+        SdkcraftError,
+        match="MountSlot 'try_mount_2' must have a 'workshop-source' string parameter.",
     ):
         default._validate_slots(incorrect_type)
 

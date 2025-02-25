@@ -38,7 +38,7 @@ class Package(services.PackageService):
         app: AppMetadata,
         project: models.Project,
         services: services.ServiceFactory,
-        started_at: datetime | None = None
+        started_at: datetime | None = None,
     ) -> None:
         super().__init__(app, services, project=project)
 
@@ -69,7 +69,7 @@ class Package(services.PackageService):
 
         binary_package_name = f"{self._project.name}.sdk"
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
-            tar.dereference=True
+            tar.dereference = True
             for entry in sorted(prime_dir.iterdir()):
                 tar.add(entry, arcname=entry.name, recursive=True)
             self._pack_hooks(tar)
