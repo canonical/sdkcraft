@@ -23,26 +23,26 @@ dist: clean ## Build python package.
 
 .PHONY: lint
 lint: test-codespell test-ruff test-mypy test-yamllint test-shellcheck test-pyright ## Run all linting tests.
-	
+
 .PHONY: test-codespell
 test-codespell:
-	codespell . --summary --count --ignore-words-list="buildd,create,keyserver,commandos,ro,dedent,dedented"
+	uvx codespell . --summary --count --ignore-words-list="buildd,create,keyserver,commandos,ro,dedent,dedented"
 
 .PHONY: test-ruff
 test-ruff:
-	ruff check sdkcraft tests
+	uvx ruff@0.1.10 check sdkcraft tests
 
 .PHONY: test-mypy
 test-mypy:
-	mypy --install-types --non-interactive sdkcraft
+	uv run mypy --install-types --non-interactive sdkcraft
 
 .PHONY: test-pyright
 test-pyright:
-	pyright sdkcraft tests 
+	uv run pyright sdkcraft tests
 
 .PHONY: test-yamllint
 test-yamllint:
-	yamllint . 
+	yamllint .
 
 .PHONY: test-shellcheck
 test-shellcheck:
@@ -51,11 +51,11 @@ test-shellcheck:
 
 .PHONY: test-units
 test-units: ## Run unit tests.
-	pytest tests/unit
+	uv run pytest tests/unit
 
 .PHONY: test-integrations
 test-integrations: ## Run integration tests.
-	pytest tests/integration
+	uv run pytest tests/integration
 
 .PHONY: install
 install: clean ## Install python package.
