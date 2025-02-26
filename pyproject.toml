@@ -243,6 +243,7 @@ max-args = 8
 
 [dependency-groups]
 dev = [
+    "codespell>=2.4.0",
     "pyright>=1.1.394",
     "pytest>=7.4.4",
     "pytest-check>=2.4.1",

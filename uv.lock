@@ -1186,6 +1186,7 @@ types = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "codespell" },
     { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-check" },
@@ -1210,6 +1211,7 @@ provides-extras = ["dev", "lint", "types"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "codespell", specifier = ">=2.4.0" },
     { name = "pyright", specifier = ">=1.1.394" },
     { name = "pytest", specifier = ">=7.4.4" },
     { name = "pytest-check", specifier = ">=2.4.1" },
