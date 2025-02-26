@@ -25,3 +25,8 @@ repos:
     rev: "v1.33.0"
     hooks:
       - id: yamllint
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.6.1
+    hooks:
+      - id: uv-lock
+      - id: uv-export

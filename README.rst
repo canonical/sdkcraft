@@ -113,11 +113,13 @@ To release an SDK in the ``edge`` track of the latest channel:
 Testing
 -------
 Install ``uv`` in your local development environment to manage dependencies:
+
 .. code-block:: console
 
    sudo snap install --classic astral-uv
    uv venv --system-site-packages
    uv sync
+
 
 To run unit tests and the integration test, you can either use ```uv run`` or enable the virtual environment manually:
 

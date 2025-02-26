@@ -13,7 +13,6 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     "craft-application~=4.9",
-    "pyright>=1.1.394",
 ]
 
 [project.scripts]

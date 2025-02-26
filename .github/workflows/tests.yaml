@@ -22,6 +22,10 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.1"
       - name: Configure environment
         run: |
           echo "::group::Begin snap install"
@@ -34,8 +38,8 @@ jobs:
           echo "::endgroup::"
           echo "::group::Create virtual environments for linting processes."
           python -m pip install -U wheel setuptools pip
-          python -m pip install -U -r requirements-dev.txt
-          pip install -e .
+          uv venv --system-site-packages
+          uv sync
           echo "::endgroup::"
           echo "::group::Wait for snap to complete"
           snap watch --last=install
@@ -71,7 +75,8 @@ jobs:
           echo "::endgroup::"
           echo "::group::pip install"
           python -m pip install -U wheel setuptools pip
-          python -m pip install -U -r requirements-dev.txt
+          uv venv --system-site-packages
+          uv sync
           echo "::endgroup::"
       - name: Install project
         run: |

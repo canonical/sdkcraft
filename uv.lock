@@ -1163,7 +1163,6 @@ name = "sdkcraft"
 source = { editable = "." }
 dependencies = [
     { name = "craft-application" },
-    { name = "pyright" },
 ]
 
 [package.optional-dependencies]
@@ -1200,7 +1199,6 @@ requires-dist = [
     { name = "coverage", extras = ["toml"], marker = "extra == 'dev'", specifier = "~=7.3" },
     { name = "craft-application", specifier = "~=4.9" },
     { name = "mypy", extras = ["reports"], marker = "extra == 'types'", specifier = "~=1.8" },
-    { name = "pyright", specifier = ">=1.1.394" },
     { name = "pytest", marker = "extra == 'dev'", specifier = "~=7.4" },
     { name = "pytest-check", marker = "extra == 'dev'" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = "~=4.1" },
