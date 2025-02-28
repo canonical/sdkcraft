@@ -67,3 +67,6 @@ spread: ## Build a fresh snap and run spread tests
 	snapcraft clean
 	snapcraft -o tests
 	spread
+
+uv-export:
+	uv export --no-hashes -o requirements.txt --no-dev
