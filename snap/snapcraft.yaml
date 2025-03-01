@@ -13,10 +13,13 @@ compression: lzo
 
 apps:
   sdkcraft:
-    command: bin/python -m sdkcraft
+    command: bin/python3 -m sdkcraft
+    environment:
+      PYTHONPATH: ${SNAP}/lib/python3.10/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
   publish:
     environment:
       PATH: ${SNAP}/bin:${PATH}
+      PYTHONPATH: ${SNAP}/lib/python3.10/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
     command: bin/publish.sh
 parts:
   sdkcraft-libs:
@@ -44,19 +47,11 @@ parts:
       - python3-apt
   sdkcraft:
     source: .
-    plugin: python
-    python-packages:
-      - wheel
-      - pip
-      - setuptools
-    python-requirements:
-      - requirements.txt
+    plugin: uv
+    build-snaps:
+      - astral-uv
     build-attributes:
       - enable-patchelf
-    build-packages:
-      - python3.10-venv
-      - python3-apt
-      - python3-pip-whl
     build-environment:
       - PARTS_PYTHON_VENV_ARGS: --system-site-packages
     prime:
