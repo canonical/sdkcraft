@@ -95,6 +95,7 @@ class Package(services.PackageService):
                     "source_code",
                     "plugs",
                 },
+                by_alias=True,
                 exclude_unset=True,
             ),
             sdkcraft_started_at=datetime_as_utc_str(self._started_at),

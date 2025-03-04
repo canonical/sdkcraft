@@ -80,7 +80,7 @@ default = Project(
     ],
 )
 def test_project_create_valid(obj, expected):
-    assert Project.model_validate(obj) == expected
+    assert Project.unmarshal(obj) == expected
 
 
 def test_project_plugs():
