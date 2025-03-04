@@ -13,10 +13,23 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Data models for Sdkcraft."""
+"""Constrained pydantic types for sdkcraft."""
 
-from .constraints import ProjectName
-from .metadata import Metadata
-from .project import Project
+from typing import Annotated
 
-__all__ = ["Metadata", "Project", "ProjectName"]
+from craft_application import models
+from pydantic import AfterValidator
+
+
+def _validate_project_name(name: str) -> str:
+    if name == "system":
+        raise ValueError(
+            f"'{name}' is a reserved SDK name, please choose another name."
+        )
+    return name
+
+
+ProjectName = Annotated[
+    models.ProjectName,
+    AfterValidator(_validate_project_name),
+]

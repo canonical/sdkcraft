@@ -1,4 +1,4 @@
-#  This file is part of sdkcraft.
+# This file is part of sdkcraft.
 #
 # Copyright 2024 Canonical Ltd.
 #
@@ -13,10 +13,23 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Data models for Sdkcraft."""
+"""Tests for type constraints."""
 
-from .constraints import ProjectName
-from .metadata import Metadata
-from .project import Project
+import pytest
+from pydantic import TypeAdapter, ValidationError
+from sdkcraft.models.constraints import ProjectName
 
-__all__ = ["Metadata", "Project", "ProjectName"]
+project_name_adapter = TypeAdapter(ProjectName)
+
+
+def test_project_name_inherits_constraints():
+    with pytest.raises(ValidationError):
+        project_name_adapter.validate_python("!@#$%")
+
+
+def test_project_name_forbids_reserved():
+    with pytest.raises(
+        ValidationError,
+        match="'system' is a reserved SDK name, please choose another name.",
+    ):
+        project_name_adapter.validate_python("system")

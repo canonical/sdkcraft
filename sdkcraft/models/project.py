@@ -25,11 +25,9 @@ from typing import Annotated, Any
 import craft_parts
 import pydantic
 from craft_application import models
-from craft_application.models import (
-    ProjectName,
-)
 
 from sdkcraft.errors import SdkcraftError
+from sdkcraft.models.constraints import ProjectName
 
 
 class MountPlug(models.CraftBaseModel):
@@ -78,21 +76,14 @@ def _validate_readonly(plug_name: str, plug: MountPlug | dict[str, Any]) -> None
 class Project(models.Project):
     """Sdkcraft project definition."""
 
+    name: ProjectName
+
     plugs: dict[str, MountPlug | Any] | None
     slots: dict[str, MountSlot | Any] | None
     parts: dict[
         str,
         Annotated[dict[str, Any], pydantic.BeforeValidator(_validate_part)],
     ]
-
-    @pydantic.field_validator("name")
-    @classmethod
-    def _validate_project_name(cls, name: ProjectName) -> ProjectName:
-        if name == "agent":
-            raise SdkcraftError(
-                message=f"'{name}' is a reserved SDK name, please choose another name."
-            )
-        return name
 
     @pydantic.field_validator("plugs")
     @classmethod

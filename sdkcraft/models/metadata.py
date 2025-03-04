@@ -25,13 +25,14 @@ from craft_application.models import (
 )
 from pydantic import AnyUrl
 
+from sdkcraft.models.constraints import ProjectName
 from sdkcraft.models.project import MountPlug
 
 
 class Metadata(BaseMetadata):
     """Structure to hold output metadata."""
 
-    name: str
+    name: ProjectName
     title: ProjectTitle | None
     base: Any
     version: str | None
