@@ -113,11 +113,25 @@ To release an SDK in the ``edge`` track of the latest channel:
 Testing
 -------
 
-To run end-to-end tests and integration tests,
-install our fork of `Spread <https://github.com/snapcore/spread>`_:
+To run a local test from the source code, use the destructive mode:
+
+.. code-block:: console
+
+   python -m sdkcraft --destructive-mode
+
+It allows injecting the ``sdkcraft`` snap from the host instead of the Snap Store,
+providing a faster way to run simple local tests during development,
+but isn't enough for an end-to-end test.
+
+For a sufficient end-to-end test,
+the snap should be packed and installed before running.
+Install our fork of `Spread <https://github.com/snapcore/spread>`_ to run it:
 
 .. code-block:: console
 
    git clone https://github.com/dmitry-lyfar/spread
    cd spread
    go install ./...
+
+   cd ../sdkcraft
+   spread
