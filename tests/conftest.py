@@ -34,7 +34,7 @@ def default_project(extra_project_params):
     from sdkcraft.models.project import Project
 
     parts = extra_project_params.pop("parts", {})
-    plugs = {"content": {"target": "/path"}}
+    plugs = {"mount": {"interface": "mount", "workshop-target": "/path"}}
 
     return Project(
         name="default",

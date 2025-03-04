@@ -18,7 +18,7 @@ from sdkcraft.services.package import datetime_as_utc_str
             "contact": "requests@canonical.com",
             "issues": "https://github.com/canonical/sdks/issues",
             "source-code": "https://github.com/canonical/sdks/",
-            "plugs": {"content": {"target": "/path"}},
+            "plugs": {"mount": {"interface": "mount", "workshop-target": "/path"}},
             "sdkcraft-started-at": "1970-01-01T00:00:00Z",
         },
     ],

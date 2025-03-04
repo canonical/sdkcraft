@@ -18,8 +18,7 @@
 import pytest
 from craft_application import models
 from pydantic import TypeAdapter, ValidationError
-from sdkcraft.errors import SdkcraftError
-from sdkcraft.models.project import Part, Project
+from sdkcraft.models.project import MountPlug, Part, Project
 
 default = Project(
     name="my-project",
@@ -83,102 +82,35 @@ def test_project_create_valid(obj, expected):
     assert Project.unmarshal(obj) == expected
 
 
-def test_project_plugs():
-    valid_plugs = {
-        "mount": {"interface": "mount", "workshop-target": "/data"},
-        "randomg": {"interface": "existing"},
-        "mount2": {"workshop-target": "/data"},
-        "mount_mode_true": {
-            "interface": "mount",
-            "workshop-target": "/data",
-            "read-only": True,
-        },
-        "mount_mode_false": {
-            "interface": "mount",
-            "workshop-target": "/data",
-            "read-only": False,
-        },
-        "mount_mode_string_true": {
-            "interface": "mount",
-            "workshop-target": "/data",
-            "read-only": "true",
-        },
-        "mount_mode_string_false": {
-            "interface": "mount",
-            "workshop-target": "/data",
-            "read-only": "false",
-        },
-        "mount_mode_string_true_caps": {
-            "interface": "mount",
-            "workshop-target": "/data",
-            "read-only": "TRUE",
-        },
-        "mount_mode_string_true_mixed": {
-            "interface": "mount",
-            "workshop-target": "/data",
-            "read-only": "TrUe",
-        },
-    }
-    try:
-        default._validate_plugs(valid_plugs)
-    except ValueError as e:
-        pytest.fail(reason=f"unexpected exception {e}")
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (None, False),
+        (True, True),
+        (False, False),
+        ("true", True),
+        ("false", False),
+        ("TRUE", True),
+        ("TrUe", True),
+        (1, True),
+        (0, False),
+        (1.0, True),
+        (0.0, False),
+    ],
+)
+def test_mount_plug_read_only_valid(value, expected):
+    plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
+    if value is None:
+        del plug["read-only"]
 
-    no_target = {
-        "mount": {"interface": "mount"},
-    }
-    with pytest.raises(
-        SdkcraftError,
-        match="MountPlug 'mount' must have a 'workshop-target' parameter.",
-    ):
-        default._validate_plugs(no_target)
-
-    incorrect_type = {"mount": ["interface", "mount"]}
-    with pytest.raises(SdkcraftError, match="cannot be a list"):
-        default._validate_plugs(incorrect_type)
-
-    incorrect_mode = {
-        "incorrect_mode": {
-            "interface": "mount",
-            "workshop-target": "/data",
-            "read-only": "invalid-value",
-        }
-    }
-    with pytest.raises(
-        SdkcraftError,
-        match="Value 'invalid-value' in optional parameter 'read-only' for MountPlug 'incorrect_mode' is invalid.",
-    ):
-        default._validate_plugs(incorrect_mode)
+    assert MountPlug.unmarshal(plug).read_only == expected
 
 
-def test_project_slots():
-    valid_slots = {
-        "mount-slot": {"interface": "mount", "workshop-source": "/data"},
-        "random-slot-1": {"interface": "xxx"},
-        "random-slot-2": {"yyy": "zzz"},
-    }
-    try:
-        default._validate_slots(valid_slots)
-    except ValueError as e:
-        pytest.fail(reason=f"unexpected exception {e}")
-
-    no_source = {
-        "try_mount_1": {"interface": "mount"},
-    }
-    with pytest.raises(
-        SdkcraftError,
-        match="MountSlot 'try_mount_1' must have a 'workshop-source' string parameter.",
-    ):
-        default._validate_slots(no_source)
-
-    incorrect_type = {
-        "try_mount_2": {"interface": "mount", "workshop-source": 123},
-    }
-    with pytest.raises(
-        SdkcraftError,
-        match="MountSlot 'try_mount_2' must have a 'workshop-source' string parameter.",
-    ):
-        default._validate_slots(incorrect_type)
+@pytest.mark.parametrize("value", ["invalid-value", 2])
+def test_mount_plug_read_only_invalid(value):
+    plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
+    with pytest.raises(ValidationError):
+        MountPlug.unmarshal(plug)
 
 
 part_adapter = TypeAdapter(Part)

@@ -20,42 +20,29 @@ This module defines a sdkcraft.yaml file, exportable to a JSON schema.
 
 import json
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 import craft_parts
 import pydantic
 from craft_application import models
 from pydantic import AfterValidator, BeforeValidator
 
-from sdkcraft.errors import SdkcraftError
 from sdkcraft.models.constraints import ProjectName
 
 
 class MountPlug(models.CraftBaseModel):
     """Sdkcraft project mount plug definition."""
 
-    interface: str
+    interface: Literal["mount"]
     workshop_target: str
-    read_only: bool
+    read_only: bool = False
 
 
 class MountSlot(models.CraftBaseModel):
     """Sdkcraft project mount slot definition."""
 
-    interface: str
+    interface: Literal["mount"]
     workshop_source: str
-
-
-def _validate_readonly(plug_name: str, plug: MountPlug | dict[str, Any]) -> None:
-    # Accept either boolean or string "true"/"false"
-    read_only = plug.get("read-only") if isinstance(plug, dict) else plug.read_only
-    if isinstance(read_only, str):
-        read_only = read_only.lower()
-    allowed_values = {"true", "false", True, False, None}
-    if read_only not in allowed_values:
-        raise SdkcraftError(
-            message=f"Value '{read_only}' in optional parameter 'read-only' for MountPlug '{plug_name}' is invalid. Must be one of: '\"true\"', '\"false\"', 'true', 'false'"
-        )
 
 
 # TODO: replace with models.Part after merging  # noqa: FIX002
@@ -102,19 +89,8 @@ class Project(models.Project):
     ) -> dict[str, MountPlug | Any] | None:
         if plugs is not None:
             for plug_name, plug in plugs.items():
-                if (
-                    isinstance(plug, dict)
-                    and plug.get("interface") == "mount"  # pyright: ignore[reportUnknownMemberType]
-                    and not plug.get("workshop-target")  # pyright: ignore[reportUnknownMemberType]
-                ):
-                    raise SdkcraftError(
-                        message=f"MountPlug '{plug_name}' must have a 'workshop-target' parameter."
-                    )
-
-                if isinstance(plug, list):
-                    raise SdkcraftError(message=f"Plug '{plug_name}' cannot be a list.")
-
-                _validate_readonly(plug_name, plug)  # pyright: ignore[reportUnknownArgumentType]
+                if isinstance(plug, dict) and plug.get("interface") == "mount":  # pyright: ignore[reportUnknownMemberType]
+                    plugs[plug_name] = MountPlug.unmarshal(plug)  # pyright: ignore[reportUnknownArgumentType]
 
         return plugs
 
@@ -125,17 +101,8 @@ class Project(models.Project):
     ) -> dict[str, MountPlug | Any] | None:
         if slots is not None:
             for slot_name, slot in slots.items():
-                if (
-                    isinstance(slot, dict)
-                    and slot.get("interface") == "mount"  # pyright: ignore[reportUnknownMemberType]
-                    and (
-                        not slot.get("workshop-source")  # pyright: ignore[reportUnknownMemberType]
-                        or not isinstance(slot.get("workshop-source"), str)  # pyright: ignore[reportUnknownMemberType]
-                    )
-                ):
-                    raise SdkcraftError(
-                        message=f"MountSlot '{slot_name}' must have a 'workshop-source' string parameter."
-                    )
+                if isinstance(slot, dict) and slot.get("interface") == "mount":  # pyright: ignore[reportUnknownMemberType]
+                    slots[slot_name] = MountSlot.unmarshal(slot)  # pyright: ignore[reportUnknownArgumentType]
 
         return slots
 
