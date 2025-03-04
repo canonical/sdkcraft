@@ -25,6 +25,7 @@ from typing import Annotated, Any
 import craft_parts
 import pydantic
 from craft_application import models
+from pydantic import AfterValidator, BeforeValidator
 
 from sdkcraft.errors import SdkcraftError
 from sdkcraft.models.constraints import ProjectName
@@ -45,22 +46,6 @@ class MountSlot(models.CraftBaseModel):
     workshop_source: str
 
 
-def _validate_part(item: dict[str, Any]) -> dict[str, Any]:
-    """Verify each part (craft-parts will re-validate this)."""
-    craft_parts.validate_part(item)
-    if item.get("stage-packages") is not None:
-        raise NotImplementedError(
-            '"stage-packages" are not supported by sdkcraft. Consider using "setup-base" hook to install packages required by your SDK'
-        )
-
-    if item.get("stage-snaps") is not None:
-        raise NotImplementedError(
-            '"stage-snaps" are not supported by sdkcraft. Consider using "setup-base" hook to install snaps required by your SDK'
-        )
-
-    return item
-
-
 def _validate_readonly(plug_name: str, plug: MountPlug | dict[str, Any]) -> None:
     # Accept either boolean or string "true"/"false"
     read_only = plug.get("read-only") if isinstance(plug, dict) else plug.read_only
@@ -73,6 +58,34 @@ def _validate_readonly(plug_name: str, plug: MountPlug | dict[str, Any]) -> None
         )
 
 
+# TODO: replace with models.Part after merging  # noqa: FIX002
+# https://github.com/canonical/craft-application/pull/675
+def _before_validate_part(part: Any) -> Any:  # noqa: ANN401
+    craft_parts.validate_part(part)
+    return part
+
+
+BasePart = Annotated[dict[str, Any], BeforeValidator(_before_validate_part)]
+
+
+def _after_validate_part(item: dict[str, Any]) -> dict[str, Any]:
+    """Verify SDK-specific attributes for a part."""
+    if item.get("stage-packages") is not None:
+        raise ValueError(
+            "'stage-packages' are not supported by sdkcraft. Consider using 'setup-base' hook to install packages required by your SDK"
+        )
+
+    if item.get("stage-snaps") is not None:
+        raise ValueError(
+            "'stage-snaps' are not supported by sdkcraft. Consider using 'setup-base' hook to install snaps required by your SDK"
+        )
+
+    return item
+
+
+Part = Annotated[BasePart, AfterValidator(_after_validate_part)]
+
+
 class Project(models.Project):
     """Sdkcraft project definition."""
 
@@ -80,10 +93,7 @@ class Project(models.Project):
 
     plugs: dict[str, MountPlug | Any] | None
     slots: dict[str, MountSlot | Any] | None
-    parts: dict[
-        str,
-        Annotated[dict[str, Any], pydantic.BeforeValidator(_validate_part)],
-    ]
+    parts: dict[str, Part]
 
     @pydantic.field_validator("plugs")
     @classmethod

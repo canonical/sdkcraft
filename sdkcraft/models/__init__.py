@@ -17,6 +17,6 @@
 
 from .constraints import ProjectName
 from .metadata import Metadata
-from .project import Project
+from .project import Part, Project
 
-__all__ = ["Metadata", "Project", "ProjectName"]
+__all__ = ["Metadata", "Part", "Project", "ProjectName"]

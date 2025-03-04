@@ -17,10 +17,11 @@
 
 import pytest
 from craft_application import models
+from pydantic import TypeAdapter, ValidationError
 from sdkcraft.errors import SdkcraftError
-from sdkcraft.models import project
+from sdkcraft.models.project import Part, Project
 
-default = project.Project(
+default = Project(
     name="my-project",
     version="git",
     title="Sample",
@@ -79,17 +80,7 @@ default = project.Project(
     ],
 )
 def test_project_create_valid(obj, expected):
-    assert project.Project.model_validate(obj) == expected
-
-
-def test_project_stage_packages_prohibited():
-    part_packages = {"plugin": "nil", "stage-packages": ["python3-apt"]}
-    with pytest.raises(NotImplementedError):
-        project._validate_part(part_packages)
-
-    part_snaps = {"plugin": "nil", "stage-snaps": ["shellcheck"]}
-    with pytest.raises(NotImplementedError):
-        project._validate_part(part_snaps)
+    assert Project.model_validate(obj) == expected
 
 
 def test_project_plugs():
@@ -188,3 +179,29 @@ def test_project_slots():
         match="MountSlot 'try_mount_2' must have a 'workshop-source' string parameter.",
     ):
         default._validate_slots(incorrect_type)
+
+
+part_adapter = TypeAdapter(Part)
+
+
+def test_part_inherits_constraints():
+    with pytest.raises(ValidationError):
+        part_adapter.validate_python({})
+
+
+def test_part_stage_packages_prohibited():
+    with pytest.raises(
+        ValidationError,
+        match="'stage-packages' are not supported by sdkcraft",
+    ):
+        part_adapter.validate_python(
+            {"plugin": "nil", "stage-packages": ["python3-apt"]}
+        )
+
+
+def test_part_stage_snaps_prohibited():
+    with pytest.raises(
+        ValidationError,
+        match="'stage-snaps' are not supported by sdkcraft",
+    ):
+        part_adapter.validate_python({"plugin": "nil", "stage-snaps": ["shellcheck"]})
