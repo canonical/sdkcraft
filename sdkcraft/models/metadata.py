@@ -23,7 +23,7 @@ from craft_application.models import (
     SummaryStr,
     UniqueStrList,
 )
-from pydantic import AnyUrl
+from pydantic import AnyUrl, ConfigDict
 
 from sdkcraft.models.constraints import ProjectName
 from sdkcraft.models.project import MountPlug
@@ -45,8 +45,4 @@ class Metadata(BaseMetadata):
     sdkcraft_started_at: str
     plugs: dict[str, MountPlug | Any] | None
 
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
-        # Setting attributes of Config
-        self.model_config["use_enum_values"] = True
+    model_config = ConfigDict(use_enum_values=True)
