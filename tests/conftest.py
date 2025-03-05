@@ -23,17 +23,10 @@ from sdkcraft import services
 
 
 @pytest.fixture
-def extra_project_params():
-    """Configuration fixture for the Project used by the default services."""
-    return {"parts": {"default-part": {"plugin": "nil"}}}
-
-
-@pytest.fixture
-def default_project(extra_project_params):
+def default_project():
     from craft_application.models import Platform
     from sdkcraft.models.project import MountPlug, Plug, Project
 
-    parts = extra_project_params.pop("parts", {})
     plugs: dict[str, Plug] = {
         "mount": MountPlug(interface="mount", workshop_target="/path")
     }
@@ -46,13 +39,11 @@ def default_project(extra_project_params):
         description="default project",
         source_code=AnyUrl("https://github.com/canonical/sdks/"),
         base="ubuntu@22.04",
-        parts=parts,
         license="MIT",
         platforms={"amd64": Platform(build_on=["amd64"], build_for=["amd64"])},
         contact="requests@canonical.com",
         plugs=plugs,
         issues="https://github.com/canonical/sdks/issues",
-        **extra_project_params,
     )
 
 

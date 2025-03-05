@@ -43,7 +43,6 @@ default = Project(
         ),
     },
     license="gplv3",
-    parts={},
 )
 
 
@@ -68,7 +67,6 @@ default = Project(
                     },
                 },
                 "license": "gplv3",
-                "parts": {},
             },
             default,
         ),
@@ -76,6 +74,7 @@ default = Project(
 )
 def test_project_create_valid(obj, expected):
     assert Project.unmarshal(obj) == expected
+    assert expected.parts == {"default-part": {"plugin": "nil"}}
 
 
 @pytest.mark.parametrize(

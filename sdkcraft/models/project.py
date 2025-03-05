@@ -103,6 +103,9 @@ def _after_validate_part(item: dict[str, Any]) -> dict[str, Any]:
 Part = Annotated[BasePart, AfterValidator(_after_validate_part)]
 
 
+DEFAULT_PART = {"default-part": {"plugin": "nil"}}
+
+
 class Project(models.Project):
     """Sdkcraft project definition."""
 
@@ -110,7 +113,7 @@ class Project(models.Project):
 
     plugs: dict[str, Plug] = {}
     slots: dict[str, Slot] = {}
-    parts: dict[str, Part]
+    parts: dict[str, Part] = DEFAULT_PART
 
 
 def export_schema() -> None:

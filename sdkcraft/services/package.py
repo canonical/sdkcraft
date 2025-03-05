@@ -84,15 +84,15 @@ class Package(services.PackageService):
             **project.model_dump(
                 include={
                     "name",
-                    "base",
-                    "version",
                     "title",
+                    "version",
                     "summary",
-                    "license",
                     "description",
+                    "base",
                     "contact",
                     "issues",
                     "source_code",
+                    "license",
                     "plugs",
                     "slots",
                 },
