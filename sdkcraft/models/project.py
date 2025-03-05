@@ -26,7 +26,7 @@ import craft_parts
 from craft_application import models
 from pydantic import AfterValidator, BeforeValidator, Field
 
-from sdkcraft.models.constraints import ProjectName
+from sdkcraft.models.constraints import Endpoint, ProjectName
 
 
 class CameraPlug(models.CraftBaseModel):
@@ -88,11 +88,28 @@ class SSHPlug(models.CraftBaseModel):
             raise ValueError("ssh interface plugs must be named 'ssh'")
 
 
+class TunnelPlug(models.CraftBaseModel):
+    """Sdkcraft project tunnel plug definition."""
+
+    interface: Literal["tunnel"]
+    endpoint: Endpoint = ""
+
+
+class TunnelSlot(models.CraftBaseModel):
+    """Sdkcraft project tunnel plug definition."""
+
+    interface: Literal["tunnel"]
+    endpoint: Endpoint = ""
+
+
 Plug = Annotated[
-    CameraPlug | DesktopPlug | GPUPlug | MountPlug | SSHPlug,
+    CameraPlug | DesktopPlug | GPUPlug | MountPlug | SSHPlug | TunnelPlug,
     Field(discriminator="interface"),
 ]
-Slot = MountSlot
+Slot = Annotated[
+    MountSlot | TunnelSlot,
+    Field(discriminator="interface"),
+]
 
 
 def _implicit_interface(name: Any, item: Any) -> Any:  # noqa: ANN401

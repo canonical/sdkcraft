@@ -17,7 +17,13 @@ plugs:
   gpu:
   desktop:
     interface: desktop
+  postgres:
+    interface: tunnel
+    endpoint: 5432
 slots:
   test:
     interface: mount
     workshop-source: /data
+  http:
+    interface: tunnel
+    endpoint: localhost:8080/tcp

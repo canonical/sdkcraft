@@ -15,7 +15,7 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Data models for Sdkcraft."""
 
-from .constraints import ProjectName
+from .constraints import Endpoint, ProjectName
 from .metadata import Metadata
 from .project import (
     CameraPlug,
@@ -30,11 +30,14 @@ from .project import (
     Slot,
     Slots,
     SSHPlug,
+    TunnelPlug,
+    TunnelSlot,
 )
 
 __all__ = [
     "CameraPlug",
     "DesktopPlug",
+    "Endpoint",
     "GPUPlug",
     "Metadata",
     "MountPlug",
@@ -47,4 +50,6 @@ __all__ = [
     "Slot",
     "Slots",
     "SSHPlug",
+    "TunnelPlug",
+    "TunnelSlot",
 ]
