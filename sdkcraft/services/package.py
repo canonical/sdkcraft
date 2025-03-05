@@ -94,6 +94,7 @@ class Package(services.PackageService):
                     "issues",
                     "source_code",
                     "plugs",
+                    "slots",
                 },
                 by_alias=True,
                 exclude_unset=True,

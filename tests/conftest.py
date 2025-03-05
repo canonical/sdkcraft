@@ -31,10 +31,12 @@ def extra_project_params():
 @pytest.fixture
 def default_project(extra_project_params):
     from craft_application.models import Platform
-    from sdkcraft.models.project import Project
+    from sdkcraft.models.project import MountPlug, Plug, Project
 
     parts = extra_project_params.pop("parts", {})
-    plugs = {"mount": {"interface": "mount", "workshop-target": "/path"}}
+    plugs: dict[str, Plug] = {
+        "mount": MountPlug(interface="mount", workshop_target="/path")
+    }
 
     return Project(
         name="default",
@@ -45,7 +47,6 @@ def default_project(extra_project_params):
         source_code=AnyUrl("https://github.com/canonical/sdks/"),
         base="ubuntu@22.04",
         parts=parts,
-        slots=None,
         license="MIT",
         platforms={"amd64": Platform(build_on=["amd64"], build_for=["amd64"])},
         contact="requests@canonical.com",

@@ -44,8 +44,6 @@ default = Project(
     },
     license="gplv3",
     parts={},
-    plugs={},
-    slots={},
 )
 
 
@@ -71,8 +69,6 @@ default = Project(
                 },
                 "license": "gplv3",
                 "parts": {},
-                "plugs": {},
-                "slots": {},
             },
             default,
         ),

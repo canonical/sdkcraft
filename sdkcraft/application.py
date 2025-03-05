@@ -53,10 +53,6 @@ class Sdkcraft(Application):
         """Apply the expected default parts to a project if it doesn't contain any."""
         if "parts" not in yaml_data:  # Only operate if there aren't any parts.
             yaml_data["parts"] = {"dummy": {"plugin": "nil"}}
-        if "slots" not in yaml_data:
-            yaml_data["slots"] = None
-        if "plugs" not in yaml_data:
-            yaml_data["plugs"] = None
         if "title" not in yaml_data:
             yaml_data["title"] = None
         if "contact" not in yaml_data:

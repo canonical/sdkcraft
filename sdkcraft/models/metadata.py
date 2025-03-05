@@ -26,7 +26,7 @@ from craft_application.models import (
 from pydantic import AnyUrl, ConfigDict
 
 from sdkcraft.models.constraints import ProjectName
-from sdkcraft.models.project import MountPlug
+from sdkcraft.models.project import Plug, Slot
 
 
 class Metadata(BaseMetadata):
@@ -43,6 +43,7 @@ class Metadata(BaseMetadata):
     issues: str | UniqueStrList | None
     source_code: AnyUrl | None
     sdkcraft_started_at: str
-    plugs: dict[str, MountPlug | Any] | None
+    plugs: dict[str, Plug] = {}
+    slots: dict[str, Slot] = {}
 
     model_config = ConfigDict(use_enum_values=True)

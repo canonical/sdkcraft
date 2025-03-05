@@ -17,6 +17,30 @@
 
 from .constraints import ProjectName
 from .metadata import Metadata
-from .project import Part, Project
+from .project import (
+    CameraPlug,
+    DesktopPlug,
+    GPUPlug,
+    MountPlug,
+    MountSlot,
+    Part,
+    Plug,
+    Project,
+    Slot,
+    SSHPlug,
+)
 
-__all__ = ["Metadata", "Part", "Project", "ProjectName"]
+__all__ = [
+    "CameraPlug",
+    "DesktopPlug",
+    "GPUPlug",
+    "Metadata",
+    "MountPlug",
+    "MountSlot",
+    "Part",
+    "Plug",
+    "Project",
+    "ProjectName",
+    "Slot",
+    "SSHPlug",
+]

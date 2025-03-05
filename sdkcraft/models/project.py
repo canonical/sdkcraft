@@ -23,11 +23,28 @@ from pathlib import Path
 from typing import Annotated, Any, Literal
 
 import craft_parts
-import pydantic
 from craft_application import models
-from pydantic import AfterValidator, BeforeValidator
+from pydantic import AfterValidator, BeforeValidator, Field
 
 from sdkcraft.models.constraints import ProjectName
+
+
+class CameraPlug(models.CraftBaseModel):
+    """Sdkcraft project camera plug definition."""
+
+    interface: Literal["camera"]
+
+
+class DesktopPlug(models.CraftBaseModel):
+    """Sdkcraft project desktop plug definition."""
+
+    interface: Literal["desktop"]
+
+
+class GPUPlug(models.CraftBaseModel):
+    """Sdkcraft project GPU plug definition."""
+
+    interface: Literal["gpu"]
 
 
 class MountPlug(models.CraftBaseModel):
@@ -43,6 +60,19 @@ class MountSlot(models.CraftBaseModel):
 
     interface: Literal["mount"]
     workshop_source: str
+
+
+class SSHPlug(models.CraftBaseModel):
+    """Sdkcraft project SSH plug definition."""
+
+    interface: Literal["ssh"]
+
+
+Plug = Annotated[
+    CameraPlug | DesktopPlug | GPUPlug | MountPlug | SSHPlug,
+    Field(discriminator="interface"),
+]
+Slot = MountSlot
 
 
 # TODO: replace with models.Part after merging  # noqa: FIX002
@@ -78,33 +108,9 @@ class Project(models.Project):
 
     name: ProjectName
 
-    plugs: dict[str, MountPlug | Any] | None
-    slots: dict[str, MountSlot | Any] | None
+    plugs: dict[str, Plug] = {}
+    slots: dict[str, Slot] = {}
     parts: dict[str, Part]
-
-    @pydantic.field_validator("plugs")
-    @classmethod
-    def _validate_plugs(
-        cls, plugs: dict[str, MountPlug | Any] | None
-    ) -> dict[str, MountPlug | Any] | None:
-        if plugs is not None:
-            for plug_name, plug in plugs.items():
-                if isinstance(plug, dict) and plug.get("interface") == "mount":  # pyright: ignore[reportUnknownMemberType]
-                    plugs[plug_name] = MountPlug.unmarshal(plug)  # pyright: ignore[reportUnknownArgumentType]
-
-        return plugs
-
-    @pydantic.field_validator("slots")
-    @classmethod
-    def _validate_slots(
-        cls, slots: dict[str, MountSlot | Any] | None
-    ) -> dict[str, MountPlug | Any] | None:
-        if slots is not None:
-            for slot_name, slot in slots.items():
-                if isinstance(slot, dict) and slot.get("interface") == "mount":  # pyright: ignore[reportUnknownMemberType]
-                    slots[slot_name] = MountSlot.unmarshal(slot)  # pyright: ignore[reportUnknownArgumentType]
-
-        return slots
 
 
 def export_schema() -> None:
