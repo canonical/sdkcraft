@@ -139,6 +139,14 @@ def test_implicit_interfaces():
     assert plugs_adapter.validate_python(plugs) == expected
 
 
+def test_interface_policies():
+    with pytest.raises(
+        ValidationError,
+        match="ssh interface plugs must be named 'ssh'",
+    ):
+        plugs_adapter.validate_python({"foo": {"interface": "ssh"}})
+
+
 part_adapter = TypeAdapter(Part)
 
 

@@ -20,7 +20,7 @@ This module defines a sdkcraft.yaml file, exportable to a JSON schema.
 
 import json
 from pathlib import Path
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, Protocol, runtime_checkable
 
 import craft_parts
 from craft_application import models
@@ -34,17 +34,32 @@ class CameraPlug(models.CraftBaseModel):
 
     interface: Literal["camera"]
 
+    def validate_policy(self, name: str) -> None:
+        """Check plug name."""
+        if name != "camera":
+            raise ValueError("camera interface plugs must be named 'camera'")
+
 
 class DesktopPlug(models.CraftBaseModel):
     """Sdkcraft project desktop plug definition."""
 
     interface: Literal["desktop"]
 
+    def validate_policy(self, name: str) -> None:
+        """Check plug name."""
+        if name != "desktop":
+            raise ValueError("desktop interface plugs must be named 'desktop'")
+
 
 class GPUPlug(models.CraftBaseModel):
     """Sdkcraft project GPU plug definition."""
 
     interface: Literal["gpu"]
+
+    def validate_policy(self, name: str) -> None:
+        """Check plug name."""
+        if name != "gpu":
+            raise ValueError("gpu interface plugs must be named 'gpu'")
 
 
 class MountPlug(models.CraftBaseModel):
@@ -66,6 +81,11 @@ class SSHPlug(models.CraftBaseModel):
     """Sdkcraft project SSH plug definition."""
 
     interface: Literal["ssh"]
+
+    def validate_policy(self, name: str) -> None:
+        """Check plug name."""
+        if name != "ssh":
+            raise ValueError("ssh interface plugs must be named 'ssh'")
 
 
 Plug = Annotated[
@@ -91,8 +111,38 @@ def _implicit_interfaces(items: Any) -> Any:  # noqa: ANN401
     return {name: _implicit_interface(name, item) for name, item in items_dict.items()}
 
 
-Plugs = Annotated[dict[str, Plug], BeforeValidator(_implicit_interfaces)]
-Slots = Annotated[dict[str, Slot], BeforeValidator(_implicit_interfaces)]
+@runtime_checkable
+class PolicyValidator(Protocol):
+    """Protocol for plugs or slots with specific interface policies."""
+
+    def validate_policy(self, name: str) -> None:
+        """Raise ValueError if the plug or slot violates policies."""
+
+
+def _plug_policies(plugs: dict[str, Plug]) -> dict[str, Plug]:
+    for name, plug in plugs.items():
+        if isinstance(plug, PolicyValidator):
+            plug.validate_policy(name)
+    return plugs
+
+
+def _slot_policies(slots: dict[str, Slot]) -> dict[str, Slot]:
+    for name, slot in slots.items():
+        if isinstance(slot, PolicyValidator):
+            slot.validate_policy(name)
+    return slots
+
+
+Plugs = Annotated[
+    dict[str, Plug],
+    BeforeValidator(_implicit_interfaces),
+    AfterValidator(_plug_policies),
+]
+Slots = Annotated[
+    dict[str, Slot],
+    BeforeValidator(_implicit_interfaces),
+    AfterValidator(_slot_policies),
+]
 
 
 # TODO: replace with models.Part after merging  # noqa: FIX002

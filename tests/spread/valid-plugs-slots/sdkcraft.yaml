@@ -14,11 +14,10 @@ plugs:
   test:
     interface: mount
     workshop-target: /data
-  test2:
-    interface: gpu
-  test3:
+  gpu:
+  desktop:
     interface: desktop
 slots:
-  test4:
+  test:
     interface: mount
     workshop-source: /data
