@@ -25,7 +25,7 @@ from craft_application.models import (
 from pydantic import AnyUrl, ConfigDict
 
 from sdkcraft.models.constraints import ProjectName
-from sdkcraft.models.project import Plug, Slot
+from sdkcraft.models.project import Plugs, Slots
 
 
 class Metadata(BaseMetadata):
@@ -44,8 +44,8 @@ class Metadata(BaseMetadata):
     source_code: AnyUrl | None = None
     license: str | None = None
 
-    plugs: dict[str, Plug] = {}
-    slots: dict[str, Slot] = {}
+    plugs: Plugs = {}
+    slots: Slots = {}
 
     sdkcraft_started_at: str
 

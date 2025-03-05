@@ -75,6 +75,26 @@ Plug = Annotated[
 Slot = MountSlot
 
 
+def _implicit_interface(name: Any, item: Any) -> Any:  # noqa: ANN401
+    if item is None:
+        return {"interface": name}
+    if isinstance(item, str):
+        return {"interface": str(item)}
+    return item
+
+
+def _implicit_interfaces(items: Any) -> Any:  # noqa: ANN401
+    if not isinstance(items, dict):
+        return items
+
+    items_dict: dict[Any, Any] = items
+    return {name: _implicit_interface(name, item) for name, item in items_dict.items()}
+
+
+Plugs = Annotated[dict[str, Plug], BeforeValidator(_implicit_interfaces)]
+Slots = Annotated[dict[str, Slot], BeforeValidator(_implicit_interfaces)]
+
+
 # TODO: replace with models.Part after merging  # noqa: FIX002
 # https://github.com/canonical/craft-application/pull/675
 def _before_validate_part(part: Any) -> Any:  # noqa: ANN401
@@ -111,8 +131,8 @@ class Project(models.Project):
 
     name: ProjectName
 
-    plugs: dict[str, Plug] = {}
-    slots: dict[str, Slot] = {}
+    plugs: Plugs = {}
+    slots: Slots = {}
     parts: dict[str, Part] = DEFAULT_PART
 
 

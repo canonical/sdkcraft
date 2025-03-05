@@ -25,8 +25,10 @@ from .project import (
     MountSlot,
     Part,
     Plug,
+    Plugs,
     Project,
     Slot,
+    Slots,
     SSHPlug,
 )
 
@@ -39,8 +41,10 @@ __all__ = [
     "MountSlot",
     "Part",
     "Plug",
+    "Plugs",
     "Project",
     "ProjectName",
     "Slot",
+    "Slots",
     "SSHPlug",
 ]

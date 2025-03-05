@@ -16,9 +16,19 @@
 """Tests for project models."""
 
 import pytest
+import yaml
 from craft_application import models
 from pydantic import TypeAdapter, ValidationError
-from sdkcraft.models.project import MountPlug, Part, Project
+from sdkcraft.models.project import (
+    CameraPlug,
+    DesktopPlug,
+    GPUPlug,
+    MountPlug,
+    Part,
+    Plugs,
+    Project,
+    SSHPlug,
+)
 
 default = Project(
     name="my-project",
@@ -106,6 +116,27 @@ def test_mount_plug_read_only_invalid(value):
     plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
     with pytest.raises(ValidationError):
         MountPlug.unmarshal(plug)
+
+
+plugs_adapter = TypeAdapter(Plugs)
+
+
+def test_implicit_interfaces():
+    plugs = yaml.safe_load("""
+        camera:
+        desktop: desktop
+        gpu:
+        ssh: 'ssh'
+    """)
+
+    expected = {
+        "camera": CameraPlug(interface="camera"),
+        "desktop": DesktopPlug(interface="desktop"),
+        "gpu": GPUPlug(interface="gpu"),
+        "ssh": SSHPlug(interface="ssh"),
+    }
+
+    assert plugs_adapter.validate_python(plugs) == expected
 
 
 part_adapter = TypeAdapter(Part)
