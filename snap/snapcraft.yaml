@@ -60,6 +60,13 @@ parts:
       - -usr/share/doc
     after:
       - sdkcraft-libs
+    # Override-build here is to circumvent the UVPlugin's buggy build commands:
+    # https://github.com/canonical/craft-parts/pull/1003/files
+    # Remove override-build when snapcraft latest/stable becomes higher or equal to v8.7.2
+    override-build: |
+      uv venv --relocatable --allow-existing --python python3 /root/parts/sdkcraft/install
+      uv sync --no-dev --no-editable --reinstall
+      ln -sf "../usr/bin/python3.10" "../install/bin/python"
   scripts:
     plugin: dump
     source: sdkcraft
