@@ -26,11 +26,11 @@ lint: test-codespell test-ruff test-mypy test-yamllint test-shellcheck test-pyri
 
 .PHONY: test-codespell
 test-codespell:
-	uvx codespell . --summary --count --ignore-words-list="buildd,create,keyserver,commandos,ro,dedent,dedented"
+	uv run codespell . --summary --count --ignore-words-list="buildd,create,keyserver,commandos,ro,dedent,dedented"
 
 .PHONY: test-ruff
 test-ruff:
-	uvx ruff@0.1.10 check sdkcraft tests
+	uv run ruff check sdkcraft tests
 
 .PHONY: test-mypy
 test-mypy:
@@ -42,7 +42,7 @@ test-pyright:
 
 .PHONY: test-yamllint
 test-yamllint:
-	yamllint .
+	uv run yamllint .
 
 .PHONY: test-shellcheck
 test-shellcheck:
@@ -56,10 +56,6 @@ test-units: ## Run unit tests.
 .PHONY: test-integrations
 test-integrations: ## Run integration tests.
 	uv run pytest tests/integration
-
-.PHONY: install
-install: clean ## Install python package.
-	python setup.py install
 
 .PHONY: spread
 spread: ## Build a fresh snap and run spread tests

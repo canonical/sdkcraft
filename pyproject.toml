@@ -18,25 +18,6 @@ dependencies = [
 [project.scripts]
 sdkcraft = "sdkcraft.cli:main"
 
-[project.optional-dependencies]
-dev = [
-    "build",
-    "coverage[toml]~=7.3",
-    "pytest~=7.4",
-    "pytest-check",
-    "pytest-cov~=4.1",
-    "pytest-mock~=3.12",
-]
-lint = [
-    "black~=23.10",
-    "codespell[toml]~=2.2",
-    "ruff~=0.1.10",
-    "yamllint==1.35.1"
-]
-types = [
-    "mypy[reports]~=1.8"
-]
-
 [build-system]
 requires = [
     "setuptools>=67.7.2",
@@ -247,6 +228,9 @@ dev = [
     "pyright>=1.1.394",
     "pytest>=7.4.4",
     "pytest-check>=2.4.1",
+    "codespell[toml]~=2.2",
+    "ruff",
+    "yamllint"
 ]
 
 [tool.ruff.per-file-ignores]
