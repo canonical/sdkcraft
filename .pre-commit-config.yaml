@@ -25,3 +25,8 @@ repos:
     rev: "v1.33.0"
     hooks:
       - id: yamllint
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # renovate: datasource=pypi;depName=uv
+    rev: 0.6.1
+    hooks:
+      - id: uv-lock

@@ -13,10 +13,13 @@ compression: lzo
 
 apps:
   sdkcraft:
-    command: bin/python -m sdkcraft
+    command: bin/python3 -m sdkcraft
+    environment:
+      PYTHONPATH: ${SNAP}/lib/python3.10/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
   publish:
     environment:
       PATH: ${SNAP}/bin:${PATH}
+      PYTHONPATH: ${SNAP}/lib/python3.10/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
     command: bin/publish.sh
 parts:
   sdkcraft-libs:
@@ -44,19 +47,11 @@ parts:
       - python3-apt
   sdkcraft:
     source: .
-    plugin: python
-    python-packages:
-      - wheel
-      - pip
-      - setuptools
-    python-requirements:
-      - requirements.txt
+    plugin: uv
+    build-snaps:
+      - astral-uv
     build-attributes:
       - enable-patchelf
-    build-packages:
-      - python3.10-venv
-      - python3-apt
-      - python3-pip-whl
     build-environment:
       - PARTS_PYTHON_VENV_ARGS: --system-site-packages
     prime:
@@ -65,6 +60,13 @@ parts:
       - -usr/share/doc
     after:
       - sdkcraft-libs
+    # Override-build here is to circumvent the UVPlugin's buggy build commands:
+    # https://github.com/canonical/craft-parts/pull/1003/files
+    # Remove override-build when snapcraft latest/stable becomes higher or equal to v8.7.2
+    override-build: |
+      uv venv --relocatable --allow-existing --python python3 /root/parts/sdkcraft/install
+      uv sync --no-dev --no-editable --reinstall
+      ln -sf "../usr/bin/python3.10" "../install/bin/python"
   scripts:
     plugin: dump
     source: sdkcraft
