@@ -22,13 +22,13 @@ from pydantic import AnyUrl
 from sdkcraft import services
 
 
-@pytest.fixture()
+@pytest.fixture
 def extra_project_params():
     """Configuration fixture for the Project used by the default services."""
     return {"parts": {"default-part": {"plugin": "nil"}}}
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_project(extra_project_params):
     from craft_application.models import Platform
     from sdkcraft.models.project import Project
@@ -55,7 +55,7 @@ def default_project(extra_project_params):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_factory(default_project):
     from sdkcraft.application import APP_METADATA
     from sdkcraft.services import ServiceFactory
@@ -67,7 +67,7 @@ def default_factory(default_project):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def package_service(default_project, default_factory):
     from sdkcraft.application import APP_METADATA
     from sdkcraft.services import Package
@@ -80,7 +80,7 @@ def package_service(default_project, default_factory):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_dir(tmpdir):
     """Change to a new temporary directory."""
 
@@ -91,7 +91,7 @@ def new_dir(tmpdir):
 
     os.chdir(cwd)
 
-@pytest.fixture()
+@pytest.fixture
 def release_version():
     version = "22.04"
     try:
@@ -106,7 +106,7 @@ def release_version():
         warning(f"failed to read Ubuntu release version, err={e}")
     return version
 
-@pytest.fixture()
+@pytest.fixture
 def _reset_callbacks():
     """Fixture that resets the status of craft-part's various lifecycle callbacks,
     so that tests can start with a clean slate.

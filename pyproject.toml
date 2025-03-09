@@ -12,7 +12,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "craft-application~=4.9",
+    "craft-application>=4.10.0",
 ]
 
 [project.scripts]
@@ -20,8 +20,8 @@ sdkcraft = "sdkcraft.cli:main"
 
 [build-system]
 requires = [
-    "setuptools>=67.7.2",
-    "setuptools_scm[toml]>=7.1"
+    "setuptools>=76.0.0",
+    "setuptools_scm[toml]>=8.2.0"
 ]
 build-backend = "setuptools.build_meta"
 
@@ -117,6 +117,8 @@ src = ["sdkcraft", "tests"]
 extend-exclude = [
     "__pycache__",
 ]
+
+[tool.ruff.lint]
 # Follow ST063 - Maintaining and updating linting specifications for updating these.
 select = [  # Base linting rule selections.
     # See the internal document for discussion:
@@ -172,8 +174,8 @@ select = [  # Base linting rule selections.
     # The team have chosen to only use type-checking blocks when necessary to prevent circular imports.
     # As such, the only enabled type-checking checks are those that warn of an import that needs to be
     # removed from a type-checking block.
-    "TCH004",  # Remove imports from type-checking guard blocks if used at runtime
-    "TCH005",  # Delete empty type-checking blocks
+    "TC004",  # Remove imports from type-checking guard blocks if used at runtime
+    "TC005",  # Delete empty type-checking blocks
     "ARG",  # Unused arguments
     "PTH",  # Migrate to pathlib
     "FIX",  # All TODOs, FIXMEs, etc. should be turned into issues instead.
@@ -186,7 +188,7 @@ select = [  # Base linting rule selections.
     "RUF001", "RUF002", "RUF003",  # Ambiguous unicode characters
     "RUF005",  # Encourages unpacking rather than concatenation
     "RUF008",  # Do not use mutable default values for dataclass attributes
-    "RUF011",  # Don't use static keys in dict comprehensions.
+    "B035",  # Don't use static keys in dict comprehensions.
     "RUF012",  # Mutable class attributes should be annotated with typing.ClassVar
     "RUF013",  # Prohibit implicit Optionals (PEP 484)
     "RUF100",  # #noqa directive that doesn't flag anything
@@ -209,8 +211,9 @@ ignore = [
     # See: https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     "W191", "E111", "E114", "E117", "D206", "D300", "Q000", "Q001", "Q002", "Q003", "COM812", "COM819", "ISC001", "ISC002",
 ]
+exclude = ["docs"]
 
-[tool.ruff.pep8-naming]
+[tool.ruff.lint.pep8-naming]
 # Allow Pydantic's `@validator` decorator to trigger class method treatment.
 classmethod-decorators = [
     "pydantic.validator",
@@ -224,16 +227,15 @@ max-args = 8
 
 [dependency-groups]
 dev = [
-    "mypy>=1.14.1",
-    "pyright>=1.1.394",
-    "pytest>=7.4.4",
-    "pytest-check>=2.4.1",
-    "codespell[toml]~=2.2",
-    "ruff",
-    "yamllint"
+    "mypy>=1.15.0",
+    "pyright>=1.1.396",
+    "pytest>=8.3.5",
+    "codespell[toml]>=2.4.1",
+    "ruff>=0.9.10",
+    "yamllint>=1.35.1",
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**.py" = [  # Some things we want for the moin project are unnecessary in tests.
     "D",  # Ignore docstring rules in tests
     "ANN",  # Ignore type annotations in tests
@@ -248,6 +250,3 @@ dev = [
     "I001",  # isort leaves init files alone by default, this makes ruff ignore them too.
     "F401",  # Allows unused imports in __init__ files.
 ]
-
-[tool.ruff.lint]
-exclude = ["docs"]
