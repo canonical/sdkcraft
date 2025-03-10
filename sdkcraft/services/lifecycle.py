@@ -16,7 +16,7 @@
 """craft-parts lifecycle integration."""
 
 from craft_application import services
-from overrides import override
+from overrides import override  # pyright: ignore[reportUnknownVariableType]
 
 
 class Lifecycle(services.LifecycleService):

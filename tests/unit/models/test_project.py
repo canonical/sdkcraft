@@ -16,37 +16,45 @@
 """Tests for project models."""
 
 import pytest
+import yaml
 from craft_application import models
-from sdkcraft.errors import SdkcraftError
-from sdkcraft.models import project
+from pydantic import TypeAdapter, ValidationError
+from sdkcraft.models.project import (
+    CameraPlug,
+    DesktopPlug,
+    GPUPlug,
+    MountPlug,
+    Part,
+    Plugs,
+    Project,
+    SSHPlug,
+)
 
-default = project.Project(
-                name="my-project",
-                version="git",
-                title="Sample",
-                summary="A sample project",
-                description="description",
-                base="ubuntu@22.04",
-                contact="contact@canonical.com",
-                issues="https://github.com/canonical/sdks/issues",
-                source_code=None,
-                adopt_info=None,
-                package_repositories=None,
-                platforms={
-                    "amd64": models.Platform(
-                        build_for=["amd64"],
-                        build_on=["amd64"],
-                    ),
-                    "riscv64": models.Platform(
-                        build_on=["amd64", "arm64"],
-                        build_for=["riscv64"],
-                    ),
-                },
-                license="gplv3",
-                parts={},
-                plugs={},
-                slots={},
-            )
+default = Project(
+    name="my-project",
+    version="git",
+    title="Sample",
+    summary="A sample project",
+    description="description",
+    base="ubuntu@22.04",
+    contact="contact@canonical.com",
+    issues="https://github.com/canonical/sdks/issues",
+    source_code=None,
+    adopt_info=None,
+    package_repositories=None,
+    platforms={
+        "amd64": models.Platform(
+            build_for=["amd64"],
+            build_on=["amd64"],
+        ),
+        "riscv64": models.Platform(
+            build_on=["amd64", "arm64"],
+            build_for=["riscv64"],
+        ),
+    },
+    license="gplv3",
+)
+
 
 @pytest.mark.parametrize(
     ("obj", "expected"),
@@ -69,107 +77,97 @@ default = project.Project(
                     },
                 },
                 "license": "gplv3",
-                "parts": {},
-                "plugs": {},
-                "slots": {},
             },
             default,
         ),
     ],
 )
 def test_project_create_valid(obj, expected):
-    assert project.Project.model_validate(obj) == expected
+    assert Project.unmarshal(obj) == expected
+    assert expected.parts == {"default-part": {"plugin": "nil"}}
 
 
-def test_project_stage_packages_prohibited():
-    part_packages = {"plugin": "nil", "stage-packages": ["python3-apt"]}
-    with pytest.raises(NotImplementedError):
-        project._validate_part(part_packages)
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (None, False),
+        (True, True),
+        (False, False),
+        ("true", True),
+        ("false", False),
+        ("TRUE", True),
+        ("TrUe", True),
+        (1, True),
+        (0, False),
+        (1.0, True),
+        (0.0, False),
+    ],
+)
+def test_mount_plug_read_only_valid(value, expected):
+    plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
+    if value is None:
+        del plug["read-only"]
 
-    part_snaps = {"plugin": "nil", "stage-snaps": ["shellcheck"]}
-    with pytest.raises(NotImplementedError):
-        project._validate_part(part_snaps)
+    assert MountPlug.unmarshal(plug).read_only == expected
 
 
-def test_project_plugs():
-    valid_plugs = {
-        "mount": {"interface": "mount", "workshop-target": "/data"},
-        "randomg": {"interface": "existing"},
-        "mount2": {"workshop-target": "/data"},
-        "mount_mode_true": {"interface": "mount", "workshop-target": "/data", "read-only": True},
-        "mount_mode_false": {"interface": "mount", "workshop-target": "/data", "read-only": False},
-        "mount_mode_string_true": {"interface": "mount", "workshop-target": "/data", "read-only": "true"},
-        "mount_mode_string_false": {"interface": "mount", "workshop-target": "/data", "read-only": "false"},
-        "mount_mode_string_true_caps": {"interface": "mount", "workshop-target": "/data", "read-only": "TRUE"},
-        "mount_mode_string_true_mixed": {"interface": "mount", "workshop-target": "/data", "read-only": "TrUe"},
+@pytest.mark.parametrize("value", ["invalid-value", 2])
+def test_mount_plug_read_only_invalid(value):
+    plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
+    with pytest.raises(ValidationError):
+        MountPlug.unmarshal(plug)
+
+
+plugs_adapter = TypeAdapter(Plugs)
+
+
+def test_implicit_interfaces():
+    plugs = yaml.safe_load("""
+        camera:
+        desktop: desktop
+        gpu:
+        ssh: 'ssh'
+    """)
+
+    expected = {
+        "camera": CameraPlug(interface="camera"),
+        "desktop": DesktopPlug(interface="desktop"),
+        "gpu": GPUPlug(interface="gpu"),
+        "ssh": SSHPlug(interface="ssh"),
     }
-    try:
-        default._validate_plugs(valid_plugs)
-    except ValueError as e:
-        pytest.fail(reason=f"unexpected exception {e}")
 
-    no_target = {
-        "mount": {"interface": "mount"},
-    }
+    assert plugs_adapter.validate_python(plugs) == expected
+
+
+def test_interface_policies():
     with pytest.raises(
-        SdkcraftError, match="MountPlug 'mount' must have a 'workshop-target' parameter."
+        ValidationError,
+        match="ssh interface plugs must be named 'ssh'",
     ):
-        default._validate_plugs(no_target)
+        plugs_adapter.validate_python({"foo": {"interface": "ssh"}})
 
-    incorrect_type = {"mount": ["interface", "mount"]}
-    with pytest.raises(SdkcraftError, match="cannot be a list"):
-        default._validate_plugs(incorrect_type)
 
-    incorrect_mode = {"incorrect_mode": {"interface": "mount", "workshop-target": "/data", "read-only": "invalid-value"}}
+part_adapter = TypeAdapter(Part)
+
+
+def test_part_inherits_constraints():
+    with pytest.raises(ValidationError):
+        part_adapter.validate_python({})
+
+
+def test_part_stage_packages_prohibited():
     with pytest.raises(
-        SdkcraftError, match="Value 'invalid-value' in optional parameter 'read-only' for MountPlug 'incorrect_mode' is invalid."
+        ValidationError,
+        match="'stage-packages' are not supported by sdkcraft",
     ):
-        default._validate_plugs(incorrect_mode)
-
-def test_project_slots():
-    valid_slots = {
-        "mount-slot": {"interface": "mount", "workshop-source": "/data"},
-        "random-slot-1": {"interface": "xxx"},
-        "random-slot-2": {"yyy": "zzz"},
-    }
-    try:
-        default._validate_slots(valid_slots)
-    except ValueError as e:
-        pytest.fail(reason=f"unexpected exception {e}")
-
-    no_source = {
-        "try_mount_1": {"interface": "mount"},
-    }
-    with pytest.raises(
-        SdkcraftError, match="MountSlot 'try_mount_1' must have a 'workshop-source' string parameter."
-    ):
-        default._validate_slots(no_source)
-
-    incorrect_type = {
-        "try_mount_2": {"interface": "mount", "workshop-source": 123},
-    }
-    with pytest.raises(
-        SdkcraftError, match="MountSlot 'try_mount_2' must have a 'workshop-source' string parameter."
-    ):
-        default._validate_slots(incorrect_type)
-
-
-def test_project_reserved_name_forbidden():
-    with pytest.raises(
-        SdkcraftError,
-        match="'agent' is a reserved SDK name, please choose another name.",
-    ):
-        project.Project.model_validate(
-            {
-                "name": "agent",
-                "version": "git",
-                "summary": "A sample project",
-                "base": "ubuntu@22.04",
-                "platforms": {
-                    "amd64": None,
-                    "riscv64": {"build-on": ["amd64", "arm64"]},
-                },
-                "license": "gplv3",
-                "parts": {},
-            }
+        part_adapter.validate_python(
+            {"plugin": "nil", "stage-packages": ["python3-apt"]}
         )
+
+
+def test_part_stage_snaps_prohibited():
+    with pytest.raises(
+        ValidationError,
+        match="'stage-snaps' are not supported by sdkcraft",
+    ):
+        part_adapter.validate_python({"plugin": "nil", "stage-snaps": ["shellcheck"]})

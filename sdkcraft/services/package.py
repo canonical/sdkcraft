@@ -25,7 +25,7 @@ from typing import cast
 
 import craft_parts
 from craft_application import AppMetadata, services
-from overrides import override
+from overrides import override  # pyright: ignore[reportUnknownVariableType]
 
 from sdkcraft import models
 
@@ -38,7 +38,7 @@ class Package(services.PackageService):
         app: AppMetadata,
         project: models.Project,
         services: services.ServiceFactory,
-        started_at: datetime | None = None
+        started_at: datetime | None = None,
     ) -> None:
         super().__init__(app, services, project=project)
 
@@ -69,7 +69,7 @@ class Package(services.PackageService):
 
         binary_package_name = f"{self._project.name}.sdk"
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
-            tar.dereference=True
+            tar.dereference = True
             for entry in sorted(prime_dir.iterdir()):
                 tar.add(entry, arcname=entry.name, recursive=True)
             self._pack_hooks(tar)
@@ -84,17 +84,19 @@ class Package(services.PackageService):
             **project.model_dump(
                 include={
                     "name",
-                    "base",
-                    "version",
                     "title",
+                    "version",
                     "summary",
-                    "license",
                     "description",
+                    "base",
                     "contact",
                     "issues",
                     "source_code",
+                    "license",
                     "plugs",
+                    "slots",
                 },
+                by_alias=True,
                 exclude_unset=True,
             ),
             sdkcraft_started_at=datetime_as_utc_str(self._started_at),

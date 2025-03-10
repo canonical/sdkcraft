@@ -14,11 +14,16 @@ plugs:
   test:
     interface: mount
     workshop-target: /data
-  test2:
-    interface: gpu
-  test3:
+  gpu:
+  desktop:
     interface: desktop
+  postgres:
+    interface: tunnel
+    endpoint: 5432
 slots:
-  test4:
+  test:
     interface: mount
     workshop-source: /data
+  http:
+    interface: tunnel
+    endpoint: localhost:8080/tcp

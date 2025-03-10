@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 
 from craft_application.commands import AppCommand
 from craft_cli import emit
-from overrides import overrides
+from overrides import override  # pyright: ignore[reportUnknownVariableType]
 
 from sdkcraft import errors
 
@@ -82,7 +82,7 @@ class InitCommand(AppCommand):
             """
     )
 
-    @overrides
+    @override
     def run(self, parsed_args: "argparse.Namespace") -> None:  # noqa: ARG002
         """Run the command."""
         init(self._INIT_TEMPLATE_YAML)

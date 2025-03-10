@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  snap-build:
+  build-snap:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -33,30 +33,30 @@ jobs:
           path: ${{ steps.snapcraft.outputs.snap }}
 
   snap-tests:
+    needs: build-snap
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, ubuntu-22.04]
     runs-on: [self-hosted, Linux, jammy, X64, xlarge]
-    needs: [snap-build]
     steps:
+      - name: Install LXD
+        uses: canonical/setup-lxd@main
+        with:
+          channel: 6/stable
       - name: Cleanup job workspace
         run: |
           rm -rf "${{ github.workspace }}"
           mkdir "${{ github.workspace }}"
-      - name: Setup
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.21"
-      - name: Install LXD
-        uses: canonical/setup-lxd@main
-        with:
-          channel: 5.21/stable
-      - name: Checkout Workshop
+      - name: Checkout sdkcraft
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: true
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache: false
       - name: Install spread
         run: |
           # go install is not supported for forks...

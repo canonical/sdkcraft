@@ -15,37 +15,38 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """metadata.yaml description for sdkcraft output."""
 
-from typing import Any
-
 from craft_application.models import (
     BaseMetadata,
     ProjectTitle,
     SummaryStr,
     UniqueStrList,
+    VersionStr,
 )
-from pydantic import AnyUrl
+from pydantic import AnyUrl, ConfigDict
 
-from sdkcraft.models.project import MountPlug
+from sdkcraft.models.constraints import ProjectName
+from sdkcraft.models.project import Plugs, Slots
 
 
 class Metadata(BaseMetadata):
     """Structure to hold output metadata."""
 
-    name: str
-    title: ProjectTitle | None
-    base: Any
-    version: str | None
-    summary: SummaryStr
-    license: str
-    description: str
-    contact: str | UniqueStrList | None
-    issues: str | UniqueStrList | None
-    source_code: AnyUrl | None
+    name: ProjectName
+    title: ProjectTitle | None = None
+    version: VersionStr | None = None
+    summary: SummaryStr | None = None
+    description: str | None = None
+
+    base: str | None = None
+
+    contact: str | UniqueStrList | None = None
+    issues: str | UniqueStrList | None = None
+    source_code: AnyUrl | None = None
+    license: str | None = None
+
+    plugs: Plugs = {}
+    slots: Slots = {}
+
     sdkcraft_started_at: str
-    plugs: dict[str, MountPlug | Any] | None
 
-    def __init__(self, **kwargs: Any) -> None:  # noqa: ANN401
-        super().__init__(**kwargs)
-
-        # Setting attributes of Config
-        self.model_config["use_enum_values"] = True
+    model_config = ConfigDict(use_enum_values=True)
