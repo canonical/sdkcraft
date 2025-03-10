@@ -23,9 +23,7 @@ from .application import Sdkcraft
 try:
     # This only gets created at wheel-creation time, so we're ignoring all of
     # it for type checking purposes.
-    from ._version import (  # type: ignore[import]
-        __version__,
-    )
+    from ._version import __version__
 except ImportError:  # pragma: no cover
     from importlib.metadata import version, PackageNotFoundError
 

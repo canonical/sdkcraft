@@ -86,6 +86,7 @@ class Project(models.Project):
     ]
 
     @pydantic.field_validator("name")
+    @classmethod
     def _validate_project_name(cls, name: ProjectName) -> ProjectName:
         if name == "agent":
             raise SdkcraftError(
@@ -94,15 +95,16 @@ class Project(models.Project):
         return name
 
     @pydantic.field_validator("plugs")
+    @classmethod
     def _validate_plugs(
-        cls, plugs: dict[str, MountPlug | Any]
-    ) -> dict[str, MountPlug | Any]:
+        cls, plugs: dict[str, MountPlug | Any] | None
+    ) -> dict[str, MountPlug | Any] | None:
         if plugs is not None:
             for plug_name, plug in plugs.items():
                 if (
                     isinstance(plug, dict)
-                    and plug.get("interface") == "mount"
-                    and not plug.get("workshop-target")
+                    and plug.get("interface") == "mount"  # pyright: ignore[reportUnknownMemberType]
+                    and not plug.get("workshop-target")  # pyright: ignore[reportUnknownMemberType]
                 ):
                     raise SdkcraftError(
                         message=f"MountPlug '{plug_name}' must have a 'workshop-target' parameter."
@@ -111,22 +113,23 @@ class Project(models.Project):
                 if isinstance(plug, list):
                     raise SdkcraftError(message=f"Plug '{plug_name}' cannot be a list.")
 
-                _validate_readonly(plug_name, plug)
+                _validate_readonly(plug_name, plug)  # pyright: ignore[reportUnknownArgumentType]
 
         return plugs
 
     @pydantic.field_validator("slots")
+    @classmethod
     def _validate_slots(
-        cls, slots: dict[str, MountSlot | Any]
-    ) -> dict[str, MountPlug | Any]:
+        cls, slots: dict[str, MountSlot | Any] | None
+    ) -> dict[str, MountPlug | Any] | None:
         if slots is not None:
             for slot_name, slot in slots.items():
                 if (
                     isinstance(slot, dict)
-                    and slot.get("interface") == "mount"
+                    and slot.get("interface") == "mount"  # pyright: ignore[reportUnknownMemberType]
                     and (
-                        not slot.get("workshop-source")
-                        or not isinstance(slot.get("workshop-source"), str)
+                        not slot.get("workshop-source")  # pyright: ignore[reportUnknownMemberType]
+                        or not isinstance(slot.get("workshop-source"), str)  # pyright: ignore[reportUnknownMemberType]
                     )
                 ):
                     raise SdkcraftError(

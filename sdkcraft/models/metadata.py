@@ -44,7 +44,7 @@ class Metadata(BaseMetadata):
     sdkcraft_started_at: str
     plugs: dict[str, MountPlug | Any] | None
 
-    def __init__(self, **kwargs: Any) -> None:  # noqa: ANN401
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Setting attributes of Config

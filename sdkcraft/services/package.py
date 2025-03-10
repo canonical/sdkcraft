@@ -25,7 +25,7 @@ from typing import cast
 
 import craft_parts
 from craft_application import AppMetadata, services
-from overrides import override
+from overrides import override  # pyright: ignore[reportUnknownVariableType]
 
 from sdkcraft import models
 

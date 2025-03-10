@@ -1,0 +1,19 @@
+name: Check policy
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  cla:
+    if: github.event_name == 'pull_request'
+    name: Authors signed Canonical CLA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if CLA signed
+        uses: canonical/has-signed-canonical-cla@v2
+  python-scans:
+    name: Security scan
+    uses: canonical/starflow/.github/workflows/scan-python.yaml@main
+    with:
+      uv-export-extra-args: ""
