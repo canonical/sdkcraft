@@ -83,7 +83,7 @@ Packing an SDK
 
    .. code-block:: console
 
-      $ sdkcraft
+      sdkcraft
 
 
    This builds all SDK parts
@@ -113,16 +113,38 @@ To release an SDK in the ``edge`` track of the latest channel:
 Testing
 -------
 
-Install ``uv`` in your local development environment to manage dependencies:
+With Workshop
+~~~~~~~~~~~~~
+
+Install `Workshop`_,
+and then launch a workshop for SDKcraft:
 
 .. code-block:: console
 
-   sudo snap install --classic astral-uv
-   uv venv --system-site-packages
-   uv sync
+   workshop launch
 
 
-To run unit tests and the integration test, you can either use ```uv run`` or enable the virtual environment manually:
+Run linters and tests using the following scripts:
+
+.. code-block:: console
+
+   workshop run format
+   workshop run lint
+   workshop run test
+   workshop run integration
+
+
+In a virtual environment
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Install `uv <https://docs.astral.sh/uv/>`_ and create a virtual environment for SDKcraft:
+
+.. code-block:: console
+
+   make setup-tests
+
+
+To run unit tests and the integration test, you can either use ``uv run`` or enable the virtual environment manually:
 
 .. code-block:: console
 
@@ -141,9 +163,14 @@ To run a local test from the source code, use the destructive mode:
 
    python -m sdkcraft --destructive-mode
 
+
 It allows injecting the ``sdkcraft`` snap from the host instead of the Snap Store,
 providing a faster way to run simple local tests during development,
 but isn't enough for an end-to-end test.
+
+
+With ``spread``
+~~~~~~~~~~~~~~~
 
 For a sufficient end-to-end test,
 the snap should be packed and installed before running.
