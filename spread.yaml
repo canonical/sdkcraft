@@ -21,6 +21,9 @@ backends:
 prepare: |
   set -e
 
+  apt-get update
+  apt-get install -y --no-install-recommends xdelta3
+
   snap wait system seed.loaded
 
   # The /snap directory does not exist in some environments
