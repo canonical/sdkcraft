@@ -17,22 +17,58 @@
 
 import pytest
 from pydantic import TypeAdapter, ValidationError
-from sdkcraft.models.constraints import Endpoint, ProjectName
+from sdkcraft.models.constraints import PROJECT_NAME_REGEX, Endpoint, ProjectName
 
 project_name_adapter = TypeAdapter(ProjectName)
 
 
 def test_project_name_inherits_constraints():
     with pytest.raises(ValidationError):
-        project_name_adapter.validate_python("!@#$%")
+        project_name_adapter.validate_python("ABC")
+
+    with pytest.raises(ValidationError):
+        project_name_adapter.validate_python("123")
+
+    with pytest.raises(ValidationError):
+        project_name_adapter.validate_python("-abc")
+
+    with pytest.raises(ValidationError):
+        project_name_adapter.validate_python("a--b--c")
+
+    name = project_name_adapter.validate_python("123-abc")
+    assert name == "123-abc"
 
 
 def test_project_name_forbids_reserved():
     with pytest.raises(
         ValidationError,
-        match="'system' is a reserved SDK name, please choose another name.",
+        match=r"invalid name: Names cannot be 'system', 'sketch' or start with 'project-'\.",
     ):
         project_name_adapter.validate_python("system")
+
+    with pytest.raises(
+        ValidationError,
+        match=r"invalid name: Names cannot be 'system', 'sketch' or start with 'project-'\.",
+    ):
+        project_name_adapter.validate_python("sketch")
+
+    with pytest.raises(
+        ValidationError,
+        match=r"invalid name: Names cannot be 'system', 'sketch' or start with 'project-'\.",
+    ):
+        project_name_adapter.validate_python("project-foo")
+
+    name = project_name_adapter.validate_python("system-seller")
+    assert name == "system-seller"
+    name = project_name_adapter.validate_python("my-project-1")
+    assert name == "my-project-1"
+    name = project_name_adapter.validate_python("roughsketch")
+    assert name == "roughsketch"
+
+
+def test_project_name_json_schema_includes_pattern():
+    schema = project_name_adapter.json_schema()
+    assert schema["pattern"] == PROJECT_NAME_REGEX
 
 
 endpoint_adapter = TypeAdapter(Endpoint)
