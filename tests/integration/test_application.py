@@ -31,26 +31,24 @@ name: my-project
 title: My Project
 version: 1.2.3
 base: ubuntu@22.04
-"""
-        f"""build-base: "ubuntu@{release_version}"
-"""
-        """summary: "example of global variables"
+build-base: "ubuntu@RELEASE_VERSION"
+summary: "example of global variables"
 description: "example of global variables"
 license: Apache-2.0
 platforms:
-    amd64:
+  amd64:
 
 parts:
-    foo:
-        plugin: nil
-        override-build: |
-            target_file=${CRAFT_PART_INSTALL}/variables.yaml
-            touch $target_file
-            echo "project_name:    \\"${CRAFT_PROJECT_NAME}\\""    >> $target_file
-            echo "project_dir:     \\"${CRAFT_PROJECT_DIR}\\""     >> $target_file
-            echo "project_version: \\"${CRAFT_PROJECT_VERSION}\\"" >> $target_file
+  foo:
+    plugin: nil
+    override-build: |
+      target_file=${CRAFT_PART_INSTALL}/variables.yaml
+      touch $target_file
+      echo "project_name:    \\"${CRAFT_PROJECT_NAME}\\""    >> $target_file
+      echo "project_dir:     \\"${CRAFT_PROJECT_DIR}\\""     >> $target_file
+      echo "project_version: \\"${CRAFT_PROJECT_VERSION}\\"" >> $target_file
 """
-    )
+    ).replace("RELEASE_VERSION", release_version, 1)
 
 
 @pytest.mark.slow
