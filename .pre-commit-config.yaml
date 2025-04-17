@@ -26,6 +26,6 @@ repos:
     hooks:
       - id: yamllint
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.6.5"
+    rev: "0.6.14"
     hooks:
       - id: uv-lock
