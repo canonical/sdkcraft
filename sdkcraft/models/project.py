@@ -20,7 +20,7 @@ This module defines a sdkcraft.yaml file, exportable to a JSON schema.
 
 import json
 from pathlib import Path
-from typing import Annotated, Any, Literal, Protocol, runtime_checkable
+from typing import Annotated, Any, Literal, Protocol, TypeGuard, runtime_checkable
 
 import craft_parts
 from craft_application import models
@@ -112,6 +112,11 @@ Slot = Annotated[
 ]
 
 
+def _is_dict(items: Any) -> TypeGuard[dict[Any, Any]]:  # noqa: ANN401
+    # Avoid pyright's reportUnknownVariableType and also mypy's redundant-cast.
+    return isinstance(items, dict)
+
+
 def _implicit_interface(name: Any, item: Any) -> Any:  # noqa: ANN401
     if item is None:
         return {"interface": name}
@@ -121,11 +126,10 @@ def _implicit_interface(name: Any, item: Any) -> Any:  # noqa: ANN401
 
 
 def _implicit_interfaces(items: Any) -> Any:  # noqa: ANN401
-    if not isinstance(items, dict):
+    if not _is_dict(items):
         return items
 
-    items_dict: dict[Any, Any] = items
-    return {name: _implicit_interface(name, item) for name, item in items_dict.items()}
+    return {name: _implicit_interface(name, item) for name, item in items.items()}
 
 
 @runtime_checkable
