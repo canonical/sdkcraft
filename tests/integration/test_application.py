@@ -1,4 +1,6 @@
 import sys
+import tarfile
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -53,15 +55,12 @@ parts:
 
 @pytest.mark.slow
 def test_global_environment(
-    new_dir,
+    new_path,
     release_version,
     monkeypatch,
 ):
     """Test our additions to the global environment that is available to the
     build process."""
-
-    rootfs = Path(new_dir) / "rootfs"
-    rootfs.mkdir()
 
     Path("sdk.yaml").write_text(get_sdk_yaml_string(release_version))
 
@@ -71,17 +70,69 @@ def test_global_environment(
     ServiceFactory.register("lifecycle", Lifecycle)
 
     service = ServiceFactory(
-        # type: ignore[call-arg]
         app=APP_METADATA,
     )
 
     app = Sdkcraft(app=APP_METADATA, services=service)
     app.run()
 
-    variables_yaml = Path(new_dir) / "stage" / "variables.yaml"
+    variables_yaml = new_path / "stage" / "variables.yaml"
     assert variables_yaml.is_file()
     variables = yaml.safe_load(variables_yaml.read_text())
 
     assert variables["project_name"] == "my-project"
-    assert variables["project_dir"] == str(new_dir)
+    assert variables["project_dir"] == str(new_path)
     assert variables["project_version"] == "1.2.3"
+
+
+@pytest.mark.slow
+def test_pack(
+    new_path,
+    release_version,
+    monkeypatch,
+):
+    """Test our additions to the global environment that is available to the
+    build process."""
+
+    Path("sdk.yaml").write_text(get_sdk_yaml_string(release_version))
+    Path("hooks").mkdir()
+    (Path("hooks") / "setup-base").write_text("touch /etc/fstab\n")
+
+    monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
+
+    ServiceFactory.register("package", Package)
+    ServiceFactory.register("lifecycle", Lifecycle)
+
+    service = ServiceFactory(
+        app=APP_METADATA,
+    )
+
+    app = Sdkcraft(app=APP_METADATA, services=service)
+    app.run()
+
+    with tarfile.open(new_path / "my-project.sdk") as tar:
+        members = Counter(member.name for member in tar)
+        assert set(members.keys()) == {
+            "meta",
+            "meta/sdk.yaml",
+            "sdk",
+            "sdk/hooks",
+            "sdk/hooks/setup-base",
+            "variables.yaml",
+        }
+        assert set(members.values()) == {1}
+
+        sdk_yaml = tar.extractfile("meta/sdk.yaml")
+        assert sdk_yaml is not None
+        with sdk_yaml:
+            metadata = yaml.safe_load(sdk_yaml)
+        assert metadata["name"] == "my-project"
+        assert metadata["title"] == "My Project"
+        assert metadata["version"] == "1.2.3"
+        assert "platforms" not in metadata
+        assert "parts" not in metadata
+
+        setup_base = tar.extractfile("sdk/hooks/setup-base")
+        assert setup_base is not None
+        with setup_base:
+            assert setup_base.read() == b"touch /etc/fstab\n"

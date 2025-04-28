@@ -18,12 +18,11 @@
 from __future__ import annotations
 
 import pathlib
+import shutil
 import tarfile
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import cast
 
-import craft_parts
 from craft_application import AppMetadata, services
 from overrides import override  # pyright: ignore[reportUnknownVariableType]
 
@@ -46,18 +45,6 @@ class Package(services.PackageService):
             started_at = datetime.now(timezone.utc)
         self._started_at = started_at
 
-    def _pack_hooks(self, arch: tarfile.TarFile) -> None:
-        """Add provided hooks to the package."""
-        dirs = craft_parts.ProjectDirs(work_dir=Path("/root"))
-        hooks_dir = dirs.project_dir / "hooks"
-        # the list of supported hooks
-        hooks = ["setup-base", "save-state", "restore-state", "check-health"]
-
-        for name in hooks:
-            hook = hooks_dir / name
-            if hook.is_file():
-                arch.add(hook, arcname=Path("sdk") / "hooks" / name)
-
     @override
     def pack(self, prime_dir: pathlib.Path, dest: pathlib.Path) -> list[pathlib.Path]:
         """Create one or more packages as appropriate.
@@ -65,14 +52,11 @@ class Package(services.PackageService):
         :param dest: Directory into which to write the package(s).
         :returns: A list of paths to created packages.
         """
-        self.write_metadata(prime_dir)
-
         binary_package_name = f"{self._project.name}.sdk"
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
             tar.dereference = True
             for entry in sorted(prime_dir.iterdir()):
                 tar.add(entry, arcname=entry.name, recursive=True)
-            self._pack_hooks(tar)
         return [dest / binary_package_name]
 
     @property
@@ -108,9 +92,14 @@ class Package(services.PackageService):
 
         :param path: The path to the prime directory.
         """
-        path = path / "meta"
-        path.mkdir(parents=True, exist_ok=True)
-        self.metadata.to_yaml_file(path / "sdk.yaml")
+        meta = path / "meta"
+        meta.mkdir(parents=True, exist_ok=True)
+        self.metadata.to_yaml_file(meta / "sdk.yaml")
+
+        dirs = self._services.lifecycle.project_info.dirs
+        hooks_dir = dirs.project_dir / "hooks"
+        if hooks_dir.is_dir():
+            shutil.copytree(hooks_dir, path / "sdk" / "hooks", dirs_exist_ok=True)
 
 
 def datetime_as_utc_str(dt: datetime) -> str:

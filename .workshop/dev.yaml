@@ -17,5 +17,5 @@ scripts:
     uv build --quiet .
     uv run twine check dist/*
     uv run yamllint .
-  test: uv run pytest tests/unit
+  test: uv run --group "dev-$(lsb_release -cs)" pytest tests/unit
   integration: uv run --group "dev-$(lsb_release -cs)" pytest tests/integration
