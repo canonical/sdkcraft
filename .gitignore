@@ -150,5 +150,4 @@ dmypy.json
 .workshop.lock
 
 # Local e2e test
-sdkcraft.yaml
-sdkcraft.yml
+/sdk.yaml

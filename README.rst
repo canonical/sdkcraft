@@ -59,7 +59,7 @@ Packing an SDK
       sdkcraft init
 
 
-#. Update the metadata in ``sdkcraft.yaml``,
+#. Update the metadata in ``sdk.yaml``,
    at least its ``name``, ``summary`` and ``description``:
 
    .. code-block:: yaml
@@ -87,7 +87,7 @@ Packing an SDK
 
 
    This builds all SDK parts
-   defined in the ``sdkcraft.yaml`` file,
+   defined in the ``sdk.yaml`` file,
    e.g. pulling source code, applying patches, configuring and compiling it
    according to the part definition.
 

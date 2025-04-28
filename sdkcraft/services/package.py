@@ -78,7 +78,7 @@ class Package(services.PackageService):
     @property
     @override
     def metadata(self) -> models.Metadata:
-        """Generate the sdkcraft.yaml model for the output file."""
+        """Generate the sdk.yaml model for the output file."""
         project = cast(models.Project, self._project)
         return models.Metadata(
             **project.model_dump(

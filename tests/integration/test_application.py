@@ -24,7 +24,7 @@ jammy_only = pytest.mark.skipif(
 pytestmark = [pytest.mark.usefixtures("_reset_callbacks")]
 
 
-def get_sdkcraft_yaml_string(release_version: str) -> str:
+def get_sdk_yaml_string(release_version: str) -> str:
     return (
         """\
 name: my-project
@@ -63,7 +63,7 @@ def test_global_environment(
     rootfs = Path(new_dir) / "rootfs"
     rootfs.mkdir()
 
-    Path("sdkcraft.yaml").write_text(get_sdkcraft_yaml_string(release_version))
+    Path("sdk.yaml").write_text(get_sdk_yaml_string(release_version))
 
     monkeypatch.setattr(sys, "argv", ["sdkcraft", "prime", "--destructive-mode"])
 

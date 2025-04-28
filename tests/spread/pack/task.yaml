@@ -14,7 +14,7 @@ execute: |
 
   # Create an SDK with hooks
   run_sdkcraft init
-  test -f sdkcraft.yaml
+  test -f sdk.yaml
   mkdir -p hooks
   for hook in "${hooks[@]}"; do
       touch "hooks/$hook"

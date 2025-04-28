@@ -15,8 +15,8 @@
 """Creation of minimalist SDKcraft projects."""
 
 import textwrap
+from argparse import Namespace
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from craft_application.commands import AppCommand
 from craft_cli import emit
@@ -24,30 +24,27 @@ from overrides import override  # pyright: ignore[reportUnknownVariableType]
 
 from sdkcraft import errors
 
-if TYPE_CHECKING:
-    import argparse
-
 
 def init(sdkcraft_yaml_content: str) -> None:
     """Initialize an SDKcraft project.
 
-    :param sdkcraft_yaml_content: Content of the sdkcraft.yaml file
-    :raises sdkcraftInitError: raises initialization error in case of conflicts
-    with existing sdkcraft.yaml files
+    :param sdkcraft_yaml_content: Content of the sdk.yaml file
+    :raises SdkcraftInitError: raises initialization error in case of conflicts
+    with existing sdk.yaml files
     """
-    sdkcraft_yaml_path = Path("sdkcraft.yaml")
+    sdk_yaml_path = Path("sdk.yaml")
+    dot_sdk_yaml_path = sdk_yaml_path.with_name(".sdk.yaml")
 
-    if sdkcraft_yaml_path.is_file():
-        raise errors.SdkcraftInitError(f"{sdkcraft_yaml_path}")
+    if sdk_yaml_path.is_file():
+        raise errors.SdkcraftInitError(sdk_yaml_path)
+    if dot_sdk_yaml_path.is_file():
+        raise errors.SdkcraftInitError(dot_sdk_yaml_path)
 
-    if Path(f".{sdkcraft_yaml_path.name}").is_file():
-        raise errors.SdkcraftInitError(f".{sdkcraft_yaml_path}")
+    sdk_yaml_path.parent.mkdir(exist_ok=True)
 
-    sdkcraft_yaml_path.parent.mkdir(exist_ok=True)
+    sdk_yaml_path.write_text(sdkcraft_yaml_content)
 
-    sdkcraft_yaml_path.write_text(sdkcraft_yaml_content)
-
-    emit.progress(f"Created {sdkcraft_yaml_path}.")
+    emit.progress(f"Created {sdk_yaml_path}.")
 
 
 class InitCommand(AppCommand):
@@ -58,7 +55,7 @@ class InitCommand(AppCommand):
     overview = textwrap.dedent(
         """
         Initialize an SDKcraft project by creating a minimalist,
-        yet functional, sdkcraft.yaml file in the current directory.
+        yet functional, sdk.yaml file in the current directory.
         """
     )
 
@@ -83,6 +80,6 @@ class InitCommand(AppCommand):
     )
 
     @override
-    def run(self, parsed_args: "argparse.Namespace") -> None:  # noqa: ARG002
+    def run(self, parsed_args: Namespace) -> None:  # noqa: ARG002
         """Run the command."""
         init(self._INIT_TEMPLATE_YAML)
