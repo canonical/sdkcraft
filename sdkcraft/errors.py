@@ -38,7 +38,3 @@ class PartsLifecycleError(SdkcraftError):
         return PartsLifecycleError(
             message=err.brief, details=err.details, resolution=err.resolution
         )
-
-
-class ProjectLoadError(SdkcraftError):
-    """Error loading sdkcraft.yaml."""
