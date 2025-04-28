@@ -1,0 +1,14 @@
+# Craft-parts requires certain apt files and directories to exist.
+# See https://github.com/canonical/craft-parts/issues/976.
+# This command (run as root) creates them ahead of time.
+python3 -c 'from apt.cache import Cache; Cache(rootdir="/")'
+
+apt-get update
+apt-get install shellcheck
+
+snap install --classic astral-uv
+
+sudo -u workshop -- bash -elo pipefail <<'EOF'
+uv venv ~/.venv
+echo 'export UV_PROJECT_ENVIRONMENT="$HOME/.venv"' >> ~/.profile
+EOF
