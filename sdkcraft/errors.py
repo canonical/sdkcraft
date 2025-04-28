@@ -23,7 +23,7 @@ class SdkcraftError(CraftError):
 
 
 class SdkcraftInitError(SdkcraftError):
-    """Error while initializing sdkcraft project."""
+    """Error while initializing SDKcraft project."""
 
     def __init__(self, yaml_path: str) -> None:
         super().__init__(f"{yaml_path} already exists!")

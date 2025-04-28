@@ -1,4 +1,4 @@
-summary: sdkcraft init test
+summary: SDKcraft init test
 
 execute: |
   run_sdkcraft init

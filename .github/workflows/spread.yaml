@@ -48,7 +48,7 @@ jobs:
         run: |
           rm -rf "${{ github.workspace }}"
           mkdir "${{ github.workspace }}"
-      - name: Checkout sdkcraft
+      - name: Checkout SDKcraft
         uses: actions/checkout@v4
         with:
           fetch-depth: 0

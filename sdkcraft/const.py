@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Global constants to use in sdkcraft."""
+"""Global constants to use in SDKcraft."""
 
 # Bases supported by this application.
 SUPPORTED_BASES = ["ubuntu@20.04", "ubuntu@22.04", "ubuntu@24.04"]

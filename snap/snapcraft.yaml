@@ -4,7 +4,7 @@ base: core22
 summary: Design and build an SDK for Workshop
 description: |
   A tool to design and build SDKs. An SDK can be defined
-  as a set of components (parts), interfaces and hooks that sdkcraft will bundle
+  as a set of components (parts), interfaces and hooks that SDKcraft will bundle
   together as a single package installable by Workshop.
 confinement: classic
 grade: devel

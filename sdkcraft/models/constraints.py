@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Constrained pydantic types for sdkcraft."""
+"""Constrained pydantic types for SDKcraft."""
 
 import re
 from ipaddress import ip_address

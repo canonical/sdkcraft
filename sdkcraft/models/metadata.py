@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""metadata.yaml description for sdkcraft output."""
+"""metadata.yaml description for SDKcraft output."""
 
 from craft_application.models import (
     BaseMetadata,

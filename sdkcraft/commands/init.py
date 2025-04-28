@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Creation of minimalist sdkcraft projects."""
+"""Creation of minimalist SDKcraft projects."""
 
 import textwrap
 from pathlib import Path
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 
 def init(sdkcraft_yaml_content: str) -> None:
-    """Initialize a sdkcraft project.
+    """Initialize an SDKcraft project.
 
     :param sdkcraft_yaml_content: Content of the sdkcraft.yaml file
     :raises sdkcraftInitError: raises initialization error in case of conflicts
@@ -51,13 +51,13 @@ def init(sdkcraft_yaml_content: str) -> None:
 
 
 class InitCommand(AppCommand):
-    """Initialize a sdkcraft project."""
+    """Initialize an SDKcraft project."""
 
     name = "init"
-    help_msg = "Initialize a sdkcraft project"
+    help_msg = "Initialize an SDKcraft project"
     overview = textwrap.dedent(
         """
-        Initialize a sdkcraft project by creating a minimalist,
+        Initialize an SDKcraft project by creating a minimalist,
         yet functional, sdkcraft.yaml file in the current directory.
         """
     )

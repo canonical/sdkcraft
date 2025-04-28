@@ -1,14 +1,14 @@
 #! /usr/bin/env sh
 
-# Remove hook for sdkcraft.
-# This shell script removes all LXD images, instances, and projects created by sdkcraft.
+# Remove hook for SDKcraft.
+# This shell script removes all LXD images, instances, and projects created by SDKcraft.
 # Errors in the remove hook can be viewed with `snap tasks --last=remove`
 
 # separate lxc output by newlines
 # \n can not be last, or it will be stripped by $() - see shellcheck SC3003
 IFS=$(printf '\n\t')
 
->&2 echo "removing lxd data for sdkcraft"
+>&2 echo "removing lxd data for SDKcraft"
 
 # check for lxc
 if ! command -v lxc > /dev/null 2>&1; then

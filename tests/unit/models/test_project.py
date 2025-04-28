@@ -158,7 +158,7 @@ def test_part_inherits_constraints():
 def test_part_stage_packages_prohibited():
     with pytest.raises(
         ValidationError,
-        match="'stage-packages' are not supported by sdkcraft",
+        match="'stage-packages' are not supported by SDKcraft",
     ):
         part_adapter.validate_python(
             {"plugin": "nil", "stage-packages": ["python3-apt"]}
@@ -168,6 +168,6 @@ def test_part_stage_packages_prohibited():
 def test_part_stage_snaps_prohibited():
     with pytest.raises(
         ValidationError,
-        match="'stage-snaps' are not supported by sdkcraft",
+        match="'stage-snaps' are not supported by SDKcraft",
     ):
         part_adapter.validate_python({"plugin": "nil", "stage-snaps": ["shellcheck"]})

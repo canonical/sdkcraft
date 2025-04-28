@@ -26,7 +26,7 @@ def _create_app() -> "Sdkcraft":
     # pylint: disable=import-outside-toplevel
     # Import these here so that the script that generates the docs for the
     # commands doesn't need to know *too much* of the application.
-    """Start up and run sdkcraft."""
+    """Start up and run SDKcraft."""
     factory = services.ServiceFactory(
         app=application.APP_METADATA,
         LifecycleClass=services.Lifecycle,

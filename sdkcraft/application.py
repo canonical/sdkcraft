@@ -27,13 +27,13 @@ from sdkcraft import models
 
 APP_METADATA = AppMetadata(
     name="sdkcraft",
-    summary="Design and build SDKs with sdkcraft",
+    summary="Design and build SDKs with SDKcraft",
     ProjectClass=models.Project,
 )
 
 
 class Sdkcraft(Application):
-    """sdkcraft application definition."""
+    """SDKcraft application definition."""
 
     def configure(self, global_args: dict[str, Any]) -> None:
         """Configure the application using global command-line arguments."""

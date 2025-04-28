@@ -1,4 +1,4 @@
-summary: sdkcraft plugs test to ensure sdkcraft can consume various valid plugs
+summary: SDKcraft plugs test to ensure SDKcraft can consume various valid plugs
 
 execute: |
   run_sdkcraft pack
