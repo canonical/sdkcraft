@@ -32,7 +32,7 @@ APP_METADATA = AppMetadata(
     ProjectClass=models.Project,
 )
 
-_PROJECT_FILES = [Path("sdk.yaml"), Path(".sdk.yaml")]
+_PROJECT_FILES = [Path("sdk.yaml"), Path(".sdk.yaml"), Path("sdkcraft.yaml")]
 
 
 class Sdkcraft(Application):
