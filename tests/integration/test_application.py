@@ -1,6 +1,8 @@
+import stat
 import sys
 import tarfile
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -97,6 +99,7 @@ def test_pack(
     Path("sdk.yaml").write_text(get_sdk_yaml_string(release_version))
     Path("hooks").mkdir()
     (Path("hooks") / "setup-base").write_text("touch /etc/fstab\n")
+    (Path("hooks") / "setup-base").chmod(stat.S_IRWXU | stat.S_IWGRP | stat.S_IROTH)
 
     monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
 
@@ -132,7 +135,20 @@ def test_pack(
         assert "platforms" not in metadata
         assert "parts" not in metadata
 
-        setup_base = tar.extractfile("sdk/hooks/setup-base")
+        started_at_str = metadata["sdkcraft-started-at"]
+        if sys.version_info < (3, 11) and started_at_str.endswith("Z"):
+            started_at_str = started_at_str[:-1] + "+00:00"
+        started_at = datetime.fromisoformat(started_at_str)
+
+        info = tar.getmember("sdk/hooks/setup-base")
+        assert info.mtime == pytest.approx(started_at.timestamp(), abs=2.0)
+        assert info.mode == stat.S_IRWXU | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+        assert info.uid == 0
+        assert info.gid == 0
+        assert info.uname == "root"
+        assert info.gname == "root"
+
+        setup_base = tar.extractfile(info)
         assert setup_base is not None
         with setup_base:
             assert setup_base.read() == b"touch /etc/fstab\n"

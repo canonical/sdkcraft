@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import pathlib
 import shutil
+import stat
 import tarfile
 from datetime import datetime, timezone
 from typing import cast
@@ -56,8 +57,31 @@ class Package(services.PackageService):
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
             tar.dereference = True
             for entry in sorted(prime_dir.iterdir()):
-                tar.add(entry, arcname=entry.name, recursive=True)
+                tar.add(entry, arcname=entry.name, filter=self._filter_tarinfo)
         return [dest / binary_package_name]
+
+    # Based on tarfile.data_filter.
+    def _filter_tarinfo(self, info: tarfile.TarInfo) -> tarfile.TarInfo | None:
+        if not info.isreg() and not info.isdir():
+            return None
+
+        mtime = self._started_at.timestamp()
+
+        # Clear mode except for rwxr--r--.
+        mode = info.mode & (stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
+        # Make executable permissions uniform.
+        if mode & stat.S_IXUSR != 0:
+            mode |= stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+
+        return info.replace(
+            mtime=mtime,
+            mode=mode,
+            uid=0,
+            gid=0,
+            uname="root",
+            gname="root",
+            deep=False,
+        )
 
     @property
     @override
