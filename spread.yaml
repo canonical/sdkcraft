@@ -21,8 +21,14 @@ backends:
 prepare: |
   set -e
 
-  apt-get update
-  apt-get install -y --no-install-recommends xdelta3
+  mkdir -p /etc/systemd/system/snapd.service.d
+  cat <<EOF >/etc/systemd/system/snapd.service.d/override.conf
+  # Workaround for https://bugs.launchpad.net/snapd/+bug/2104066
+  [Service]
+  Environment=SNAPD_STANDBY_WAIT=1m
+  EOF
+  systemctl daemon-reload
+  systemctl restart snapd.service
 
   snap wait system seed.loaded
 
