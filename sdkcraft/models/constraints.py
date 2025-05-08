@@ -13,27 +13,36 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Constrained pydantic types for sdkcraft."""
+"""Constrained pydantic types for SDKcraft."""
 
+import re
 from ipaddress import ip_address
 from typing import Annotated
 from urllib.parse import urlsplit, urlunsplit
 
-from craft_application import models
-from pydantic import AfterValidator
+from craft_application.models import constraints
+from pydantic import AfterValidator, BeforeValidator, Field
+from pydantic.fields import FieldInfo
 
+RESERVED_NAME_REGEX = r"(?!^(system|project-.*|sketch)$)"
+RESERVED_NAME_COMPILED_REGEX = re.compile(RESERVED_NAME_REGEX)
+MESSAGE_RESERVED_NAME = (
+    "invalid name: Names cannot be 'system', 'sketch' or start with 'project-'."
+)
 
-def _validate_project_name(name: str) -> str:
-    if name == "system":
-        raise ValueError(
-            f"'{name}' is a reserved SDK name, please choose another name."
-        )
-    return name
+PROJECT_NAME_REGEX = RESERVED_NAME_REGEX + constraints.PROJECT_NAME_REGEX
+PROJECT_NAME_COMPILED_REGEX = re.compile(PROJECT_NAME_REGEX)
 
 
 ProjectName = Annotated[
-    models.ProjectName,
-    AfterValidator(_validate_project_name),
+    str,
+    Field(pattern=PROJECT_NAME_COMPILED_REGEX),
+    FieldInfo.from_annotation(constraints.ProjectName),  # type: ignore[reportArgumentType]
+    BeforeValidator(
+        constraints.get_validator_by_regex(
+            RESERVED_NAME_COMPILED_REGEX, MESSAGE_RESERVED_NAME
+        )
+    ),
 ]
 
 

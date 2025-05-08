@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# install_sdkcraft: helper to install sdkcraft from a local snap file.
+# install_sdkcraft: helper to install SDKcraft from a local snap file.
 
 if stat /sdkcraft/tests/*.snap 2>/dev/null; then
   snap install --classic --dangerous /sdkcraft/tests/*.snap

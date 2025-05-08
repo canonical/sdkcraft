@@ -1,8 +1,7 @@
 name: dev
 base: ubuntu@22.04
 sdks:
-  - name: sdkcraft
-    channel: latest/stable
+  - name: project-sdkcraft
 scripts:
   format: |
     uv run ruff check --fix
@@ -14,9 +13,9 @@ scripts:
     uv run codespell --toml pyproject.toml
     uv run mypy --show-traceback --show-error-codes sdkcraft
     uv run pyright
-    # TODO: shellcheck snap can't access /project
-    # git ls-files | file --mime-type -Nnf- | grep shellscript | cut -f1 -d: | xargs -r shellcheck
-    uv tool run twine check dist/*
+    git ls-files | file --mime-type -Nnf- | grep shellscript | cut -f1 -d: | xargs -r shellcheck
+    uv build --quiet .
+    uv run twine check dist/*
     uv run yamllint .
-  test: uv run pytest tests/unit
-  integration: uv run pytest tests/integration
+  test: uv run --group "dev-$(lsb_release -cs)" pytest tests/unit
+  integration: uv run --group "dev-$(lsb_release -cs)" pytest tests/integration

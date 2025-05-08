@@ -16,6 +16,7 @@
 """Main application class for sdkcraft."""
 
 import copy
+from pathlib import Path
 from typing import Any
 
 import craft_parts
@@ -27,13 +28,15 @@ from sdkcraft import models
 
 APP_METADATA = AppMetadata(
     name="sdkcraft",
-    summary="Design and build SDKs with sdkcraft",
+    summary="Design and build SDKs with SDKcraft",
     ProjectClass=models.Project,
 )
 
+_PROJECT_FILES = [Path("sdk.yaml"), Path(".sdk.yaml"), Path("sdkcraft.yaml")]
+
 
 class Sdkcraft(Application):
-    """sdkcraft application definition."""
+    """SDKcraft application definition."""
 
     def configure(self, global_args: dict[str, Any]) -> None:
         """Configure the application using global command-line arguments."""
@@ -48,6 +51,21 @@ class Sdkcraft(Application):
             extra_global_args=self._global_arguments,
             default_command=commands.lifecycle.PackCommand,
         )
+
+    @override
+    def _resolve_project_path(self, project_dir: Path | None) -> Path:
+        """Overridden to handle the three possible locations for sdk.yaml."""
+        if project_dir is None:
+            project_dir = self.project_dir
+
+        for project_file in _PROJECT_FILES:
+            try:
+                return (project_dir / project_file).resolve(strict=True)
+            except FileNotFoundError:  # noqa: PERF203
+                pass
+
+        # Retry to get the ideal error message.
+        return (project_dir / _PROJECT_FILES[0]).resolve(strict=True)
 
     def _extra_yaml_transform(
         self,

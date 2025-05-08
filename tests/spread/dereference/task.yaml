@@ -1,4 +1,4 @@
-summary: sdkcraft tar dereference test
+summary: SDKcraft tar dereference test
 
 execute: |
   run_sdkcraft pack

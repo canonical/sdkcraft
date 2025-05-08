@@ -1,27 +1,15 @@
-summary: sdkcraft pack test
+summary: SDKcraft pack test
 
 execute: |
-
-  hooks=("setup-base" "save-state" "restore-state" "check-health" "unknown-hook")
-  function validate_expected_hooks() {
-    # test that the resulting archive contains only supported hooks
-    expected_hooks=("${hooks[@]/unknown-hook}")
-    for file in "${expected_hooks[@]}"; do
-      test "$(tar -tf my-sdk-name.sdk | grep "sdk/hooks/$file")"
-    done
-    test "$(tar -tf my-sdk-name.sdk -C "sdk/hooks/" --exclude "${expected_hooks[@]}" | wc -l)" -eq 0
-  }
-
   # Create an SDK with hooks
   run_sdkcraft init
-  test -f sdkcraft.yaml
-  mkdir -p hooks
-  for hook in "${hooks[@]}"; do
-      touch "hooks/$hook"
-  done
+  test -f sdk.yaml
+  mkdir hooks
+  touch hooks/{setup-base,check-health,utils.sh}
 
   # test packing outside of the sdk directory
   run_sdkcraft pack
   test -f my-sdk-name.sdk
   test ! -d parts -a ! -d stage -a ! -d prime
-  validate_expected_hooks
+
+  diff -u expected <(tar -tf my-sdk-name.sdk | sort)

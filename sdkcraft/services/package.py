@@ -13,17 +13,17 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Services for sdkcraft."""
+"""Services for SDKcraft."""
 
 from __future__ import annotations
 
 import pathlib
+import shutil
+import stat
 import tarfile
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import cast
 
-import craft_parts
 from craft_application import AppMetadata, services
 from overrides import override  # pyright: ignore[reportUnknownVariableType]
 
@@ -46,18 +46,6 @@ class Package(services.PackageService):
             started_at = datetime.now(timezone.utc)
         self._started_at = started_at
 
-    def _pack_hooks(self, arch: tarfile.TarFile) -> None:
-        """Add provided hooks to the package."""
-        dirs = craft_parts.ProjectDirs(work_dir=Path("/root"))
-        hooks_dir = dirs.project_dir / "hooks"
-        # the list of supported hooks
-        hooks = ["setup-base", "save-state", "restore-state", "check-health"]
-
-        for name in hooks:
-            hook = hooks_dir / name
-            if hook.is_file():
-                arch.add(hook, arcname=Path("sdk") / "hooks" / name)
-
     @override
     def pack(self, prime_dir: pathlib.Path, dest: pathlib.Path) -> list[pathlib.Path]:
         """Create one or more packages as appropriate.
@@ -65,20 +53,40 @@ class Package(services.PackageService):
         :param dest: Directory into which to write the package(s).
         :returns: A list of paths to created packages.
         """
-        self.write_metadata(prime_dir)
-
         binary_package_name = f"{self._project.name}.sdk"
         with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
             tar.dereference = True
             for entry in sorted(prime_dir.iterdir()):
-                tar.add(entry, arcname=entry.name, recursive=True)
-            self._pack_hooks(tar)
+                tar.add(entry, arcname=entry.name, filter=self._filter_tarinfo)
         return [dest / binary_package_name]
+
+    # Based on tarfile.data_filter.
+    def _filter_tarinfo(self, info: tarfile.TarInfo) -> tarfile.TarInfo | None:
+        if not info.isreg() and not info.isdir():
+            return None
+
+        mtime = self._started_at.timestamp()
+
+        # Clear mode except for rwxr--r--.
+        mode = info.mode & (stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
+        # Make executable permissions uniform.
+        if mode & stat.S_IXUSR != 0:
+            mode |= stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+
+        return info.replace(
+            mtime=mtime,
+            mode=mode,
+            uid=0,
+            gid=0,
+            uname="root",
+            gname="root",
+            deep=False,
+        )
 
     @property
     @override
     def metadata(self) -> models.Metadata:
-        """Generate the sdkcraft.yaml model for the output file."""
+        """Generate the sdk.yaml model for the output file."""
         project = cast(models.Project, self._project)
         return models.Metadata(
             **project.model_dump(
@@ -108,9 +116,14 @@ class Package(services.PackageService):
 
         :param path: The path to the prime directory.
         """
-        path = path / "meta"
-        path.mkdir(parents=True, exist_ok=True)
-        self.metadata.to_yaml_file(path / "sdk.yaml")
+        meta = path / "meta"
+        meta.mkdir(parents=True, exist_ok=True)
+        self.metadata.to_yaml_file(meta / "sdk.yaml")
+
+        dirs = self._services.lifecycle.project_info.dirs
+        hooks_dir = dirs.project_dir / "hooks"
+        if hooks_dir.is_dir():
+            shutil.copytree(hooks_dir, path / "sdk" / "hooks", dirs_exist_ok=True)
 
 
 def datetime_as_utc_str(dt: datetime) -> str:

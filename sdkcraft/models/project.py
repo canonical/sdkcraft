@@ -15,7 +15,7 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Sdkcraft project definition.
 
-This module defines a sdkcraft.yaml file, exportable to a JSON schema.
+This module defines an sdk.yaml file, exportable to a JSON schema.
 """
 
 import json
@@ -180,12 +180,12 @@ def _after_validate_part(item: dict[str, Any]) -> dict[str, Any]:
     """Verify SDK-specific attributes for a part."""
     if item.get("stage-packages") is not None:
         raise ValueError(
-            "'stage-packages' are not supported by sdkcraft. Consider using 'setup-base' hook to install packages required by your SDK"
+            "'stage-packages' are not supported by SDKcraft. Consider using 'setup-base' hook to install packages required by your SDK"
         )
 
     if item.get("stage-snaps") is not None:
         raise ValueError(
-            "'stage-snaps' are not supported by sdkcraft. Consider using 'setup-base' hook to install snaps required by your SDK"
+            "'stage-snaps' are not supported by SDKcraft. Consider using 'setup-base' hook to install snaps required by your SDK"
         )
 
     return item

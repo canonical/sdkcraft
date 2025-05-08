@@ -14,6 +14,8 @@
 
 """Sdkcraft error definitions."""
 
+from pathlib import Path
+
 from craft_cli import CraftError
 from craft_parts import PartsError
 
@@ -23,9 +25,9 @@ class SdkcraftError(CraftError):
 
 
 class SdkcraftInitError(SdkcraftError):
-    """Error while initializing sdkcraft project."""
+    """Error while initializing SDKcraft project."""
 
-    def __init__(self, yaml_path: str) -> None:
+    def __init__(self, yaml_path: Path) -> None:
         super().__init__(f"{yaml_path} already exists!")
 
 
@@ -38,7 +40,3 @@ class PartsLifecycleError(SdkcraftError):
         return PartsLifecycleError(
             message=err.brief, details=err.details, resolution=err.resolution
         )
-
-
-class ProjectLoadError(SdkcraftError):
-    """Error loading sdkcraft.yaml."""

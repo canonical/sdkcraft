@@ -48,38 +48,40 @@ def default_project():
 
 
 @pytest.fixture
-def default_factory(default_project):
+def default_factory(default_project, tmp_path_factory):
     from sdkcraft.application import APP_METADATA
     from sdkcraft.services import ServiceFactory
 
-    ServiceFactory.register("package", services.Package)
     ServiceFactory.register("lifecycle", services.Lifecycle)
-    return ServiceFactory(
-        app=APP_METADATA,
+    ServiceFactory.register("package", services.Package)
+
+    factory = ServiceFactory(app=APP_METADATA, project=default_project)
+
+    factory.update_kwargs(
+        "lifecycle",
+        cache_dir=tmp_path_factory.mktemp("cache"),
+        work_dir=tmp_path_factory.mktemp("work"),
+        build_plan=[],
     )
+
+    factory.update_kwargs("package", started_at=datetime.fromtimestamp(0, timezone.utc))
+
+    return factory
 
 
 @pytest.fixture
-def package_service(default_project, default_factory):
-    from sdkcraft.application import APP_METADATA
-    from sdkcraft.services import Package
-
-    return Package(
-        app=APP_METADATA,
-        project=default_project,
-        services=default_factory,
-        started_at=datetime.fromtimestamp(0, timezone.utc),
-    )
+def package_service(default_factory):
+    return default_factory.package
 
 
 @pytest.fixture
-def new_dir(tmpdir):
+def new_path(tmp_path):
     """Change to a new temporary directory."""
 
     cwd = Path.cwd()
-    os.chdir(tmpdir)
+    os.chdir(tmp_path)
 
-    yield tmpdir
+    yield tmp_path
 
     os.chdir(cwd)
 
