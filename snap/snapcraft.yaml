@@ -36,37 +36,23 @@ parts:
       - libpython3-stdlib
       - libpython3.10-stdlib
       - libpython3.10-minimal
-      - python3-pip
-      - python3-setuptools
-      - python3-wheel
-      - python3-venv
       - python3-minimal
-      - python3-distutils
-      - python3-pkg-resources
       - python3.10-minimal
       - python3-apt
-  sdkcraft:
-    source: .
-    plugin: uv
-    build-snaps:
-      - astral-uv
-    build-attributes:
-      - enable-patchelf
-    build-environment:
-      - PARTS_PYTHON_VENV_ARGS: --system-site-packages
     prime:
       - -usr/share/man
       - -usr/share/lintian
       - -usr/share/doc
+  sdkcraft:
+    source: .
+    plugin: uv
+    build-attributes:
+      - enable-patchelf
+    build-environment:
+      - PARTS_PYTHON_VENV_ARGS: --system-site-packages
     after:
       - sdkcraft-libs
-    # Override-build here is to circumvent the UVPlugin's buggy build commands:
-    # https://github.com/canonical/craft-parts/pull/1003/files
-    # Remove override-build when snapcraft latest/stable becomes higher or equal to v8.7.2
-    override-build: |
-      uv venv --relocatable --allow-existing --python python3 /root/parts/sdkcraft/install
-      uv sync --no-dev --no-editable --reinstall
-      ln -sf "../usr/bin/python3.10" "../install/bin/python"
+      - uv-deps
   scripts:
     plugin: dump
     source: sdkcraft
@@ -74,6 +60,12 @@ parts:
       "*.sh": bin/
     build-attributes:
       - no-patchelf
+  uv-deps:
+    plugin: nil
+    # Workaround a breaking change in uv 0.7
+    # https://github.com/canonical/craft-parts/pull/1086
+    override-stage: |
+      curl -LsSf https://astral.sh/uv/0.6.17/install.sh | env XDG_BIN_HOME="${CRAFT_STAGE}/bin" sh
   yq:
     plugin: go
     source: https://github.com/mikefarah/yq.git
