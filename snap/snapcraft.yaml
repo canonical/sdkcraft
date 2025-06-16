@@ -15,6 +15,7 @@ apps:
   sdkcraft:
     command: bin/python3 -m sdkcraft
     environment:
+      PATH: ${SNAP}/bin:${PATH}
       PYTHONPATH: ${SNAP}/lib/python3.10/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
   publish:
     environment:
