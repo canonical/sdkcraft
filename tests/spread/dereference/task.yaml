@@ -3,4 +3,5 @@ summary: SDKcraft tar dereference test
 execute: |
   run_sdkcraft pack
   test -f my-sdk-name.sdk
-  tar xf my-sdk-name.sdk fileb
+  tar xf my-sdk-name.sdk
+  [ "$(stat --format=%i filea)" = "$(stat --format=%i fileb)" ]

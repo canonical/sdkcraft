@@ -17,10 +17,10 @@
 
 from __future__ import annotations
 
+import os
 import pathlib
 import shutil
-import stat
-import tarfile
+import subprocess
 from datetime import datetime, timezone
 from typing import cast
 
@@ -53,35 +53,32 @@ class Package(services.PackageService):
         :param dest: Directory into which to write the package(s).
         :returns: A list of paths to created packages.
         """
-        binary_package_name = f"{self._project.name}.sdk"
-        with tarfile.open(dest / binary_package_name, mode="w:xz") as tar:
-            tar.dereference = True
-            for entry in sorted(prime_dir.iterdir()):
-                tar.add(entry, arcname=entry.name, filter=self._filter_tarinfo)
-        return [dest / binary_package_name]
+        sdk = dest / f"{self._project.name}.sdk"
 
-    # Based on tarfile.data_filter.
-    def _filter_tarinfo(self, info: tarfile.TarInfo) -> tarfile.TarInfo | None:
-        if not info.isreg() and not info.isdir():
-            return None
-
-        mtime = self._started_at.timestamp()
-
-        # Clear mode except for rwxr--r--.
-        mode = info.mode & (stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
-        # Make executable permissions uniform.
-        if mode & stat.S_IXUSR != 0:
-            mode |= stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
-
-        return info.replace(
-            mtime=mtime,
-            mode=mode,
-            uid=0,
-            gid=0,
-            uname="root",
-            gname="root",
-            deep=False,
+        sdk.unlink(missing_ok=True)
+        names = (p.name for p in sorted(prime_dir.iterdir()))
+        subprocess.run(
+            [
+                "tar",
+                "--create",
+                "--format=posix",
+                "--use-compress-program=zstd -10 --threads=0",
+                # Restrict to rwxr-xr-x for security and reproducibility.
+                "--mode=a-st,go-w",
+                "--owner=root:0",
+                "--group=root:0",
+                f"--mtime={datetime_as_utc_str(self._started_at)}",
+                "--sort=name",
+                "--force-local",
+                f"--file={sdk}",
+                f"--directory={prime_dir}",
+                "--",
+                *names,
+            ],
+            check=True,
         )
+
+        return [sdk]
 
     @property
     @override
@@ -121,9 +118,14 @@ class Package(services.PackageService):
         self.metadata.to_yaml_file(meta / "sdk.yaml")
 
         dirs = self._services.lifecycle.project_info.dirs
-        hooks_dir = dirs.project_dir / "hooks"
-        if hooks_dir.is_dir():
-            shutil.copytree(hooks_dir, path / "sdk" / "hooks", dirs_exist_ok=True)
+        hooks_source = dirs.project_dir / "hooks"
+        if hooks_source.is_dir():
+            hooks_target = path / "sdk" / "hooks"
+            if hooks_target.is_dir():
+                shutil.rmtree(hooks_target)
+            else:
+                hooks_target.parent.mkdir(exist_ok=True)
+            copytree(hooks_source, hooks_target)
 
 
 def datetime_as_utc_str(dt: datetime) -> str:
@@ -136,3 +138,28 @@ def datetime_as_utc_str(dt: datetime) -> str:
 
     # Append Z because Go does not recognize +00:00 as UTC.
     return dt.astimezone(timezone.utc).replace(tzinfo=None).isoformat() + "Z"
+
+
+def copytree(source: os.PathLike[str], target: pathlib.Path) -> None:
+    """Recursively copy a directory tree.
+
+    Preserves metadata and symlinks, but ignores other non-regular files.
+
+    :param source: Directory to copy.
+    :param target: Copy to create.
+    """
+    target.mkdir()
+
+    with os.scandir(source) as entries:
+        for entry in entries:
+            path = target / entry.name
+            if entry.is_symlink():
+                link = pathlib.Path(entry).readlink()
+                path.symlink_to(link)
+                shutil.copystat(entry, path, follow_symlinks=False)
+            elif entry.is_dir():
+                copytree(entry, path)
+            elif entry.is_file():
+                shutil.copy2(entry, path)
+
+    shutil.copystat(source, target)
