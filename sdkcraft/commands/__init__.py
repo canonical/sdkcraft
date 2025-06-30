@@ -1,4 +1,4 @@
-"""Sdkcraft commands."""
+"""SDKcraft commands."""
 
 from .init import InitCommand
 

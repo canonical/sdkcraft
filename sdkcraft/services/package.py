@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Services for SDKcraft."""
+"""SDKcraft package service."""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ from sdkcraft import models
 
 
 class Package(services.PackageService):
-    """Package service for Sdkcraft."""
+    """Package service for SDKcraft."""
 
     def __init__(
         self,

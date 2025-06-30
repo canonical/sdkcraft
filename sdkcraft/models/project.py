@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Sdkcraft project definition.
+"""SDKcraft project definition.
 
 This module defines an sdk.yaml file, exportable to a JSON schema.
 """
@@ -30,7 +30,7 @@ from sdkcraft.models.constraints import Endpoint, ProjectName
 
 
 class CameraPlug(models.CraftBaseModel):
-    """Sdkcraft project camera plug definition."""
+    """SDKcraft project camera plug definition."""
 
     interface: Literal["camera"]
 
@@ -41,7 +41,7 @@ class CameraPlug(models.CraftBaseModel):
 
 
 class DesktopPlug(models.CraftBaseModel):
-    """Sdkcraft project desktop plug definition."""
+    """SDKcraft project desktop plug definition."""
 
     interface: Literal["desktop"]
 
@@ -52,7 +52,7 @@ class DesktopPlug(models.CraftBaseModel):
 
 
 class GPUPlug(models.CraftBaseModel):
-    """Sdkcraft project GPU plug definition."""
+    """SDKcraft project GPU plug definition."""
 
     interface: Literal["gpu"]
 
@@ -63,7 +63,7 @@ class GPUPlug(models.CraftBaseModel):
 
 
 class MountPlug(models.CraftBaseModel):
-    """Sdkcraft project mount plug definition."""
+    """SDKcraft project mount plug definition."""
 
     interface: Literal["mount"]
     workshop_target: str
@@ -71,14 +71,14 @@ class MountPlug(models.CraftBaseModel):
 
 
 class MountSlot(models.CraftBaseModel):
-    """Sdkcraft project mount slot definition."""
+    """SDKcraft project mount slot definition."""
 
     interface: Literal["mount"]
     workshop_source: str
 
 
 class SSHPlug(models.CraftBaseModel):
-    """Sdkcraft project SSH plug definition."""
+    """SDKcraft project SSH plug definition."""
 
     interface: Literal["ssh"]
 
@@ -89,14 +89,14 @@ class SSHPlug(models.CraftBaseModel):
 
 
 class TunnelPlug(models.CraftBaseModel):
-    """Sdkcraft project tunnel plug definition."""
+    """SDKcraft project tunnel plug definition."""
 
     interface: Literal["tunnel"]
     endpoint: Endpoint = ""
 
 
 class TunnelSlot(models.CraftBaseModel):
-    """Sdkcraft project tunnel plug definition."""
+    """SDKcraft project tunnel plug definition."""
 
     interface: Literal["tunnel"]
     endpoint: Endpoint = ""
@@ -198,7 +198,7 @@ DEFAULT_PART = {"default-part": {"plugin": "nil"}}
 
 
 class Project(models.Project):
-    """Sdkcraft project definition."""
+    """SDKcraft project definition."""
 
     name: ProjectName
 
@@ -208,7 +208,7 @@ class Project(models.Project):
 
 
 def export_schema() -> None:
-    """Sdkcraft project schema export.
+    """SDKcraft project schema export.
 
     To run: PYTHONPATH=. python sdkcraft/models/project.py.
     """
