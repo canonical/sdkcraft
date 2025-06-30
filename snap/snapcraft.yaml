@@ -48,6 +48,8 @@ parts:
   sdkcraft:
     source: .
     plugin: uv
+    build-snaps:
+      - astral-uv
     override-build: |
       craftctl default
       rm $CRAFT_PART_INSTALL/bin/python*
@@ -59,7 +61,6 @@ parts:
       - PARTS_PYTHON_VENV_ARGS: --system-site-packages
     after:
       - sdkcraft-libs
-      - uv-deps
   scripts:
     plugin: dump
     source: sdkcraft
@@ -67,12 +68,6 @@ parts:
       "*.sh": bin/
     build-attributes:
       - no-patchelf
-  uv-deps:
-    plugin: nil
-    # Workaround a breaking change in uv 0.7
-    # https://github.com/canonical/craft-parts/pull/1086
-    override-stage: |
-      curl -LsSf https://astral.sh/uv/0.6.17/install.sh | env XDG_BIN_HOME="${CRAFT_STAGE}/bin" sh
   yq:
     plugin: go
     source: https://github.com/mikefarah/yq.git

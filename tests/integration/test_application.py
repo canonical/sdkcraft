@@ -7,11 +7,10 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+import sdkcraft.cli
 import yaml
 from craft_parts import errors
 from craft_parts.utils import os_utils
-from sdkcraft.application import APP_METADATA, Sdkcraft
-from sdkcraft.services import Package, ServiceFactory
 
 
 def is_ubuntu_jammy() -> bool:
@@ -26,7 +25,7 @@ jammy_only = pytest.mark.skipif(
     not is_ubuntu_jammy(), reason="platform must be Ubuntu Jammy"
 )
 
-pytestmark = [pytest.mark.usefixtures("_reset_callbacks")]
+pytestmark = [pytest.mark.usefixtures("reset_callbacks")]
 
 
 def get_sdk_yaml_string(release_version: str) -> str:
@@ -69,14 +68,8 @@ def test_global_environment(
 
     monkeypatch.setattr(sys, "argv", ["sdkcraft", "prime", "--destructive-mode"])
 
-    ServiceFactory.register("package", Package)
-
-    service = ServiceFactory(
-        app=APP_METADATA,
-    )
-
-    app = Sdkcraft(app=APP_METADATA, services=service)
-    app.run()
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
 
     variables_yaml = new_path / "stage" / "variables.yaml"
     assert variables_yaml.is_file()
@@ -103,14 +96,8 @@ def test_pack(
 
     monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
 
-    ServiceFactory.register("package", Package)
-
-    service = ServiceFactory(
-        app=APP_METADATA,
-    )
-
-    app = Sdkcraft(app=APP_METADATA, services=service)
-    app.run()
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
 
     subprocess.run(
         ["zstd", "--decompress", "-o", "my-project.tar", "my-project.sdk"],

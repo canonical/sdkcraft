@@ -15,8 +15,6 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Main application class for sdkcraft."""
 
-from pathlib import Path
-
 from craft_application import Application, AppMetadata, commands
 from craft_cli import Dispatcher
 from typing_extensions import override
@@ -26,10 +24,10 @@ from sdkcraft import models
 APP_METADATA = AppMetadata(
     name="sdkcraft",
     summary="Design and build SDKs with SDKcraft",
+    docs_url="https://canonical-workshop.readthedocs-hosted.com/{version}",
+    source_ignore_patterns=["*.sdk"],
     ProjectClass=models.Project,
 )
-
-_PROJECT_FILES = [Path("sdk.yaml"), Path(".sdk.yaml"), Path("sdkcraft.yaml")]
 
 
 class Sdkcraft(Application):
@@ -43,20 +41,6 @@ class Sdkcraft(Application):
             self.command_groups,
             summary=str(self.app.summary),
             extra_global_args=self._global_arguments,
+            docs_base_url=self.app.versioned_docs_url,
             default_command=commands.lifecycle.PackCommand,
         )
-
-    @override
-    def _resolve_project_path(self, project_dir: Path | None) -> Path:
-        """Overridden to handle the three possible locations for sdk.yaml."""
-        if project_dir is None:
-            project_dir = self.project_dir
-
-        for project_file in _PROJECT_FILES:
-            try:
-                return (project_dir / project_file).resolve(strict=True)
-            except FileNotFoundError:  # noqa: PERF203
-                pass
-
-        # Retry to get the ideal error message.
-        return (project_dir / _PROJECT_FILES[0]).resolve(strict=True)

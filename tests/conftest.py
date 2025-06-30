@@ -17,60 +17,69 @@ from datetime import datetime, timezone
 from logging import warning
 from pathlib import Path
 
+import craft_parts.callbacks
 import pytest
-from pydantic import AnyUrl
-from sdkcraft import services
+from sdkcraft.application import APP_METADATA
+from sdkcraft.models.project import Project
+from sdkcraft.services import ServiceFactory, register_sdkcraft_services
 
 
 @pytest.fixture
-def default_project():
-    from craft_application.models import Platform
-    from sdkcraft.models.project import MountPlug, Plug, Project
-
-    plugs: dict[str, Plug] = {
-        "mount": MountPlug(interface="mount", workshop_target="/path")
+def default_project_raw():
+    return {
+        "name": "default",
+        "title": "default title",
+        "version": "1.0",
+        "summary": "default project",
+        "description": "default project",
+        "base": "ubuntu@22.04",
+        "platforms": {"amd64": None},
+        "contact": "requests@canonical.com",
+        "issues": "https://github.com/canonical/sdks/issues",
+        "source-code": "https://github.com/canonical/sdks",
+        "license": "MIT",
+        "plugs": {"mount": {"interface": "mount", "workshop-target": "/path"}},
     }
 
-    return Project(
-        name="default",
-        title="default title",
-        version="1.0",
-        summary="default project",
-        description="default project",
-        source_code=AnyUrl("https://github.com/canonical/sdks/"),
-        base="ubuntu@22.04",
-        license="MIT",
-        platforms={"amd64": Platform(build_on=["amd64"], build_for=["amd64"])},
-        contact="requests@canonical.com",
-        plugs=plugs,
-        issues="https://github.com/canonical/sdks/issues",
-    )
+
+@pytest.fixture
+def default_project(default_project_raw):
+    return Project.unmarshal(default_project_raw)
 
 
 @pytest.fixture
 def default_factory(default_project, tmp_path_factory):
-    from sdkcraft.application import APP_METADATA
-    from sdkcraft.services import ServiceFactory
+    register_sdkcraft_services()
+    factory = ServiceFactory(APP_METADATA)
 
-    ServiceFactory.register("package", services.Package)
+    cache_dir = tmp_path_factory.mktemp("cache")
+    project_dir = tmp_path_factory.mktemp("project")
+    work_dir = tmp_path_factory.mktemp("work")
 
-    factory = ServiceFactory(app=APP_METADATA, project=default_project)
+    default_project.to_yaml_file(project_dir / "sdk.yaml")
 
-    factory.update_kwargs(
-        "lifecycle",
-        cache_dir=tmp_path_factory.mktemp("cache"),
-        work_dir=tmp_path_factory.mktemp("work"),
-        build_plan=[],
-    )
-
+    factory.update_kwargs("lifecycle", cache_dir=cache_dir, work_dir=work_dir)
     factory.update_kwargs("package", started_at=datetime.fromtimestamp(0, timezone.utc))
+    factory.update_kwargs("project", project_dir=project_dir)
+    factory.update_kwargs("provider", work_dir=work_dir)
 
     return factory
 
 
 @pytest.fixture
 def package_service(default_factory):
-    return default_factory.package
+    return default_factory.get("package")
+
+
+@pytest.fixture
+def project_service(default_factory):
+    return default_factory.get("project")
+
+
+@pytest.fixture
+def package_service_with_configured_project(package_service, project_service):
+    project_service.configure(platform=None, build_for=None)
+    return package_service
 
 
 @pytest.fixture
@@ -102,14 +111,10 @@ def release_version():
 
 
 @pytest.fixture
-def _reset_callbacks():
+def reset_callbacks():
     """Fixture that resets the status of craft-part's various lifecycle callbacks,
     so that tests can start with a clean slate.
     """
-    # pylint: disable=import-outside-toplevel
-
-    from craft_parts import callbacks
-
-    callbacks.unregister_all()
+    craft_parts.callbacks.unregister_all()
     yield
-    callbacks.unregister_all()
+    craft_parts.callbacks.unregister_all()

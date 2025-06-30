@@ -3,7 +3,7 @@ name = "sdkcraft"
 description = "A tool to create SDKs for Workshop"
 dynamic = ["version", "readme"]
 dependencies = [
-    "craft-application>=4.10.0",
+    "craft-application>=5.0.0",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
