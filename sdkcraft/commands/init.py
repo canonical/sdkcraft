@@ -20,7 +20,7 @@ from pathlib import Path
 
 from craft_application.commands import AppCommand
 from craft_cli import emit
-from overrides import override  # pyright: ignore[reportUnknownVariableType]
+from typing_extensions import override
 
 from sdkcraft import errors
 
@@ -80,6 +80,6 @@ class InitCommand(AppCommand):
     )
 
     @override
-    def run(self, parsed_args: Namespace) -> None:  # noqa: ARG002
+    def run(self, parsed_args: Namespace) -> None:
         """Run the command."""
         init(self._INIT_TEMPLATE_YAML)

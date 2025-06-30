@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 from typing import cast
 
 from craft_application import AppMetadata, services
-from overrides import override  # pyright: ignore[reportUnknownVariableType]
+from typing_extensions import override
 
 from sdkcraft import models
 
