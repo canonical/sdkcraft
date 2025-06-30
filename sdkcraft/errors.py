@@ -17,7 +17,6 @@
 from pathlib import Path
 
 from craft_cli import CraftError
-from craft_parts import PartsError
 
 
 class SdkcraftError(CraftError):
@@ -29,14 +28,3 @@ class SdkcraftInitError(SdkcraftError):
 
     def __init__(self, yaml_path: Path) -> None:
         super().__init__(f"{yaml_path} already exists!")
-
-
-class PartsLifecycleError(SdkcraftError):
-    """Error during parts processing."""
-
-    @staticmethod
-    def from_parts_error(err: PartsError) -> "PartsLifecycleError":
-        """Shortcut to create a PartsLifecycleError from a PartsError."""
-        return PartsLifecycleError(
-            message=err.brief, details=err.details, resolution=err.resolution
-        )

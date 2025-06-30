@@ -17,11 +17,9 @@
 
 from craft_application import ServiceFactory
 
-from .lifecycle import Lifecycle
 from .package import Package
 
 __all__ = [
     "ServiceFactory",
-    "Lifecycle",
     "Package",
 ]

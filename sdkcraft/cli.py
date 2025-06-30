@@ -29,7 +29,6 @@ def _create_app() -> "Sdkcraft":
     """Start up and run SDKcraft."""
     factory = services.ServiceFactory(
         app=application.APP_METADATA,
-        LifecycleClass=services.Lifecycle,
         PackageClass=services.Package,
     )
 

@@ -11,7 +11,7 @@ import yaml
 from craft_parts import errors
 from craft_parts.utils import os_utils
 from sdkcraft.application import APP_METADATA, Sdkcraft
-from sdkcraft.services import Lifecycle, Package, ServiceFactory
+from sdkcraft.services import Package, ServiceFactory
 
 
 def is_ubuntu_jammy() -> bool:
@@ -70,7 +70,6 @@ def test_global_environment(
     monkeypatch.setattr(sys, "argv", ["sdkcraft", "prime", "--destructive-mode"])
 
     ServiceFactory.register("package", Package)
-    ServiceFactory.register("lifecycle", Lifecycle)
 
     service = ServiceFactory(
         app=APP_METADATA,
@@ -105,7 +104,6 @@ def test_pack(
     monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
 
     ServiceFactory.register("package", Package)
-    ServiceFactory.register("lifecycle", Lifecycle)
 
     service = ServiceFactory(
         app=APP_METADATA,
