@@ -14,12 +14,13 @@
 
 import os
 from datetime import datetime, timezone
-from logging import warning
 from pathlib import Path
 
 import craft_parts.callbacks
 import pytest
 from craft_application.services import ServiceFactory
+from craft_parts.errors import PartsError
+from craft_parts.utils.os_utils import OsRelease
 from sdkcraft.application import APP_METADATA
 from sdkcraft.models import Project
 from sdkcraft.services import register_sdkcraft_services
@@ -97,18 +98,14 @@ def new_path(tmp_path):
 
 @pytest.fixture
 def release_version():
-    version = "22.04"
     try:
-        with Path("/etc/os-release").open() as f:
-            os_release = f.read()
-        if "Ubuntu" in os_release:
-            for line in os_release.splitlines():
-                if line.startswith("VERSION_ID="):
-                    version = line.split("=")[1].strip('"')
-    except FileNotFoundError as e:
+        release = OsRelease()
+        if release.id() == "ubuntu":
+            return release.version_id()
+        pytest.skip("platform must be Ubuntu")
+    except (FileNotFoundError, PartsError) as e:
         # For non-Ubuntu platform, just skip this test case
-        warning(f"failed to read Ubuntu release version, err={e}")
-    return version
+        pytest.skip(f"failed to read Ubuntu release version: {e}")
 
 
 @pytest.fixture
