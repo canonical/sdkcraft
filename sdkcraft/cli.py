@@ -17,15 +17,19 @@
 
 import logging
 
-from sdkcraft import application, commands, services
+from craft_application.services import ServiceFactory
+
+from sdkcraft.application import APP_METADATA, Sdkcraft
+from sdkcraft.commands import InitCommand
+from sdkcraft.services import register_sdkcraft_services
 
 
-def _create_app() -> application.Sdkcraft:
-    services.register_sdkcraft_services()
-    factory = services.ServiceFactory(application.APP_METADATA)
-    app = application.Sdkcraft(application.APP_METADATA, factory)
+def _create_app() -> Sdkcraft:
+    register_sdkcraft_services()
+    factory = ServiceFactory(APP_METADATA)
+    app = Sdkcraft(APP_METADATA, factory)
 
-    app.add_command_group("Other", [commands.InitCommand])
+    app.add_command_group("Other", [InitCommand])
 
     return app
 

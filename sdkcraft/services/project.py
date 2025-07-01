@@ -18,12 +18,17 @@
 import os
 import pathlib
 
-from craft_application import AppMetadata, ServiceFactory, errors, services
+from craft_application import AppMetadata, ServiceFactory, services
+from craft_application.errors import (
+    ProjectDirectoryMissingError,
+    ProjectDirectoryTypeError,
+    ProjectFileMissingError,
+)
 from craft_cli import emit
 from typing_extensions import override
 
 
-class Project(services.ProjectService):
+class ProjectService(services.ProjectService):
     """A service for handling access to the project."""
 
     __sdk_file_path: pathlib.Path | None
@@ -42,8 +47,8 @@ class Project(services.ProjectService):
 
         if not self._project_dir.is_dir():
             if not self._project_dir.exists():
-                raise errors.ProjectDirectoryMissingError(self._project_dir)
-            raise errors.ProjectDirectoryTypeError(self._project_dir)
+                raise ProjectDirectoryMissingError(self._project_dir)
+            raise ProjectDirectoryTypeError(self._project_dir)
 
         path = _resolve_project_file_path(self._project_dir)
         emit.trace(f"Project file found at {path}")
@@ -62,7 +67,7 @@ def _resolve_project_file_path(project_dir: pathlib.Path) -> pathlib.Path:
     except FileNotFoundError:
         pass
 
-    raise errors.ProjectFileMissingError(
+    raise ProjectFileMissingError(
         f"Project file 'sdk.yaml' not found in '{project_dir}'.",
         details="The project file could not be found.",
         resolution="Ensure the project file exists.",

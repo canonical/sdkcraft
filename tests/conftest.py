@@ -19,9 +19,10 @@ from pathlib import Path
 
 import craft_parts.callbacks
 import pytest
+from craft_application.services import ServiceFactory
 from sdkcraft.application import APP_METADATA
-from sdkcraft.models.project import Project
-from sdkcraft.services import ServiceFactory, register_sdkcraft_services
+from sdkcraft.models import Project
+from sdkcraft.services import register_sdkcraft_services
 
 
 @pytest.fixture

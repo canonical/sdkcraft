@@ -29,7 +29,7 @@ from typing_extensions import override
 from sdkcraft import models
 
 
-class Package(services.PackageService):
+class PackageService(services.PackageService):
     """Package service for SDKcraft."""
 
     def __init__(

@@ -15,18 +15,19 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Main application class for sdkcraft."""
 
-from craft_application import Application, AppMetadata, commands
+from craft_application import Application, AppMetadata
+from craft_application.commands.lifecycle import PackCommand
 from craft_cli import Dispatcher
 from typing_extensions import override
 
-from sdkcraft import models
+from sdkcraft.models import Project
 
 APP_METADATA = AppMetadata(
     name="sdkcraft",
     summary="Design and build SDKs with SDKcraft",
     docs_url="https://canonical-workshop.readthedocs-hosted.com/{version}",
     source_ignore_patterns=["*.sdk"],
-    ProjectClass=models.Project,
+    ProjectClass=Project,
 )
 
 
@@ -42,5 +43,5 @@ class Sdkcraft(Application):
             summary=str(self.app.summary),
             extra_global_args=self._global_arguments,
             docs_base_url=self.app.versioned_docs_url,
-            default_command=commands.lifecycle.PackCommand,
+            default_command=PackCommand,
         )

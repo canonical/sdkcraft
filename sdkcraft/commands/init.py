@@ -22,7 +22,7 @@ from craft_application.commands import AppCommand
 from craft_cli import emit
 from typing_extensions import override
 
-from sdkcraft import errors
+from sdkcraft.errors import SdkcraftInitError
 
 
 def init(sdkcraft_yaml_content: str) -> None:
@@ -36,9 +36,9 @@ def init(sdkcraft_yaml_content: str) -> None:
     dot_sdk_yaml_path = sdk_yaml_path.with_name(".sdk.yaml")
 
     if sdk_yaml_path.is_file():
-        raise errors.SdkcraftInitError(sdk_yaml_path)
+        raise SdkcraftInitError(sdk_yaml_path)
     if dot_sdk_yaml_path.is_file():
-        raise errors.SdkcraftInitError(dot_sdk_yaml_path)
+        raise SdkcraftInitError(dot_sdk_yaml_path)
 
     sdk_yaml_path.parent.mkdir(exist_ok=True)
 
