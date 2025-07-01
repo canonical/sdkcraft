@@ -1,7 +1,7 @@
 name: sdkcraft
 version: 0.1.8
-base: core22
-summary: Design and build an SDK for Workshop
+base: core24
+summary: Design and build SDKs for Workshop
 description: |
   A tool to design and build SDKs. An SDK can be defined
   as a set of components (parts), interfaces and hooks that SDKcraft will bundle
@@ -16,11 +16,11 @@ apps:
     command: bin/python3 -m sdkcraft
     environment:
       PATH: ${SNAP}/bin:${PATH}
-      PYTHONPATH: ${SNAP}/lib/python3.10/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
+      PYTHONPATH: ${SNAP}/lib/python3.12/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
   publish:
     environment:
       PATH: ${SNAP}/bin:${PATH}
-      PYTHONPATH: ${SNAP}/lib/python3.10/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
+      PYTHONPATH: ${SNAP}/lib/python3.12/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
     command: bin/publish.sh
 parts:
   sdkcraft-libs:
@@ -35,10 +35,10 @@ parts:
       - gpg
       - gpgv
       - libpython3-stdlib
-      - libpython3.10-stdlib
-      - libpython3.10-minimal
+      - libpython3.12-stdlib
+      - libpython3.12-minimal
       - python3-minimal
-      - python3.10-minimal
+      - python3.12-minimal
       - python3-apt
     prime:
       - -usr/share/man
@@ -47,6 +47,11 @@ parts:
   sdkcraft:
     source: .
     plugin: uv
+    override-build: |
+      craftctl default
+      rm $CRAFT_PART_INSTALL/bin/python*
+      ln -s ../usr/bin/python3 $CRAFT_PART_INSTALL/bin/python3
+      ln -s python3 $CRAFT_PART_INSTALL/bin/python
     build-attributes:
       - enable-patchelf
     build-environment:
