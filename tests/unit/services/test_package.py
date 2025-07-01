@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from sdkcraft.services.package import datetime_as_utc_str
+from sdkcraft.services.package import PackageService, datetime_as_utc_str
 
 DEFAULT_METADATA = {
     "name": "default",
@@ -21,14 +21,16 @@ DEFAULT_METADATA = {
 }
 
 
-def test_default_metadata(package_service_with_configured_project):
+def test_default_metadata(package_service_with_configured_project: PackageService):
     assert (
         package_service_with_configured_project.metadata.marshal() == DEFAULT_METADATA
     )
 
 
 def test_write_metadata(
-    new_path, package_service_with_configured_project, tmp_path_factory
+    new_path: Path,
+    package_service_with_configured_project: PackageService,
+    tmp_path_factory: pytest.TempPathFactory,
 ):
     prime_dir = tmp_path_factory.mktemp("prime")
     hooks_dir = prime_dir / "sdk" / "hooks"
@@ -44,7 +46,7 @@ def test_write_metadata(
 
     package_service_with_configured_project.write_metadata(prime_dir)
 
-    def contents(path):
+    def contents(path: Path) -> Path | set[str] | str:
         if path.is_symlink():
             return path.readlink()
         if path.is_dir():
@@ -78,7 +80,7 @@ def test_write_metadata(
         ),
     ],
 )
-def test_datetime_as_utc_str(dt, utc):
+def test_datetime_as_utc_str(dt: datetime, utc: timezone):
     assert datetime_as_utc_str(dt) == utc
 
 

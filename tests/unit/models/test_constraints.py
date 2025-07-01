@@ -19,7 +19,7 @@ import pytest
 from pydantic import TypeAdapter, ValidationError
 from sdkcraft.models.constraints import PROJECT_NAME_REGEX, Endpoint, ProjectName
 
-project_name_adapter = TypeAdapter(ProjectName)
+project_name_adapter: TypeAdapter[ProjectName] = TypeAdapter(ProjectName)
 
 
 def test_project_name_inherits_constraints():
@@ -71,7 +71,7 @@ def test_project_name_json_schema_includes_pattern():
     assert schema["pattern"] == PROJECT_NAME_REGEX
 
 
-endpoint_adapter = TypeAdapter(Endpoint)
+endpoint_adapter: TypeAdapter[Endpoint] = TypeAdapter(Endpoint)
 
 
 @pytest.mark.parametrize(
@@ -98,7 +98,7 @@ endpoint_adapter = TypeAdapter(Endpoint)
         "::",
     ],
 )
-def test_endpoint_valid(value):
+def test_endpoint_valid(value: list[str]):
     assert endpoint_adapter.validate_python(value) == value
 
 
@@ -121,6 +121,6 @@ def test_endpoint_valid(value):
         ":56789/udp",
     ],
 )
-def test_endpoint_invalid(value):
+def test_endpoint_invalid(value: list[str]):
     with pytest.raises(ValidationError):
         endpoint_adapter.validate_python(value)

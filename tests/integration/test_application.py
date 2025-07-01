@@ -43,9 +43,9 @@ parts:
 
 @pytest.mark.slow
 def test_global_environment(
-    new_path,
-    sdk_yaml,
-    monkeypatch,
+    new_path: Path,
+    sdk_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Test our additions to the global environment that is available to the
     build process."""
@@ -68,9 +68,9 @@ def test_global_environment(
 
 @pytest.mark.slow
 def test_pack(
-    new_path,
-    sdk_yaml,
-    monkeypatch,
+    new_path: Path,
+    sdk_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Test our additions to the global environment that is available to the
     build process."""

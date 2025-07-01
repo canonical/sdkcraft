@@ -13,8 +13,10 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, cast
 
 import craft_parts.callbacks
 import pytest
@@ -23,11 +25,11 @@ from craft_parts.errors import PartsError
 from craft_parts.utils.os_utils import OsRelease
 from sdkcraft.application import APP_METADATA
 from sdkcraft.models import Project
-from sdkcraft.services import register_sdkcraft_services
+from sdkcraft.services import PackageService, ProjectService, register_sdkcraft_services
 
 
 @pytest.fixture
-def default_project_raw():
+def default_project_raw() -> dict[str, Any]:
     return {
         "name": "default",
         "title": "default title",
@@ -45,12 +47,14 @@ def default_project_raw():
 
 
 @pytest.fixture
-def default_project(default_project_raw):
+def default_project(default_project_raw: dict[str, Any]) -> Project:
     return Project.unmarshal(default_project_raw)
 
 
 @pytest.fixture
-def default_factory(default_project, tmp_path_factory):
+def default_factory(
+    default_project: Project, tmp_path_factory: pytest.TempPathFactory
+) -> ServiceFactory:
     register_sdkcraft_services()
     factory = ServiceFactory(APP_METADATA)
 
@@ -69,23 +73,25 @@ def default_factory(default_project, tmp_path_factory):
 
 
 @pytest.fixture
-def package_service(default_factory):
-    return default_factory.get("package")
+def package_service(default_factory: ServiceFactory) -> PackageService:
+    return cast(PackageService, default_factory.get("package"))
 
 
 @pytest.fixture
-def project_service(default_factory):
-    return default_factory.get("project")
+def project_service(default_factory: ServiceFactory) -> ProjectService:
+    return cast(ProjectService, default_factory.get("project"))
 
 
 @pytest.fixture
-def package_service_with_configured_project(package_service, project_service):
+def package_service_with_configured_project(
+    package_service: PackageService, project_service: ProjectService
+) -> PackageService:
     project_service.configure(platform=None, build_for=None)
     return package_service
 
 
 @pytest.fixture
-def new_path(tmp_path):
+def new_path(tmp_path: Path) -> Iterator[Path]:
     """Change to a new temporary directory."""
 
     cwd = Path.cwd()
@@ -97,9 +103,9 @@ def new_path(tmp_path):
 
 
 @pytest.fixture
-def release_version():
+def release_version() -> str:
+    release = OsRelease()
     try:
-        release = OsRelease()
         if release.id() == "ubuntu":
             return release.version_id()
         pytest.skip("platform must be Ubuntu")
@@ -109,7 +115,7 @@ def release_version():
 
 
 @pytest.fixture
-def reset_callbacks():
+def reset_callbacks() -> Iterator[None]:
     """Fixture that resets the status of craft-part's various lifecycle callbacks,
     so that tests can start with a clean slate.
     """

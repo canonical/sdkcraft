@@ -15,6 +15,8 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Tests for project models."""
 
+from typing import Any
+
 import pytest
 import yaml
 from craft_application import models
@@ -31,7 +33,7 @@ from sdkcraft.models.project import (
 )
 
 
-def test_project_create_valid(default_project_raw):
+def test_project_create_valid(default_project_raw: dict[str, Any]):
     project = Project.unmarshal(default_project_raw)
     assert project.name == "default"
     assert project.title == "default title"
@@ -72,7 +74,9 @@ def test_project_create_valid(default_project_raw):
         (0.0, False),
     ],
 )
-def test_mount_plug_read_only_valid(value, expected):
+def test_mount_plug_read_only_valid(
+    *, value: bool | str | float | None, expected: bool
+):
     plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
     if value is None:
         del plug["read-only"]
@@ -81,13 +85,13 @@ def test_mount_plug_read_only_valid(value, expected):
 
 
 @pytest.mark.parametrize("value", ["invalid-value", 2])
-def test_mount_plug_read_only_invalid(value):
+def test_mount_plug_read_only_invalid(value: str | int):
     plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
     with pytest.raises(ValidationError):
         MountPlug.unmarshal(plug)
 
 
-plugs_adapter = TypeAdapter(Plugs)
+plugs_adapter: TypeAdapter[Plugs] = TypeAdapter(Plugs)
 
 
 def test_implicit_interfaces():
@@ -116,7 +120,7 @@ def test_interface_policies():
         plugs_adapter.validate_python({"foo": {"interface": "ssh"}})
 
 
-part_adapter = TypeAdapter(Part)
+part_adapter: TypeAdapter[Part] = TypeAdapter(Part)
 
 
 def test_part_inherits_constraints():
