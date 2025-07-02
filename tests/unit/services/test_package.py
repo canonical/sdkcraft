@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 import yaml
@@ -34,11 +35,14 @@ def test_write_metadata(new_path, package_service, tmp_path_factory):
 
     (new_path / "hooks").mkdir()
     (new_path / "hooks" / "utils.sh").write_text("message() { echo new; }\n")
+    (new_path / "hooks" / "link").symlink_to("/x/y/z")
     (new_path / "hooks" / "setup-base").write_text(". utils.sh\nmessage\n")
 
     package_service.write_metadata(prime_dir)
 
     def contents(path):
+        if path.is_symlink():
+            return path.readlink()
         if path.is_dir():
             return {p.name for p in path.iterdir()}
         return path.read_text()
@@ -46,14 +50,14 @@ def test_write_metadata(new_path, package_service, tmp_path_factory):
     assert contents(prime_dir) == {"meta", "sdk"}
     assert contents(prime_dir / "meta") == {"sdk.yaml"}
     assert contents(prime_dir / "sdk") == {"hooks"}
-    assert contents(hooks_dir) == {"check-health", "setup-base", "utils.sh"}
+    assert contents(hooks_dir) == {"setup-base", "link", "utils.sh"}
 
     with (prime_dir / "meta" / "sdk.yaml").open() as f:
         metadata = yaml.safe_load(f)
     assert metadata == DEFAULT_METADATA
 
-    assert contents(hooks_dir / "check-health") == "workshopctl set-health okay\n"
     assert contents(hooks_dir / "setup-base") == ". utils.sh\nmessage\n"
+    assert contents(hooks_dir / "link") == Path("/x/y/z")
     assert contents(hooks_dir / "utils.sh") == "message() { echo new; }\n"
 
 

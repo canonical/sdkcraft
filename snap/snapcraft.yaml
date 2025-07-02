@@ -15,7 +15,7 @@ apps:
   sdkcraft:
     command: bin/python3 -m sdkcraft
     environment:
-      PATH: ${SNAP}/bin:${PATH}
+      PATH: ${SNAP}/bin:${SNAP}/usr/bin:${PATH}
       PYTHONPATH: ${SNAP}/lib/python3.12/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
   publish:
     environment:
@@ -40,6 +40,7 @@ parts:
       - python3-minimal
       - python3.12-minimal
       - python3-apt
+      - zstd
     prime:
       - -usr/share/man
       - -usr/share/lintian

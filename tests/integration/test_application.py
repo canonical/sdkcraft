@@ -1,4 +1,5 @@
 import stat
+import subprocess
 import sys
 import tarfile
 from collections import Counter
@@ -113,7 +114,13 @@ def test_pack(
     app = Sdkcraft(app=APP_METADATA, services=service)
     app.run()
 
-    with tarfile.open(new_path / "my-project.sdk") as tar:
+    subprocess.run(
+        ["zstd", "--decompress", "-o", "my-project.tar", "my-project.sdk"],
+        check=True,
+        cwd=new_path,
+    )
+
+    with tarfile.open(new_path / "my-project.tar") as tar:
         members = Counter(member.name for member in tar)
         assert set(members.keys()) == {
             "meta",
@@ -142,7 +149,7 @@ def test_pack(
 
         info = tar.getmember("sdk/hooks/setup-base")
         assert info.mtime == pytest.approx(started_at.timestamp(), abs=2.0)
-        assert info.mode == stat.S_IRWXU | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+        assert info.mode == stat.S_IRWXU | stat.S_IROTH
         assert info.uid == 0
         assert info.gid == 0
         assert info.uname == "root"
