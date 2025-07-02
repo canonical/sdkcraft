@@ -15,10 +15,12 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Tests for project models."""
 
+from typing import Any
+
 import pytest
 import yaml
 from craft_application import models
-from pydantic import TypeAdapter, ValidationError
+from pydantic import AnyUrl, TypeAdapter, ValidationError
 from sdkcraft.models.project import (
     CameraPlug,
     DesktopPlug,
@@ -30,61 +32,30 @@ from sdkcraft.models.project import (
     SSHPlug,
 )
 
-default = Project(
-    name="my-project",
-    version="git",
-    title="Sample",
-    summary="A sample project",
-    description="description",
-    base="ubuntu@22.04",
-    contact="contact@canonical.com",
-    issues="https://github.com/canonical/sdks/issues",
-    source_code=None,
-    adopt_info=None,
-    package_repositories=None,
-    platforms={
-        "amd64": models.Platform(
-            build_for=["amd64"],
-            build_on=["amd64"],
-        ),
-        "riscv64": models.Platform(
-            build_on=["amd64", "arm64"],
-            build_for=["riscv64"],
-        ),
-    },
-    license="gplv3",
-)
 
-
-@pytest.mark.parametrize(
-    ("obj", "expected"),
-    [
-        (
-            {
-                "name": "my-project",
-                "version": "git",
-                "summary": "A sample project",
-                "base": "ubuntu@22.04",
-                "title": "Sample",
-                "description": "description",
-                "contact": "contact@canonical.com",
-                "issues": "https://github.com/canonical/sdks/issues",
-                "platforms": {
-                    "amd64": {"build-for": ["amd64"], "build-on": ["amd64"]},
-                    "riscv64": {
-                        "build-on": ["amd64", "arm64"],
-                        "build-for": ["riscv64"],
-                    },
-                },
-                "license": "gplv3",
-            },
-            default,
-        ),
-    ],
-)
-def test_project_create_valid(obj, expected):
-    assert Project.unmarshal(obj) == expected
-    assert expected.parts == {"default-part": {"plugin": "nil"}}
+def test_project_create_valid(default_project_raw: dict[str, Any]):
+    project = Project.unmarshal(default_project_raw)
+    assert project.name == "default"
+    assert project.title == "default title"
+    assert project.version == "1.0"
+    assert project.summary == "default project"
+    assert project.description == "default project"
+    assert project.base == "ubuntu@22.04"
+    assert project.build_base is None
+    assert project.platforms == {
+        "amd64": models.Platform(build_for=["amd64"], build_on=["amd64"]),
+    }
+    assert project.contact == "requests@canonical.com"
+    assert project.issues == "https://github.com/canonical/sdks/issues"
+    assert project.source_code == AnyUrl("https://github.com/canonical/sdks")
+    assert project.license == "MIT"
+    assert project.adopt_info is None
+    assert project.plugs == {
+        "mount": MountPlug(interface="mount", workshop_target="/path"),
+    }
+    assert project.slots == {}
+    assert project.parts == {"default-part": {"plugin": "nil"}}
+    assert project.package_repositories is None
 
 
 @pytest.mark.parametrize(
@@ -103,7 +74,9 @@ def test_project_create_valid(obj, expected):
         (0.0, False),
     ],
 )
-def test_mount_plug_read_only_valid(value, expected):
+def test_mount_plug_read_only_valid(
+    *, value: bool | str | float | None, expected: bool
+):
     plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
     if value is None:
         del plug["read-only"]
@@ -112,13 +85,13 @@ def test_mount_plug_read_only_valid(value, expected):
 
 
 @pytest.mark.parametrize("value", ["invalid-value", 2])
-def test_mount_plug_read_only_invalid(value):
+def test_mount_plug_read_only_invalid(value: str | int):
     plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
     with pytest.raises(ValidationError):
         MountPlug.unmarshal(plug)
 
 
-plugs_adapter = TypeAdapter(Plugs)
+plugs_adapter: TypeAdapter[Plugs] = TypeAdapter(Plugs)
 
 
 def test_implicit_interfaces():
@@ -147,7 +120,7 @@ def test_interface_policies():
         plugs_adapter.validate_python({"foo": {"interface": "ssh"}})
 
 
-part_adapter = TypeAdapter(Part)
+part_adapter: TypeAdapter[Part] = TypeAdapter(Part)
 
 
 def test_part_inherits_constraints():

@@ -3,29 +3,35 @@ from pathlib import Path
 
 import pytest
 import yaml
-from sdkcraft.services.package import datetime_as_utc_str
+from sdkcraft.services.package import PackageService, datetime_as_utc_str
 
 DEFAULT_METADATA = {
     "name": "default",
     "title": "default title",
-    "base": "ubuntu@22.04",
     "version": "1.0",
     "summary": "default project",
-    "license": "MIT",
     "description": "default project",
+    "base": "ubuntu@22.04",
     "contact": "requests@canonical.com",
     "issues": "https://github.com/canonical/sdks/issues",
-    "source-code": "https://github.com/canonical/sdks/",
+    "source-code": "https://github.com/canonical/sdks",
+    "license": "MIT",
     "plugs": {"mount": {"interface": "mount", "workshop-target": "/path"}},
     "sdkcraft-started-at": "1970-01-01T00:00:00Z",
 }
 
 
-def test_default_metadata(package_service):
-    assert package_service.metadata.marshal() == DEFAULT_METADATA
+def test_default_metadata(package_service_with_configured_project: PackageService):
+    assert (
+        package_service_with_configured_project.metadata.marshal() == DEFAULT_METADATA
+    )
 
 
-def test_write_metadata(new_path, package_service, tmp_path_factory):
+def test_write_metadata(
+    new_path: Path,
+    package_service_with_configured_project: PackageService,
+    tmp_path_factory: pytest.TempPathFactory,
+):
     prime_dir = tmp_path_factory.mktemp("prime")
     hooks_dir = prime_dir / "sdk" / "hooks"
     hooks_dir.parent.mkdir()
@@ -38,9 +44,9 @@ def test_write_metadata(new_path, package_service, tmp_path_factory):
     (new_path / "hooks" / "link").symlink_to("/x/y/z")
     (new_path / "hooks" / "setup-base").write_text(". utils.sh\nmessage\n")
 
-    package_service.write_metadata(prime_dir)
+    package_service_with_configured_project.write_metadata(prime_dir)
 
-    def contents(path):
+    def contents(path: Path) -> Path | set[str] | str:
         if path.is_symlink():
             return path.readlink()
         if path.is_dir():
@@ -74,7 +80,7 @@ def test_write_metadata(new_path, package_service, tmp_path_factory):
         ),
     ],
 )
-def test_datetime_as_utc_str(dt, utc):
+def test_datetime_as_utc_str(dt: datetime, utc: timezone):
     assert datetime_as_utc_str(dt) == utc
 
 

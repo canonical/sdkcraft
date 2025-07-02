@@ -17,30 +17,19 @@
 
 import logging
 
-from sdkcraft import Sdkcraft, application, services
+from craft_application.services import ServiceFactory
 
-from . import commands
+from sdkcraft.application import APP_METADATA, Sdkcraft
+from sdkcraft.commands import InitCommand
+from sdkcraft.services import register_sdkcraft_services
 
 
-def _create_app() -> "Sdkcraft":
-    # pylint: disable=import-outside-toplevel
-    # Import these here so that the script that generates the docs for the
-    # commands doesn't need to know *too much* of the application.
-    """Start up and run SDKcraft."""
-    factory = services.ServiceFactory(
-        app=application.APP_METADATA,
-        LifecycleClass=services.Lifecycle,
-        PackageClass=services.Package,
-    )
+def _create_app() -> Sdkcraft:
+    register_sdkcraft_services()
+    factory = ServiceFactory(APP_METADATA)
+    app = Sdkcraft(APP_METADATA, factory)
 
-    app = Sdkcraft(app=application.APP_METADATA, services=factory)
-
-    app.add_command_group(
-        "Other",
-        [
-            commands.InitCommand,
-        ],
-    )
+    app.add_command_group("Other", [InitCommand])
 
     return app
 

@@ -20,9 +20,9 @@ from pathlib import Path
 
 from craft_application.commands import AppCommand
 from craft_cli import emit
-from overrides import override  # pyright: ignore[reportUnknownVariableType]
+from typing_extensions import override
 
-from sdkcraft import errors
+from sdkcraft.errors import SdkcraftInitError
 
 
 def init(sdkcraft_yaml_content: str) -> None:
@@ -36,9 +36,9 @@ def init(sdkcraft_yaml_content: str) -> None:
     dot_sdk_yaml_path = sdk_yaml_path.with_name(".sdk.yaml")
 
     if sdk_yaml_path.is_file():
-        raise errors.SdkcraftInitError(sdk_yaml_path)
+        raise SdkcraftInitError(sdk_yaml_path)
     if dot_sdk_yaml_path.is_file():
-        raise errors.SdkcraftInitError(dot_sdk_yaml_path)
+        raise SdkcraftInitError(dot_sdk_yaml_path)
 
     sdk_yaml_path.parent.mkdir(exist_ok=True)
 
@@ -80,6 +80,6 @@ class InitCommand(AppCommand):
     )
 
     @override
-    def run(self, parsed_args: Namespace) -> None:  # noqa: ARG002
+    def run(self, parsed_args: Namespace) -> None:
         """Run the command."""
         init(self._INIT_TEMPLATE_YAML)

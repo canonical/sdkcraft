@@ -13,69 +13,85 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+from collections.abc import Iterator
 from datetime import datetime, timezone
-from logging import warning
 from pathlib import Path
+from typing import Any, cast
 
+import craft_parts.callbacks
 import pytest
-from pydantic import AnyUrl
-from sdkcraft import services
+from craft_application.services import ServiceFactory
+from craft_parts.errors import PartsError
+from craft_parts.utils.os_utils import OsRelease
+from sdkcraft.application import APP_METADATA
+from sdkcraft.models import Project
+from sdkcraft.services import PackageService, ProjectService, register_sdkcraft_services
 
 
 @pytest.fixture
-def default_project():
-    from craft_application.models import Platform
-    from sdkcraft.models.project import MountPlug, Plug, Project
-
-    plugs: dict[str, Plug] = {
-        "mount": MountPlug(interface="mount", workshop_target="/path")
+def default_project_raw() -> dict[str, Any]:
+    return {
+        "name": "default",
+        "title": "default title",
+        "version": "1.0",
+        "summary": "default project",
+        "description": "default project",
+        "base": "ubuntu@22.04",
+        "platforms": {"amd64": None},
+        "contact": "requests@canonical.com",
+        "issues": "https://github.com/canonical/sdks/issues",
+        "source-code": "https://github.com/canonical/sdks",
+        "license": "MIT",
+        "plugs": {"mount": {"interface": "mount", "workshop-target": "/path"}},
     }
 
-    return Project(
-        name="default",
-        title="default title",
-        version="1.0",
-        summary="default project",
-        description="default project",
-        source_code=AnyUrl("https://github.com/canonical/sdks/"),
-        base="ubuntu@22.04",
-        license="MIT",
-        platforms={"amd64": Platform(build_on=["amd64"], build_for=["amd64"])},
-        contact="requests@canonical.com",
-        plugs=plugs,
-        issues="https://github.com/canonical/sdks/issues",
-    )
+
+@pytest.fixture
+def default_project(default_project_raw: dict[str, Any]) -> Project:
+    return Project.unmarshal(default_project_raw)
 
 
 @pytest.fixture
-def default_factory(default_project, tmp_path_factory):
-    from sdkcraft.application import APP_METADATA
-    from sdkcraft.services import ServiceFactory
+def default_factory(
+    default_project: Project, tmp_path_factory: pytest.TempPathFactory
+) -> ServiceFactory:
+    register_sdkcraft_services()
+    factory = ServiceFactory(APP_METADATA)
 
-    ServiceFactory.register("lifecycle", services.Lifecycle)
-    ServiceFactory.register("package", services.Package)
+    cache_dir = tmp_path_factory.mktemp("cache")
+    project_dir = tmp_path_factory.mktemp("project")
+    work_dir = tmp_path_factory.mktemp("work")
 
-    factory = ServiceFactory(app=APP_METADATA, project=default_project)
+    default_project.to_yaml_file(project_dir / "sdk.yaml")
 
-    factory.update_kwargs(
-        "lifecycle",
-        cache_dir=tmp_path_factory.mktemp("cache"),
-        work_dir=tmp_path_factory.mktemp("work"),
-        build_plan=[],
-    )
-
+    factory.update_kwargs("lifecycle", cache_dir=cache_dir, work_dir=work_dir)
     factory.update_kwargs("package", started_at=datetime.fromtimestamp(0, timezone.utc))
+    factory.update_kwargs("project", project_dir=project_dir)
+    factory.update_kwargs("provider", work_dir=work_dir)
 
     return factory
 
 
 @pytest.fixture
-def package_service(default_factory):
-    return default_factory.package
+def package_service(default_factory: ServiceFactory) -> PackageService:
+    return cast(PackageService, default_factory.get("package"))
 
 
 @pytest.fixture
-def new_path(tmp_path):
+def project_service(default_factory: ServiceFactory) -> ProjectService:
+    return cast(ProjectService, default_factory.get("project"))
+
+
+@pytest.fixture
+def package_service_with_configured_project(
+    package_service: PackageService, project_service: ProjectService
+) -> PackageService:
+    project_service.configure(platform=None, build_for=None)
+    return package_service
+
+
+@pytest.fixture
+def new_path(tmp_path: Path) -> Iterator[Path]:
     """Change to a new temporary directory."""
 
     cwd = Path.cwd()
@@ -87,30 +103,22 @@ def new_path(tmp_path):
 
 
 @pytest.fixture
-def release_version():
-    version = "22.04"
+def release_version() -> str:
+    release = OsRelease()
     try:
-        with Path("/etc/os-release").open() as f:
-            os_release = f.read()
-        if "Ubuntu" in os_release:
-            for line in os_release.splitlines():
-                if line.startswith("VERSION_ID="):
-                    version = line.split("=")[1].strip('"')
-    except FileNotFoundError as e:
+        if release.id() == "ubuntu":
+            return release.version_id()
+        pytest.skip("platform must be Ubuntu")
+    except (FileNotFoundError, PartsError) as e:
         # For non-Ubuntu platform, just skip this test case
-        warning(f"failed to read Ubuntu release version, err={e}")
-    return version
+        pytest.skip(f"failed to read Ubuntu release version: {e}")
 
 
 @pytest.fixture
-def _reset_callbacks():
+def reset_callbacks() -> Iterator[None]:
     """Fixture that resets the status of craft-part's various lifecycle callbacks,
     so that tests can start with a clean slate.
     """
-    # pylint: disable=import-outside-toplevel
-
-    from craft_parts import callbacks
-
-    callbacks.unregister_all()
+    craft_parts.callbacks.unregister_all()
     yield
-    callbacks.unregister_all()
+    craft_parts.callbacks.unregister_all()

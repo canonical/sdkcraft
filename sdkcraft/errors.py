@@ -12,16 +12,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Sdkcraft error definitions."""
+"""SDKcraft error definitions."""
 
 from pathlib import Path
 
 from craft_cli import CraftError
-from craft_parts import PartsError
 
 
 class SdkcraftError(CraftError):
-    """Failure in a Sdkcraft operation."""
+    """Failure in a SDKcraft operation."""
 
 
 class SdkcraftInitError(SdkcraftError):
@@ -29,14 +28,3 @@ class SdkcraftInitError(SdkcraftError):
 
     def __init__(self, yaml_path: Path) -> None:
         super().__init__(f"{yaml_path} already exists!")
-
-
-class PartsLifecycleError(SdkcraftError):
-    """Error during parts processing."""
-
-    @staticmethod
-    def from_parts_error(err: PartsError) -> "PartsLifecycleError":
-        """Shortcut to create a PartsLifecycleError from a PartsError."""
-        return PartsLifecycleError(
-            message=err.brief, details=err.details, resolution=err.resolution
-        )

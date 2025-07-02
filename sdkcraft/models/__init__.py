@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Data models for Sdkcraft."""
+"""Data models for SDKcraft."""
 
 from .constraints import Endpoint, ProjectName
 from .metadata import Metadata

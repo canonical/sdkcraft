@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Sdkcraft: Verify your sources."""
+"""Package and publish SDKs for Workshop."""
 
 from craft_parts.features import Features
 
@@ -21,8 +21,6 @@ from . import models
 from .application import Sdkcraft
 
 try:
-    # This only gets created at wheel-creation time, so we're ignoring all of
-    # it for type checking purposes.
     from ._version import __version__
 except ImportError:  # pragma: no cover
     from importlib.metadata import version, PackageNotFoundError

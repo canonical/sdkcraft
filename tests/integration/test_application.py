@@ -7,29 +7,14 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+import sdkcraft.cli
 import yaml
-from craft_parts import errors
-from craft_parts.utils import os_utils
-from sdkcraft.application import APP_METADATA, Sdkcraft
-from sdkcraft.services import Lifecycle, Package, ServiceFactory
+
+pytestmark = [pytest.mark.usefixtures("reset_callbacks")]
 
 
-def is_ubuntu_jammy() -> bool:
-    release = os_utils.OsRelease()
-    try:
-        return release.id() == "ubuntu" and release.version_id() == "22.04"
-    except errors.OsReleaseIdError:
-        return False
-
-
-jammy_only = pytest.mark.skipif(
-    not is_ubuntu_jammy(), reason="platform must be Ubuntu Jammy"
-)
-
-pytestmark = [pytest.mark.usefixtures("_reset_callbacks")]
-
-
-def get_sdk_yaml_string(release_version: str) -> str:
+@pytest.fixture
+def sdk_yaml(release_version: str) -> str:
     return (
         """\
 name: my-project
@@ -58,26 +43,19 @@ parts:
 
 @pytest.mark.slow
 def test_global_environment(
-    new_path,
-    release_version,
-    monkeypatch,
+    new_path: Path,
+    sdk_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Test our additions to the global environment that is available to the
     build process."""
 
-    Path("sdk.yaml").write_text(get_sdk_yaml_string(release_version))
+    Path("sdk.yaml").write_text(sdk_yaml)
 
     monkeypatch.setattr(sys, "argv", ["sdkcraft", "prime", "--destructive-mode"])
 
-    ServiceFactory.register("package", Package)
-    ServiceFactory.register("lifecycle", Lifecycle)
-
-    service = ServiceFactory(
-        app=APP_METADATA,
-    )
-
-    app = Sdkcraft(app=APP_METADATA, services=service)
-    app.run()
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
 
     variables_yaml = new_path / "stage" / "variables.yaml"
     assert variables_yaml.is_file()
@@ -90,29 +68,22 @@ def test_global_environment(
 
 @pytest.mark.slow
 def test_pack(
-    new_path,
-    release_version,
-    monkeypatch,
+    new_path: Path,
+    sdk_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Test our additions to the global environment that is available to the
     build process."""
 
-    Path("sdk.yaml").write_text(get_sdk_yaml_string(release_version))
+    Path("sdk.yaml").write_text(sdk_yaml)
     Path("hooks").mkdir()
     (Path("hooks") / "setup-base").write_text("touch /etc/fstab\n")
     (Path("hooks") / "setup-base").chmod(stat.S_IRWXU | stat.S_IWGRP | stat.S_IROTH)
 
     monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
 
-    ServiceFactory.register("package", Package)
-    ServiceFactory.register("lifecycle", Lifecycle)
-
-    service = ServiceFactory(
-        app=APP_METADATA,
-    )
-
-    app = Sdkcraft(app=APP_METADATA, services=service)
-    app.run()
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
 
     subprocess.run(
         ["zstd", "--decompress", "-o", "my-project.tar", "my-project.sdk"],
@@ -132,10 +103,10 @@ def test_pack(
         }
         assert set(members.values()) == {1}
 
-        sdk_yaml = tar.extractfile("meta/sdk.yaml")
-        assert sdk_yaml is not None
-        with sdk_yaml:
-            metadata = yaml.safe_load(sdk_yaml)
+        meta_sdk_yaml = tar.extractfile("meta/sdk.yaml")
+        assert meta_sdk_yaml is not None
+        with meta_sdk_yaml:
+            metadata = yaml.safe_load(meta_sdk_yaml)
         assert metadata["name"] == "my-project"
         assert metadata["title"] == "My Project"
         assert metadata["version"] == "1.2.3"

@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Services for SDKcraft."""
+"""SDKcraft package service."""
 
 from __future__ import annotations
 
@@ -22,25 +22,23 @@ import pathlib
 import shutil
 import subprocess
 from datetime import datetime, timezone
-from typing import cast
 
 from craft_application import AppMetadata, services
-from overrides import override  # pyright: ignore[reportUnknownVariableType]
+from typing_extensions import override
 
 from sdkcraft import models
 
 
-class Package(services.PackageService):
-    """Package service for Sdkcraft."""
+class PackageService(services.PackageService):
+    """Package service for SDKcraft."""
 
     def __init__(
         self,
         app: AppMetadata,
-        project: models.Project,
         services: services.ServiceFactory,
         started_at: datetime | None = None,
     ) -> None:
-        super().__init__(app, services, project=project)
+        super().__init__(app, services)
 
         if started_at is None:
             started_at = datetime.now(timezone.utc)
@@ -53,7 +51,8 @@ class Package(services.PackageService):
         :param dest: Directory into which to write the package(s).
         :returns: A list of paths to created packages.
         """
-        sdk = dest / f"{self._project.name}.sdk"
+        project = self._services.get("project").get()
+        sdk = dest / f"{project.name}.sdk"
 
         sdk.unlink(missing_ok=True)
         names = (p.name for p in sorted(prime_dir.iterdir()))
@@ -84,7 +83,7 @@ class Package(services.PackageService):
     @override
     def metadata(self) -> models.Metadata:
         """Generate the sdk.yaml model for the output file."""
-        project = cast(models.Project, self._project)
+        project = self._services.get("project").get()
         return models.Metadata(
             **project.model_dump(
                 include={
@@ -117,7 +116,7 @@ class Package(services.PackageService):
         meta.mkdir(parents=True, exist_ok=True)
         self.metadata.to_yaml_file(meta / "sdk.yaml")
 
-        dirs = self._services.lifecycle.project_info.dirs
+        dirs = self._services.get("lifecycle").project_info.dirs
         hooks_source = dirs.project_dir / "hooks"
         if hooks_source.is_dir():
             hooks_target = path / "sdk" / "hooks"
