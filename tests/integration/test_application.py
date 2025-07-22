@@ -9,14 +9,14 @@ from pathlib import Path
 import pytest
 import sdkcraft.cli
 import yaml
+from craft_platforms import DebianArchitecture
 
-pytestmark = [pytest.mark.usefixtures("reset_callbacks")]
+pytestmark = [pytest.mark.slow, pytest.mark.usefixtures("reset_callbacks")]
 
 
 @pytest.fixture
-def sdk_yaml(release_version: str) -> str:
-    return (
-        """\
+def sdk_yaml_template() -> str:
+    return """\
 name: my-project
 title: My Project
 version: 1.2.3
@@ -26,7 +26,7 @@ summary: "example of global variables"
 description: "example of global variables"
 license: Apache-2.0
 platforms:
-  amd64:
+  DEBIAN_ARCH:
 
 parts:
   foo:
@@ -38,10 +38,22 @@ parts:
       echo "project_dir:     \\"${CRAFT_PROJECT_DIR}\\""     >> $target_file
       echo "project_version: \\"${CRAFT_PROJECT_VERSION}\\"" >> $target_file
 """
-    ).replace("RELEASE_VERSION", release_version, 1)
 
 
-@pytest.mark.slow
+@pytest.fixture
+def sdk_yaml(sdk_yaml_template: str, release_version: str) -> str:
+    arch = str(DebianArchitecture.from_host())
+    replacements = {
+        "RELEASE_VERSION": release_version,
+        "DEBIAN_ARCH": arch,
+    }
+
+    result = sdk_yaml_template
+    for key, value in replacements.items():
+        result = result.replace(key, value)
+    return result
+
+
 def test_global_environment(
     new_path: Path,
     sdk_yaml: str,
@@ -66,14 +78,12 @@ def test_global_environment(
     assert variables["project_version"] == "1.2.3"
 
 
-@pytest.mark.slow
 def test_pack(
     new_path: Path,
     sdk_yaml: str,
     monkeypatch: pytest.MonkeyPatch,
 ):
-    """Test our additions to the global environment that is available to the
-    build process."""
+    """Test packed SDK contents."""
 
     Path("sdk.yaml").write_text(sdk_yaml)
     Path("hooks").mkdir()
