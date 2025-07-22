@@ -1,0 +1,10 @@
+summary: SDKcraft pack test
+
+restore: |
+  run_sdkcraft clean || true
+
+execute: |
+  run_sdkcraft pack
+  test -f 'my-sdk-name_armhf_ubuntu@20.04.sdk'
+  test -f 'my-sdk-name_arm64_ubuntu@22.04.sdk'
+  test -f 'my-sdk-name_riscv64_ubuntu@24.04.sdk'

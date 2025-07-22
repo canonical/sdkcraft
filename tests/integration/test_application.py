@@ -186,11 +186,10 @@ def test_pack_base_agnostic(
             """\
 name: my-project
 version: 1.2.3
-base: ubuntu@RELEASE_VERSION
 platforms:
   all:
-    build-on: DEBIAN_ARCH
-    build-for: all
+    build-on: ubuntu@RELEASE_VERSION:DEBIAN_ARCH
+    build-for: ubuntu@RELEASE_VERSION:all
 """,
             id=pytest.HIDDEN_PARAM,
         ),

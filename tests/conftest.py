@@ -27,7 +27,12 @@ from craft_parts.errors import PartsError
 from craft_parts.utils.os_utils import OsRelease
 from craft_platforms import DebianArchitecture
 from sdkcraft.application import APP_METADATA
-from sdkcraft.services import PackageService, ProjectService, register_sdkcraft_services
+from sdkcraft.services import (
+    BuildPlanService,
+    PackageService,
+    ProjectService,
+    register_sdkcraft_services,
+)
 
 
 @pytest.fixture
@@ -103,6 +108,11 @@ def package_service_with_configured_project(
 ) -> PackageService:
     project_service.configure(platform=None, build_for=None)
     return package_service
+
+
+@pytest.fixture
+def build_plan_service(default_factory: ServiceFactory) -> BuildPlanService:
+    return cast(BuildPlanService, default_factory.get("build_plan"))
 
 
 @pytest.fixture

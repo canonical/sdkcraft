@@ -123,6 +123,10 @@ class PackageService(services.PackageService):
             raise MultipleBuildsError
         build_info = build_plan[0]
 
+        # Multi-base projects specify the base (not build-base) for each platform.
+        if not project.base and not project.build_base:
+            project = project.model_copy(update={"base": str(build_info.build_base)})
+
         return project, str(build_info.build_for)
 
     @override

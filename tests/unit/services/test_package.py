@@ -66,6 +66,39 @@ def test_build_base_metadata(
     assert package_service_with_configured_project.metadata.marshal() == metadata
 
 
+@pytest.mark.parametrize(
+    ("fake_arch_str", "project_data"),
+    [
+        pytest.param(
+            "s390x",
+            {
+                "name": "multi-base-metadata",
+                "version": "1.0",
+                "platforms": {
+                    "ubuntu@22.04:amd64": None,
+                    "ubuntu@22.04:arm64": None,
+                    "ubuntu@22.04:ppc64el": None,
+                    "ubuntu@24.04:s390x": None,
+                },
+            },
+            id=pytest.HIDDEN_PARAM,
+        ),
+    ],
+)
+def test_multi_base_metadata(
+    fake_arch: DebianArchitecture,
+    package_service_with_configured_project: PackageService,
+):
+    metadata = {
+        "name": "multi-base-metadata",
+        "version": "1.0",
+        "base": "ubuntu@24.04",
+        "architecture": str(fake_arch),
+        "sdkcraft-started-at": "1970-01-01T00:00:00Z",
+    }
+    assert package_service_with_configured_project.metadata.marshal() == metadata
+
+
 def test_write_metadata(
     new_path: Path,
     fake_arch: DebianArchitecture,
