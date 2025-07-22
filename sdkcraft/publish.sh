@@ -43,12 +43,13 @@ if [[ ! "$channel" =~ $re ]]; then
 fi
 
 SDK_FILE=$(basename "$1")
-SDK_NAME="${SDK_FILE%%.*}"
+SDK_NAME="${SDK_FILE%%_*}"
 BUCKET_DIR="gs://sdkstore/$SDK_NAME/$channel/"
+BUCKET_FILE="$BUCKET_DIR$SDK_NAME.sdk"
 
 echo "Uploading $SDK_FILE to $BUCKET_DIR..."
-gsutil -h "Cache-Control: no-store" cp "$SDK_FILE" "$BUCKET_DIR"
+gsutil -h "Cache-Control: no-store" cp "$SDK_PATH" "$BUCKET_FILE"
 
 echo "Publishing SDK meta data..."
-meta=$(tar -xOf "$SDK_FILE" meta/sdk.yaml | yq -r -o=j -I=0)
-gcloud storage objects update "$BUCKET_DIR""$SDK_FILE" --custom-metadata=^DELIM^sdk-yaml="$meta"
+meta=$(tar -xOf "$SDK_PATH" meta/sdk.yaml | yq -r -o=j -I=0)
+gcloud storage objects update "$BUCKET_FILE" --custom-metadata=^DELIM^sdk-yaml="$meta"

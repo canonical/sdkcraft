@@ -38,6 +38,7 @@ class Metadata(BaseMetadata):
     description: str | None = None
 
     base: str | None = None
+    architecture: str
 
     contact: str | UniqueStrList | None = None
     issues: str | UniqueStrList | None = None

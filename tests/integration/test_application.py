@@ -95,8 +95,11 @@ def test_pack(
     return_code = sdkcraft.cli.main()
     assert return_code == 0
 
+    arch = DebianArchitecture.from_host()
+    filename = f"my-project_{arch}_ubuntu@22.04.sdk"
+
     subprocess.run(
-        ["zstd", "--decompress", "-o", "my-project.tar", "my-project.sdk"],
+        ["zstd", "--decompress", "-o", "my-project.tar", filename],
         check=True,
         cwd=new_path,
     )
@@ -140,3 +143,73 @@ def test_pack(
         assert setup_base is not None
         with setup_base:
             assert setup_base.read() == b"touch /etc/fstab\n"
+
+
+@pytest.mark.parametrize(
+    "sdk_yaml_template",
+    [
+        pytest.param(
+            """\
+name: my-project
+version: 1.2.3
+build-base: ubuntu@RELEASE_VERSION
+platforms:
+  DEBIAN_ARCH:
+""",
+            id=pytest.HIDDEN_PARAM,
+        ),
+    ],
+)
+def test_pack_base_agnostic(
+    new_path: Path,
+    sdk_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    """Test packed SDK contents."""
+
+    Path("sdk.yaml").write_text(sdk_yaml)
+
+    monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    files = sorted(path.name for path in new_path.glob("*.sdk"))
+    arch = DebianArchitecture.from_host()
+    assert files == [f"my-project_{arch}.sdk"]
+
+
+@pytest.mark.parametrize(
+    "sdk_yaml_template",
+    [
+        pytest.param(
+            """\
+name: my-project
+version: 1.2.3
+base: ubuntu@RELEASE_VERSION
+platforms:
+  all:
+    build-on: DEBIAN_ARCH
+    build-for: all
+""",
+            id=pytest.HIDDEN_PARAM,
+        ),
+    ],
+)
+def test_pack_architecture_agnostic(
+    new_path: Path,
+    release_version: str,
+    sdk_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    """Test packed SDK contents."""
+
+    Path("sdk.yaml").write_text(sdk_yaml)
+
+    monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    files = sorted(path.name for path in new_path.glob("*.sdk"))
+    assert files == [f"my-project_all_ubuntu@{release_version}.sdk"]

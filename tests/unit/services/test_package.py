@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from craft_platforms import DebianArchitecture
 from sdkcraft.services.package import PackageService, datetime_as_utc_str
 
 DEFAULT_METADATA = {
@@ -21,14 +22,53 @@ DEFAULT_METADATA = {
 }
 
 
-def test_default_metadata(package_service_with_configured_project: PackageService):
+def test_default_metadata(
+    fake_arch: DebianArchitecture,
+    package_service_with_configured_project: PackageService,
+):
+    default_metadata = DEFAULT_METADATA | {"architecture": str(fake_arch)}
     assert (
-        package_service_with_configured_project.metadata.marshal() == DEFAULT_METADATA
+        package_service_with_configured_project.metadata.marshal() == default_metadata
     )
+
+
+@pytest.mark.parametrize(
+    ("fake_arch_str", "project_data"),
+    [
+        pytest.param(
+            "s390x",
+            {
+                "name": "build-base-metadata",
+                "version": "1.0",
+                "build-base": "ubuntu@20.04",
+                "platforms": {
+                    "all": {
+                        "build-on": ["amd64", "s390x"],
+                        "build-for": "all",
+                    },
+                },
+            },
+            id=pytest.HIDDEN_PARAM,
+        ),
+    ],
+)
+def test_build_base_metadata(
+    fake_arch: DebianArchitecture,
+    package_service_with_configured_project: PackageService,
+):
+    _ = fake_arch
+    metadata = {
+        "name": "build-base-metadata",
+        "version": "1.0",
+        "architecture": "all",
+        "sdkcraft-started-at": "1970-01-01T00:00:00Z",
+    }
+    assert package_service_with_configured_project.metadata.marshal() == metadata
 
 
 def test_write_metadata(
     new_path: Path,
+    fake_arch: DebianArchitecture,
     package_service_with_configured_project: PackageService,
     tmp_path_factory: pytest.TempPathFactory,
 ):
@@ -60,7 +100,9 @@ def test_write_metadata(
 
     with (prime_dir / "meta" / "sdk.yaml").open() as f:
         metadata = yaml.safe_load(f)
-    assert metadata == DEFAULT_METADATA
+
+    default_metadata = DEFAULT_METADATA | {"architecture": str(fake_arch)}
+    assert metadata == default_metadata
 
     assert contents(hooks_dir / "setup-base") == ". utils.sh\nmessage\n"
     assert contents(hooks_dir / "link") == Path("/x/y/z")

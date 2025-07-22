@@ -4,5 +4,7 @@ restore: |
   run_sdkcraft clean || true
 
 execute: |
+  arch="$(dpkg --print-architecture)"
+
   run_sdkcraft pack
-  test -f my-sdk-name.sdk
+  test -f "my-sdk-name_${arch}_ubuntu@22.04.sdk"
