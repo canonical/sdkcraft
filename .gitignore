@@ -150,4 +150,5 @@ dmypy.json
 .workshop.lock
 
 # Local e2e test
+/.spread-reuse.yaml
 /sdk.yaml
