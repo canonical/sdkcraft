@@ -1,5 +1,8 @@
 summary: SDKcraft pack test
 
+restore: |
+  run_sdkcraft clean || true
+
 execute: |
   # Create an SDK with hooks
   run_sdkcraft init

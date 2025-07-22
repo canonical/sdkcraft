@@ -1,5 +1,8 @@
 summary: SDKcraft tar dereference test
 
+restore: |
+  run_sdkcraft clean || true
+
 execute: |
   run_sdkcraft pack
   test -f my-sdk-name.sdk

@@ -1,5 +1,8 @@
 summary: SDKcraft init test
 
+restore: |
+  run_sdkcraft clean || true
+
 execute: |
   run_sdkcraft init
   test -f sdk.yaml

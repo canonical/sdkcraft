@@ -1,5 +1,8 @@
 summary: SDKcraft plugs test to ensure SDKcraft can consume various valid plugs
 
+restore: |
+  run_sdkcraft clean || true
+
 execute: |
   run_sdkcraft pack
   test -f my-sdk-name.sdk
