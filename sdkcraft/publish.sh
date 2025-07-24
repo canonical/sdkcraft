@@ -32,7 +32,7 @@ if [ ! -e "$SDK_PATH" ]; then
     exit 1
 fi
 
-re='^[a-z0-9]*/(stable|candidate|beta|edge)$'
+re='^[a-z0-9]([.-]?[a-z0-9])*/(stable|candidate|beta|edge)$'
 channel="$2"
 
 # shellcheck disable=SC2076
