@@ -25,7 +25,7 @@ lint-yamllint:  ##- Lint YAML files
 ifneq ($(CI),)
 	@echo ::group::$@
 endif
-	uv run yamllint .
+	uv run yamllint --strict .
 ifneq ($(CI),)
 	@echo ::endgroup::
 endif

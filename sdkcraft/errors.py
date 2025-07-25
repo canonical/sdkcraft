@@ -14,9 +14,11 @@
 
 """SDKcraft error definitions."""
 
+from collections.abc import Iterable
 from pathlib import Path
 
 from craft_cli import CraftError
+from craft_platforms import CraftPlatformsError
 
 
 class SdkcraftError(CraftError):
@@ -28,3 +30,18 @@ class SdkcraftInitError(SdkcraftError):
 
     def __init__(self, yaml_path: Path) -> None:
         super().__init__(f"{yaml_path} already exists!")
+
+
+class RepeatedPlatformError(CraftPlatformsError):
+    """Error when multiple platforms have the same build-for base and architecture."""
+
+    def __init__(
+        self,
+        platforms: Iterable[str],
+    ) -> None:
+        bf_platforms = ",".join(platforms)
+        super().__init__(
+            message="multiple platforms target the same base and architecture",
+            details=f"same build-for defined in platforms: {bf_platforms}",
+            resolution="Provide only one platform per build-for value.",
+        )

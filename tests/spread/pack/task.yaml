@@ -1,6 +1,11 @@
 summary: SDKcraft pack test
 
+restore: |
+  run_sdkcraft clean || true
+
 execute: |
+  arch="$(dpkg --print-architecture)"
+
   # Create an SDK with hooks
   run_sdkcraft init
   test -f sdk.yaml
@@ -9,7 +14,7 @@ execute: |
 
   # test packing outside of the sdk directory
   run_sdkcraft pack
-  test -f my-sdk-name.sdk
+  test -f "my-sdk-name_${arch}_ubuntu@22.04.sdk"
   test ! -d parts -a ! -d stage -a ! -d prime
 
-  diff -u expected <(tar -tf my-sdk-name.sdk | sort)
+  diff -u expected <(tar -tf "my-sdk-name_${arch}_ubuntu@22.04.sdk" | sort)

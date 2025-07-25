@@ -8,6 +8,7 @@ scripts:
     uv run ruff format
     uv run codespell --toml pyproject.toml --write-changes
   lint: |
+    set -x
     uv run ruff check
     uv run ruff format --diff
     uv run codespell --toml pyproject.toml
@@ -16,6 +17,6 @@ scripts:
     git ls-files | file --mime-type -Nnf- | grep shellscript | cut -f1 -d: | xargs -r shellcheck
     uv build --quiet .
     uv run twine check dist/*
-    uv run yamllint .
-  test: uv run --group "dev-$(lsb_release -cs)" pytest tests/unit
-  integration: uv run --group "dev-$(lsb_release -cs)" pytest tests/integration
+    uv run yamllint --strict .
+  test: uv run --group "dev-$(lsb_release -cs)" pytest tests/unit "$@"
+  integration: uv run --group "dev-$(lsb_release -cs)" pytest tests/integration "$@"

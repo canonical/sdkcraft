@@ -1,14 +1,19 @@
 summary: SDKcraft init test
 
+restore: |
+  run_sdkcraft clean || true
+
 execute: |
+  arch="$(dpkg --print-architecture)"
+
   run_sdkcraft init
   test -f sdk.yaml
   run_sdkcraft pack
 
-  test -f my-sdk-name.sdk
+  test -f "my-sdk-name_${arch}_ubuntu@22.04.sdk"
   test ! -d parts -a ! -d stage -a ! -d prime
 
-  rm my-sdk-name.sdk
+  rm "my-sdk-name_${arch}_ubuntu@22.04.sdk"
   run_sdkcraft
-  test -f my-sdk-name.sdk
+  test -f "my-sdk-name_${arch}_ubuntu@22.04.sdk"
   test ! -d parts -a ! -d stage -a ! -d prime

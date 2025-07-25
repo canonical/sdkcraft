@@ -13,6 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import platform
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,15 +22,38 @@ from typing import Any, cast
 import craft_parts.callbacks
 import pytest
 from craft_application.services import ServiceFactory
+from craft_application.util import dump_yaml
 from craft_parts.errors import PartsError
 from craft_parts.utils.os_utils import OsRelease
+from craft_platforms import DebianArchitecture
 from sdkcraft.application import APP_METADATA
-from sdkcraft.models import Project
-from sdkcraft.services import PackageService, ProjectService, register_sdkcraft_services
+from sdkcraft.services import (
+    BuildPlanService,
+    PackageService,
+    ProjectService,
+    register_sdkcraft_services,
+)
 
 
 @pytest.fixture
-def default_project_raw() -> dict[str, Any]:
+def fake_arch_str() -> str:
+    return "ppc64el"
+
+
+@pytest.fixture
+def fake_arch(
+    fake_arch_str: str, monkeypatch: pytest.MonkeyPatch
+) -> DebianArchitecture:
+    arch = DebianArchitecture(fake_arch_str)
+    real_uname = platform.uname
+    monkeypatch.setattr(
+        "platform.uname", lambda: real_uname()._replace(machine=arch.to_platform_arch())
+    )
+    return arch
+
+
+@pytest.fixture
+def project_data(fake_arch: DebianArchitecture) -> dict[str, Any]:
     return {
         "name": "default",
         "title": "default title",
@@ -37,7 +61,7 @@ def default_project_raw() -> dict[str, Any]:
         "summary": "default project",
         "description": "default project",
         "base": "ubuntu@22.04",
-        "platforms": {"amd64": None},
+        "platforms": {str(fake_arch): None},
         "contact": "requests@canonical.com",
         "issues": "https://github.com/canonical/sdks/issues",
         "source-code": "https://github.com/canonical/sdks",
@@ -47,13 +71,8 @@ def default_project_raw() -> dict[str, Any]:
 
 
 @pytest.fixture
-def default_project(default_project_raw: dict[str, Any]) -> Project:
-    return Project.unmarshal(default_project_raw)
-
-
-@pytest.fixture
 def default_factory(
-    default_project: Project, tmp_path_factory: pytest.TempPathFactory
+    project_data: dict[str, Any], tmp_path_factory: pytest.TempPathFactory
 ) -> ServiceFactory:
     register_sdkcraft_services()
     factory = ServiceFactory(APP_METADATA)
@@ -62,7 +81,8 @@ def default_factory(
     project_dir = tmp_path_factory.mktemp("project")
     work_dir = tmp_path_factory.mktemp("work")
 
-    default_project.to_yaml_file(project_dir / "sdk.yaml")
+    with (project_dir / "sdk.yaml").open("w") as f:
+        dump_yaml(project_data, f)
 
     factory.update_kwargs("lifecycle", cache_dir=cache_dir, work_dir=work_dir)
     factory.update_kwargs("package", started_at=datetime.fromtimestamp(0, timezone.utc))
@@ -88,6 +108,11 @@ def package_service_with_configured_project(
 ) -> PackageService:
     project_service.configure(platform=None, build_for=None)
     return package_service
+
+
+@pytest.fixture
+def build_plan_service(default_factory: ServiceFactory) -> BuildPlanService:
+    return cast(BuildPlanService, default_factory.get("build_plan"))
 
 
 @pytest.fixture

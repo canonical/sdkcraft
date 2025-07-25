@@ -24,6 +24,8 @@ import subprocess
 from datetime import datetime, timezone
 
 from craft_application import AppMetadata, services
+from craft_application.errors import EmptyBuildPlanError, MultipleBuildsError
+from craft_application.models import Project
 from typing_extensions import override
 
 from sdkcraft import models
@@ -51,8 +53,12 @@ class PackageService(services.PackageService):
         :param dest: Directory into which to write the package(s).
         :returns: A list of paths to created packages.
         """
-        project = self._services.get("project").get()
-        sdk = dest / f"{project.name}.sdk"
+        project, arch = self._project_and_arch()
+
+        components = [project.name, arch]
+        if project.base:
+            components.append(project.base)
+        sdk = dest / ("_".join(components) + ".sdk")
 
         sdk.unlink(missing_ok=True)
         names = (p.name for p in sorted(prime_dir.iterdir()))
@@ -83,7 +89,7 @@ class PackageService(services.PackageService):
     @override
     def metadata(self) -> models.Metadata:
         """Generate the sdk.yaml model for the output file."""
-        project = self._services.get("project").get()
+        project, arch = self._project_and_arch()
         return models.Metadata(
             **project.model_dump(
                 include={
@@ -103,8 +109,25 @@ class PackageService(services.PackageService):
                 by_alias=True,
                 exclude_unset=True,
             ),
+            architecture=arch,
             sdkcraft_started_at=datetime_as_utc_str(self._started_at),
         )
+
+    def _project_and_arch(self) -> tuple[Project, str]:
+        project = self._services.get("project").get()
+
+        build_plan = self._services.get("build_plan").plan()
+        if len(build_plan) <= 0:
+            raise EmptyBuildPlanError
+        if len(build_plan) > 1:
+            raise MultipleBuildsError
+        build_info = build_plan[0]
+
+        # Multi-base projects specify the base (not build-base) for each platform.
+        if not project.base and not project.build_base:
+            project = project.model_copy(update={"base": str(build_info.build_base)})
+
+        return project, str(build_info.build_for)
 
     @override
     def write_metadata(self, path: pathlib.Path) -> None:

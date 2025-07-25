@@ -33,8 +33,8 @@ from sdkcraft.models.project import (
 )
 
 
-def test_project_create_valid(default_project_raw: dict[str, Any]):
-    project = Project.unmarshal(default_project_raw)
+def test_project_create_valid(project_data: dict[str, Any]):
+    project = Project.unmarshal(project_data)
     assert project.name == "default"
     assert project.title == "default title"
     assert project.version == "1.0"
@@ -43,7 +43,7 @@ def test_project_create_valid(default_project_raw: dict[str, Any]):
     assert project.base == "ubuntu@22.04"
     assert project.build_base is None
     assert project.platforms == {
-        "amd64": models.Platform(build_for=["amd64"], build_on=["amd64"]),
+        "ppc64el": models.Platform(build_for=["ppc64el"], build_on=["ppc64el"]),
     }
     assert project.contact == "requests@canonical.com"
     assert project.issues == "https://github.com/canonical/sdks/issues"
