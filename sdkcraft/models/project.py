@@ -22,8 +22,8 @@ import json
 from pathlib import Path
 from typing import Annotated, Any, Literal, Protocol, TypeGuard, runtime_checkable
 
-import craft_parts
 from craft_application import models
+from craft_application.models import project
 from pydantic import AfterValidator, BeforeValidator, Field
 
 from sdkcraft.models.constraints import Endpoint, ProjectName
@@ -166,16 +166,6 @@ Slots = Annotated[
 ]
 
 
-# TODO: replace with models.Part after merging  # noqa: FIX002
-# https://github.com/canonical/craft-application/pull/675
-def _before_validate_part(part: Any) -> Any:  # noqa: ANN401
-    craft_parts.validate_part(part)
-    return part
-
-
-BasePart = Annotated[dict[str, Any], BeforeValidator(_before_validate_part)]
-
-
 def _after_validate_part(item: dict[str, Any]) -> dict[str, Any]:
     """Verify SDK-specific attributes for a part."""
     if item.get("stage-packages") is not None:
@@ -191,7 +181,7 @@ def _after_validate_part(item: dict[str, Any]) -> dict[str, Any]:
     return item
 
 
-Part = Annotated[BasePart, AfterValidator(_after_validate_part)]
+Part = Annotated[project.Part, AfterValidator(_after_validate_part)]
 
 
 DEFAULT_PART = {"default-part": {"plugin": "nil"}}
