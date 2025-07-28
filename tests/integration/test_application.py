@@ -11,7 +11,7 @@ import sdkcraft.cli
 import yaml
 from craft_platforms import DebianArchitecture
 
-pytestmark = [pytest.mark.slow, pytest.mark.usefixtures("reset_callbacks")]
+pytestmark = [pytest.mark.slow, pytest.mark.usefixtures("reset_callbacks", "state_dir")]
 
 
 @pytest.fixture
