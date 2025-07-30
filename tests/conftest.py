@@ -147,3 +147,11 @@ def reset_callbacks() -> Iterator[None]:
     craft_parts.callbacks.unregister_all()
     yield
     craft_parts.callbacks.unregister_all()
+
+
+@pytest.fixture
+def state_dir(
+    tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Fixture that makes StateService use a new directory for each test."""
+    monkeypatch.setenv("CRAFT_STATE_DIR", str(tmp_path_factory.mktemp("state")))
