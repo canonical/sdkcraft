@@ -29,6 +29,7 @@ APP_METADATA = AppMetadata(
     docs_url="https://canonical-workshop.readthedocs-hosted.com/{version}",
     source_ignore_patterns=["*.sdk"],
     ProjectClass=Project,
+    supports_multi_base=True,
 )
 
 
