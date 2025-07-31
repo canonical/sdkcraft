@@ -4,6 +4,7 @@ import sys
 import tarfile
 from collections import Counter
 from datetime import datetime
+from hashlib import file_digest, sha3_384
 from pathlib import Path
 
 import pytest
@@ -210,3 +211,36 @@ def test_pack_architecture_agnostic(
 
     files = sorted(path.name for path in new_path.glob("*.sdk"))
     assert files == [f"my-project_all_ubuntu@{release_version}.sdk"]
+
+
+def test_try(
+    new_path: Path,
+    sdk_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path_factory: pytest.TempPathFactory,
+):
+    """Test packed SDK contents."""
+
+    Path("sdk.yaml").write_text(sdk_yaml)
+    data_home = tmp_path_factory.mktemp("share")
+
+    monkeypatch.setattr(sys, "argv", ["sdkcraft", "try", "--destructive-mode"])
+    monkeypatch.setenv("XDG_DATA_HOME", str(data_home))
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    try_area = data_home / "workshop" / "sdk" / "my-project"
+    files = sorted(path.name for path in try_area.iterdir())
+    arch = str(DebianArchitecture.from_host())
+    sdk = f"my-project_{arch}_ubuntu@22.04.sdk"
+    assert files == [sdk, f"{sdk}.sha3-384", f"{sdk}.yaml"]
+
+    with (try_area / sdk).open("rb") as f:
+        computed = file_digest(f, sha3_384).hexdigest()
+    saved = (try_area / f"{sdk}.sha3-384").read_text().strip()
+    assert computed == saved
+
+    tried_meta = (try_area / f"{sdk}.yaml").read_text()
+    primed_meta = (new_path / "prime" / "meta" / "sdk.yaml").read_text()
+    assert tried_meta == primed_meta

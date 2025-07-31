@@ -7,6 +7,7 @@ dependencies = [
     "craft-cli>=3.1.2",
     "craft-parts>=2.19.0",
     "craft-platforms>=0.10.0",
+    "platformdirs>=4.3.8",
     "pydantic>=2.11.7",
 ]
 classifiers = [

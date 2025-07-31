@@ -1,4 +1,4 @@
-summary: SDKcraft pack test
+summary: SDKcraft multi-base pack test
 
 restore: |
   run_sdkcraft clean || true
@@ -8,3 +8,11 @@ execute: |
   test -f 'my-sdk-name_armhf_ubuntu@20.04.sdk'
   test -f 'my-sdk-name_arm64_ubuntu@22.04.sdk'
   test -f 'my-sdk-name_riscv64_ubuntu@24.04.sdk'
+
+  run_sdkcraft try
+  try_area="$HOME/.local/share/workshop/sdk/my-sdk-name"
+  for ext in '' '.sha3-384' '.yaml'; do
+    test -f "$try_area/my-sdk-name_armhf_ubuntu@20.04.sdk$ext"
+    test -f "$try_area/my-sdk-name_arm64_ubuntu@22.04.sdk$ext"
+    test -f "$try_area/my-sdk-name_riscv64_ubuntu@24.04.sdk$ext"
+  done
