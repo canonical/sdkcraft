@@ -4,6 +4,10 @@ description = "A tool to create SDKs for Workshop"
 dynamic = ["version", "readme"]
 dependencies = [
     "craft-application>=5.0.0",
+    "craft-cli>=3.1.2",
+    "craft-parts>=2.19.0",
+    "craft-platforms>=0.10.0",
+    "pydantic>=2.11.7",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",

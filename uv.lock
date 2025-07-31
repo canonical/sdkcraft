@@ -1135,6 +1135,10 @@ name = "sdkcraft"
 source = { editable = "." }
 dependencies = [
     { name = "craft-application" },
+    { name = "craft-cli" },
+    { name = "craft-parts" },
+    { name = "craft-platforms" },
+    { name = "pydantic" },
 ]
 
 [package.optional-dependencies]
@@ -1172,6 +1176,10 @@ dev-plucky = [
 [package.metadata]
 requires-dist = [
     { name = "craft-application", specifier = ">=5.0.0" },
+    { name = "craft-cli", specifier = ">=3.1.2" },
+    { name = "craft-parts", specifier = ">=2.19.0" },
+    { name = "craft-platforms", specifier = ">=0.10.0" },
+    { name = "pydantic", specifier = ">=2.11.7" },
     { name = "python-apt", marker = "sys_platform == 'linux' and extra == 'apt'", specifier = ">=2.4.0", index = "https://people.canonical.com/~lengau/python-apt-ubuntu-wheels/" },
 ]
 provides-extras = ["apt"]
