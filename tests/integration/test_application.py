@@ -244,3 +244,68 @@ def test_try(
     tried_meta = (try_area / f"{sdk}.yaml").read_text()
     primed_meta = (new_path / "prime" / "meta" / "sdk.yaml").read_text()
     assert tried_meta == primed_meta
+
+
+def test_try_files(
+    new_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path_factory: pytest.TempPathFactory,
+):
+    """Test packed SDK contents."""
+
+    data_home = tmp_path_factory.mktemp("share")
+
+    (new_path / "meta").mkdir()
+    (new_path / "meta" / "sdk.yaml").write_text("fake: yaml")
+
+    filenames = (
+        "my-project_all.sdk",
+        "multi_ppc64el_ubuntu@22.04.sdk",
+        "multi_ppc64el_ubuntu@24.04.sdk",
+    )
+
+    for filename in filenames:
+        with tarfile.open(filename, "w") as tf:
+            tf.add("meta")
+
+    monkeypatch.setattr(
+        sys, "argv", ["sdkcraft", "try", "--destructive-mode", *filenames]
+    )
+    monkeypatch.setenv("XDG_DATA_HOME", str(data_home))
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    try_area = data_home / "workshop" / "sdk" / "my-project"
+    files = sorted(path.name for path in try_area.iterdir())
+    assert files == [
+        "my-project_all.sdk",
+        "my-project_all.sdk.sha3-384",
+        "my-project_all.sdk.yaml",
+    ]
+
+    try_area = data_home / "workshop" / "sdk" / "multi"
+    files = sorted(path.name for path in try_area.iterdir())
+    assert files == [
+        "multi_ppc64el_ubuntu@22.04.sdk",
+        "multi_ppc64el_ubuntu@22.04.sdk.sha3-384",
+        "multi_ppc64el_ubuntu@22.04.sdk.yaml",
+        "multi_ppc64el_ubuntu@24.04.sdk",
+        "multi_ppc64el_ubuntu@24.04.sdk.sha3-384",
+        "multi_ppc64el_ubuntu@24.04.sdk.yaml",
+    ]
+
+    monkeypatch.setattr(
+        sys, "argv", ["sdkcraft", "try", "--destructive-mode", "not-an-sdk"]
+    )
+    return_code = sdkcraft.cli.main()
+    assert return_code != 0
+
+    invalid_name = "inval!d-N@me_all.sdk"
+    with tarfile.open(invalid_name, "w") as tf:
+        tf.add("meta")
+    monkeypatch.setattr(
+        sys, "argv", ["sdkcraft", "try", "--destructive-mode", invalid_name]
+    )
+    return_code = sdkcraft.cli.main()
+    assert return_code != 0

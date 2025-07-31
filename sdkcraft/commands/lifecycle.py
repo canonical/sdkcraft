@@ -19,7 +19,7 @@ import os
 import shutil
 import subprocess
 import textwrap
-from argparse import Namespace
+from argparse import ArgumentParser, Namespace
 from collections.abc import Iterable, Iterator
 from contextlib import ExitStack
 from hashlib import file_digest, sha3_384
@@ -30,10 +30,15 @@ from typing import Any
 import platformdirs
 from craft_application import PackageService
 from craft_application.commands import lifecycle
+from craft_application.errors import CraftValidationError
 from craft_application.util import is_managed_mode
 from craft_cli import CraftError, emit
 from craft_platforms import BuildInfo
+from pydantic import TypeAdapter, ValidationError
 from typing_extensions import override
+
+from sdkcraft.errors import SdkcraftFilenameError
+from sdkcraft.models.constraints import ProjectName
 
 
 class PackCommand(lifecycle.PackCommand):
@@ -88,9 +93,31 @@ class TryCommand(PackCommand):
     )
 
     @override
+    def _fill_parser(self, parser: ArgumentParser) -> None:
+        super()._fill_parser(parser)
+
+        parser.add_argument(
+            "sdks",
+            metavar="SDKs",
+            type=Path,
+            nargs="*",
+            help="Skip packing and try out specific SDK files.",
+        )
+        parser.format_usage()
+
+    @override
+    def needs_project(self, parsed_args: Namespace) -> bool:
+        return not parsed_args.sdks
+
+    @override
     def _run(
         self, parsed_args: Namespace, step_name: str | None = None, **kwargs: Any
     ) -> None:
+        if parsed_args.sdks:
+            for name, paths in _sdks_by_name(parsed_args.sdks).items():
+                self._try(name, paths)
+            return
+
         super()._run(parsed_args=parsed_args, step_name=step_name, **kwargs)
         if is_managed_mode():
             # If we're in managed mode, we just need to pack.
@@ -141,6 +168,20 @@ class TryCommand(PackCommand):
             stack.pop_all()
 
         emit.progress("Copied SDKs to try area.", permanent=True)
+
+
+def _sdks_by_name(sdks: Iterable[Path]) -> dict[str, list[Path]]:
+    by_name: dict[str, list[Path]] = {}
+    for sdk in sdks:
+        name, sep, _ = sdk.name.partition("_")
+        if not sep:
+            raise SdkcraftFilenameError(sdk.name)
+        try:
+            TypeAdapter(ProjectName).validate_python(name)
+        except ValidationError as e:
+            raise CraftValidationError.from_pydantic(e, file_name="filename") from None
+        by_name.setdefault(name, []).append(sdk)
+    return by_name
 
 
 def _artifact(package: PackageService, build_info: BuildInfo) -> Path:
