@@ -18,9 +18,9 @@
 from typing import override
 
 from craft_application import Application, AppMetadata
-from craft_application.commands.lifecycle import PackCommand
 from craft_cli import Dispatcher
 
+from sdkcraft.commands import PackCommand
 from sdkcraft.models import Project
 
 APP_METADATA = AppMetadata(
@@ -30,6 +30,7 @@ APP_METADATA = AppMetadata(
     source_ignore_patterns=["*.sdk"],
     ProjectClass=Project,
     supports_multi_base=True,
+    always_repack=False,
 )
 
 
