@@ -15,10 +15,11 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Main application class for sdkcraft."""
 
+from typing import override
+
 from craft_application import Application, AppMetadata
 from craft_application.commands.lifecycle import PackCommand
 from craft_cli import Dispatcher
-from typing_extensions import override
 
 from sdkcraft.models import Project
 

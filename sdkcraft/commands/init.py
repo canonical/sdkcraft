@@ -17,10 +17,10 @@
 import textwrap
 from argparse import Namespace
 from pathlib import Path
+from typing import override
 
 from craft_application.commands import AppCommand
 from craft_cli import emit
-from typing_extensions import override
 
 from sdkcraft.errors import SdkcraftInitError
 

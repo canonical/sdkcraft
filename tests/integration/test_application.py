@@ -127,8 +127,6 @@ def test_pack(
         assert "parts" not in metadata
 
         started_at_str = metadata["sdkcraft-started-at"]
-        if sys.version_info < (3, 11) and started_at_str.endswith("Z"):
-            started_at_str = started_at_str[:-1] + "+00:00"
         started_at = datetime.fromisoformat(started_at_str)
 
         info = tar.getmember("sdk/hooks/setup-base")

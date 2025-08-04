@@ -18,7 +18,7 @@
 import os
 import pathlib
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, override
 
 from craft_application import AppMetadata, ServiceFactory, services
 from craft_application.errors import (
@@ -30,7 +30,6 @@ from craft_application.models import Platform
 from craft_cli import emit
 from craft_platforms import PlatformDict
 from pydantic import TypeAdapter
-from typing_extensions import override
 
 
 class ProjectService(services.ProjectService):

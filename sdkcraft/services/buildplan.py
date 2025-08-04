@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from itertools import chain, product
-from typing import Any
+from typing import Any, override
 
 from craft_application.services import buildplan
 from craft_platforms import (
@@ -30,7 +30,6 @@ from craft_platforms import (
     RequiresBaseError,
     parse_base_and_architecture,
 )
-from typing_extensions import override
 
 from sdkcraft.errors import RepeatedPlatformError
 from sdkcraft.models.project import Project

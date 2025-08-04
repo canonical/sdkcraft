@@ -9,12 +9,10 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: GNU General Public License (GPL)",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 
 [project.scripts]
 sdkcraft = "sdkcraft.cli:main"
@@ -122,7 +120,7 @@ exclude_also = [
 
 [tool.pyright]
 strict = ["sdkcraft"]
-pythonVersion = "3.10"
+pythonVersion = "3.12"
 pythonPlatform = "Linux"
 exclude = [
     "**/.*",
@@ -132,7 +130,7 @@ exclude = [
 ]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
 exclude = [
     "build",
     "results",
@@ -270,7 +268,6 @@ ignore-decorators = [  # Functions with these decorators don't have to have docs
     "typing.overload",  # Default configuration
     # So child classes don't have to repeat parent classes' docstrings.
     "typing.override",
-    "typing_extensions.override",
 ]
 
 [tool.ruff.lint.pylint]
