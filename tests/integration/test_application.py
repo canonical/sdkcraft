@@ -245,6 +245,11 @@ def test_try(
     primed_meta = (new_path / "prime" / "meta" / "sdk.yaml").read_text()
     assert tried_meta == primed_meta
 
+    monkeypatch.setattr(sys, "argv", ["sdkcraft", "clean", "--destructive-mode"])
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+    assert not try_area.exists()
+
 
 def test_try_files(
     new_path: Path,

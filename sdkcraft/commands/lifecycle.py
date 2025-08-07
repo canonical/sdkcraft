@@ -21,7 +21,7 @@ import subprocess
 import textwrap
 from argparse import ArgumentParser, Namespace
 from collections.abc import Iterable, Iterator
-from contextlib import ExitStack
+from contextlib import ExitStack, suppress
 from hashlib import file_digest, sha3_384
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -207,3 +207,37 @@ def _rename(source: Path, target: Path) -> None:
     with TemporaryDirectory(dir=target.parent) as cleanup:
         target.replace(cleanup)
         source.rename(target)
+
+
+class CleanCommand(lifecycle.CleanCommand):
+    """Command to remove part assets."""
+
+    @override
+    def _run(
+        self,
+        parsed_args: Namespace,
+        **kwargs: Any,
+    ) -> None:
+        """Run the clean command.
+
+        The project's work directory will be cleaned if:
+        - the `--destructive-mode` flag is provided OR
+        - `CRAFT_BUILD_ENVIRONMENT` is set to `host` OR
+        - no list of specific parts to clean is provided
+
+        Otherwise, it will clean an instance.
+        """
+        super()._run(parsed_args, **kwargs)
+
+        if not parsed_args.parts:
+            project = self._services.get("project").get()
+            _remove_try_sdk(project.name)
+
+
+def _remove_try_sdk(name: str) -> None:
+    try_area = platformdirs.user_data_path("workshop") / "sdk"
+    with (
+        TemporaryDirectory(dir=try_area) as cleanup,
+        suppress(FileNotFoundError),
+    ):
+        (try_area / name).replace(cleanup)
