@@ -114,8 +114,8 @@ class TryCommand(PackCommand):
         self, parsed_args: Namespace, step_name: str | None = None, **kwargs: Any
     ) -> None:
         if parsed_args.sdks:
-            for name, paths in _sdks_by_name(parsed_args.sdks).items():
-                self._try(name, paths)
+            for name, artifacts in _sdks_by_name(parsed_args.sdks).items():
+                self._try(name, artifacts)
             return
 
         super()._run(parsed_args=parsed_args, step_name=step_name, **kwargs)
@@ -183,17 +183,28 @@ class TryCommand(PackCommand):
         )
 
 
-def _sdks_by_name(sdks: Iterable[Path]) -> dict[str, list[Path]]:
-    by_name: dict[str, list[Path]] = {}
+def _sdks_by_name(sdks: Iterable[Path]) -> dict[str, dict[str, Path]]:
+    by_name: dict[str, dict[str, Path]] = {}
+
     for sdk in sdks:
-        name, sep, _ = sdk.name.partition("_")
-        if not sep:
+        parts = sdk.stem.split("_", 2)
+        if len(parts) <= 1:
             raise SdkcraftFilenameError(sdk.name)
+
+        name, *rest = parts
         try:
             TypeAdapter(ProjectName).validate_python(name)
         except ValidationError as e:
             raise CraftValidationError.from_pydantic(e, file_name="filename") from None
-        by_name.setdefault(name, []).append(sdk)
+
+        if len(rest) == 1:
+            (platform,) = rest
+        else:
+            arch, base = rest
+            platform = f"{base}:{arch}"
+
+        by_name.setdefault(name, {})[platform] = sdk
+
     return by_name
 
 

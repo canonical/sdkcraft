@@ -281,7 +281,7 @@ def test_try_files(
     return_code = sdkcraft.cli.main()
     assert return_code == 0
 
-    try_area = data_home / "workshop" / "sdk" / "my-project"
+    try_area = data_home / "workshop" / "try" / "my-project"
     files = sorted(path.name for path in try_area.iterdir())
     assert files == [
         "my-project_all.sdk",
@@ -289,7 +289,7 @@ def test_try_files(
         "my-project_all.sdk.yaml",
     ]
 
-    try_area = data_home / "workshop" / "sdk" / "multi"
+    try_area = data_home / "workshop" / "try" / "multi"
     files = sorted(path.name for path in try_area.iterdir())
     assert files == [
         "multi_ppc64el_ubuntu@22.04.sdk",
