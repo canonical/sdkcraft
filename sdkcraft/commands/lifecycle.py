@@ -259,7 +259,7 @@ class CleanCommand(lifecycle.CleanCommand):
 
 
 def _remove_try_sdk(name: str) -> None:
-    try_area = platformdirs.user_data_path("workshop") / "sdk"
+    try_area = platformdirs.user_data_path("workshop") / "try"
     with (
         TemporaryDirectory(dir=try_area) as cleanup,
         suppress(FileNotFoundError),
