@@ -20,7 +20,7 @@ import shutil
 import subprocess
 import textwrap
 from argparse import ArgumentParser, Namespace
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Mapping
 from contextlib import ExitStack, suppress
 from hashlib import file_digest, sha3_384
 from pathlib import Path
@@ -125,19 +125,25 @@ class TryCommand(PackCommand):
 
         build_plan = self._services.get("build_plan").plan()
         package = self._services.get("package")
-        artifacts = [_artifact(package, build_info) for build_info in build_plan]
+        artifacts = {
+            build_info.platform: _artifact(package, build_info)
+            for build_info in build_plan
+        }
 
         project = self._services.get("project").get()
         self._try(project.name, artifacts)
 
-    def _try(self, name: str, artifacts: Iterable[Path]) -> None:
-        try_area = platformdirs.user_data_path("workshop") / "sdk"
+    def _try(self, name: str, artifacts: Mapping[str, Path]) -> None:
+        if not artifacts:
+            return
+
+        try_area = platformdirs.user_data_path("workshop") / "try"
         try_area.mkdir(parents=True, exist_ok=True)
 
         with ExitStack() as stack:
             target = Path(stack.enter_context(TemporaryDirectory(dir=try_area)))
 
-            for artifact in artifacts:
+            for artifact in artifacts.values():
                 emit.progress(f"Copying {artifact.name}...")
                 artifact_path = target / artifact.name
                 shutil.copy2(artifact, artifact_path)
@@ -167,7 +173,14 @@ class TryCommand(PackCommand):
             _rename(target, try_area / name)
             stack.pop_all()
 
-        emit.progress("Copied SDKs to try area.", permanent=True)
+        platforms = ", ".join(artifacts.keys())
+        try_name = f"try-{name}"
+        command = "workshop refresh"
+
+        emit.progress(f"Copied {name} SDK ({platforms}) to try area.", permanent=True)
+        emit.message(
+            f"To use it, add {try_name!r} to the list of SDKs and run {command!r}."
+        )
 
 
 def _sdks_by_name(sdks: Iterable[Path]) -> dict[str, list[Path]]:

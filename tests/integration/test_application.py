@@ -230,7 +230,7 @@ def test_try(
     return_code = sdkcraft.cli.main()
     assert return_code == 0
 
-    try_area = data_home / "workshop" / "sdk" / "my-project"
+    try_area = data_home / "workshop" / "try" / "my-project"
     files = sorted(path.name for path in try_area.iterdir())
     arch = str(DebianArchitecture.from_host())
     sdk = f"my-project_{arch}_ubuntu@22.04.sdk"
