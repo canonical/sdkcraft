@@ -24,7 +24,7 @@ from craft_application.models import constraints
 from pydantic import AfterValidator, BeforeValidator, Field
 from pydantic.fields import FieldInfo
 
-RESERVED_NAME_REGEX = r"(?!^(system|project-.*|sketch)$)"
+RESERVED_NAME_REGEX = r"(?!^(system|try-.*|project-.*|sketch)$)"
 RESERVED_NAME_COMPILED_REGEX = re.compile(RESERVED_NAME_REGEX)
 MESSAGE_RESERVED_NAME = (
     "invalid name: Names cannot be 'system', 'sketch' or start with 'project-'."

@@ -22,11 +22,11 @@ import pathlib
 import shutil
 import subprocess
 from datetime import datetime, timezone
+from typing import override
 
 from craft_application import AppMetadata, services
 from craft_application.errors import EmptyBuildPlanError, MultipleBuildsError
 from craft_application.models import Project
-from typing_extensions import override
 
 from sdkcraft import models
 

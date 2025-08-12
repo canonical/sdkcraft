@@ -1,0 +1,13 @@
+name: my-sdk-name
+version: '0.1'
+summary: foo
+build-base: ubuntu@22.04
+platforms:
+  all:
+    build-on: [amd64, arm64]
+    build-for: all
+parts:
+  # Need at least one part to workaround
+  # https://github.com/canonical/craft-application/issues/844
+  workaround:
+    plugin: nil

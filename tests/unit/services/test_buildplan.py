@@ -162,8 +162,8 @@ def test_multi_base(build_plan_service: BuildPlanService):
                 "build-base": "ubuntu@20.04",
                 "platforms": {
                     "all": {
-                        "build_on": ["amd64", "arm64"],
-                        "build_for": "all",
+                        "build-on": ["amd64", "arm64"],
+                        "build-for": "all",
                     },
                 },
             },
@@ -199,12 +199,12 @@ def test_architecture_agnostic(build_plan_service: BuildPlanService):
                 "name": "multi-base-architecture-agnostic",
                 "platforms": {
                     "noble": {
-                        "build_on": ["ubuntu@24.04:amd64", "ubuntu@24.04:arm64"],
-                        "build_for": "ubuntu@24.04:all",
+                        "build-on": ["ubuntu@24.04:amd64", "ubuntu@24.04:arm64"],
+                        "build-for": "ubuntu@24.04:all",
                     },
                     "jammy": {
-                        "build_on": ["ubuntu@22.04:amd64", "ubuntu@22.04:arm64"],
-                        "build_for": "ubuntu@22.04:all",
+                        "build-on": ["ubuntu@22.04:amd64", "ubuntu@22.04:arm64"],
+                        "build-for": "ubuntu@22.04:all",
                     },
                 },
             },
@@ -252,16 +252,16 @@ def test_multi_base_architecture_agnostic(build_plan_service: BuildPlanService):
                 "name": "multi-base-i386-s390x",
                 "platforms": {
                     "x86": {
-                        "build_on": ["ubuntu@24.04:i386", "ubuntu@24.04:amd64"],
-                        "build_for": "ubuntu@24.04:i386",
+                        "build-on": ["ubuntu@24.04:i386", "ubuntu@24.04:amd64"],
+                        "build-for": "ubuntu@24.04:i386",
                     },
                     "arm": {
-                        "build_on": ["ubuntu@24.04:armhf", "ubuntu@24.04:arm64"],
-                        "build_for": ["ubuntu@24.04:armhf"],
+                        "build-on": ["ubuntu@24.04:armhf", "ubuntu@24.04:arm64"],
+                        "build-for": ["ubuntu@24.04:armhf"],
                     },
                     "legacy": {
-                        "build_on": "ubuntu@20.04:i386",
-                        "build_for": "ubuntu@20.04:i386",
+                        "build-on": "ubuntu@20.04:i386",
+                        "build-for": "ubuntu@20.04:i386",
                     },
                 },
             },
@@ -435,8 +435,8 @@ def test_repeated_platform_errors(build_plan_service: BuildPlanService):
                 "base": "ubuntu@24.04",
                 "platforms": {
                     "all": {
-                        "build_on": ["amd64", "arm64"],
-                        "build_for": "all",
+                        "build-on": ["amd64", "arm64"],
+                        "build-for": "all",
                     },
                     "ppc64el": None,
                 },

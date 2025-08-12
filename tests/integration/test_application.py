@@ -1,9 +1,9 @@
 import stat
 import subprocess
-import sys
 import tarfile
 from collections import Counter
 from datetime import datetime
+from hashlib import file_digest, sha3_384
 from pathlib import Path
 
 import pytest
@@ -64,7 +64,7 @@ def test_global_environment(
 
     Path("sdk.yaml").write_text(sdk_yaml)
 
-    monkeypatch.setattr(sys, "argv", ["sdkcraft", "prime", "--destructive-mode"])
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "prime", "--destructive-mode"])
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -90,7 +90,7 @@ def test_pack(
     (Path("hooks") / "setup-base").write_text("touch /etc/fstab\n")
     (Path("hooks") / "setup-base").chmod(stat.S_IRWXU | stat.S_IWGRP | stat.S_IROTH)
 
-    monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -127,8 +127,6 @@ def test_pack(
         assert "parts" not in metadata
 
         started_at_str = metadata["sdkcraft-started-at"]
-        if sys.version_info < (3, 11) and started_at_str.endswith("Z"):
-            started_at_str = started_at_str[:-1] + "+00:00"
         started_at = datetime.fromisoformat(started_at_str)
 
         info = tar.getmember("sdk/hooks/setup-base")
@@ -169,7 +167,7 @@ def test_pack_base_agnostic(
 
     Path("sdk.yaml").write_text(sdk_yaml)
 
-    monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -205,10 +203,113 @@ def test_pack_architecture_agnostic(
 
     Path("sdk.yaml").write_text(sdk_yaml)
 
-    monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
 
     files = sorted(path.name for path in new_path.glob("*.sdk"))
     assert files == [f"my-project_all_ubuntu@{release_version}.sdk"]
+
+
+def test_try(
+    new_path: Path,
+    sdk_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path_factory: pytest.TempPathFactory,
+):
+    """Test packed SDK contents."""
+
+    Path("sdk.yaml").write_text(sdk_yaml)
+    data_home = tmp_path_factory.mktemp("share")
+
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "try", "--destructive-mode"])
+    monkeypatch.setattr("sdkcraft.commands.lifecycle.user_data_path", lambda: data_home)
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    try_area = data_home / "workshop" / "try" / "my-project"
+    files = sorted(path.name for path in try_area.iterdir())
+    arch = str(DebianArchitecture.from_host())
+    sdk = f"my-project_{arch}_ubuntu@22.04.sdk"
+    assert files == [sdk, f"{sdk}.sha3-384", f"{sdk}.yaml"]
+
+    with (try_area / sdk).open("rb") as f:
+        computed = file_digest(f, sha3_384).hexdigest()
+    saved = (try_area / f"{sdk}.sha3-384").read_text().strip()
+    assert computed == saved
+
+    tried_meta = (try_area / f"{sdk}.yaml").read_text()
+    primed_meta = (new_path / "prime" / "meta" / "sdk.yaml").read_text()
+    assert tried_meta == primed_meta
+
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "clean", "--destructive-mode"])
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+    assert not try_area.exists()
+
+
+def test_try_files(
+    new_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path_factory: pytest.TempPathFactory,
+):
+    """Test packed SDK contents."""
+
+    data_home = tmp_path_factory.mktemp("share")
+
+    (new_path / "meta").mkdir()
+    (new_path / "meta" / "sdk.yaml").write_text("fake: yaml")
+
+    filenames = (
+        "my-project_all.sdk",
+        "multi_ppc64el_ubuntu@22.04.sdk",
+        "multi_ppc64el_ubuntu@24.04.sdk",
+    )
+
+    for filename in filenames:
+        with tarfile.open(filename, "w") as tf:
+            tf.add("meta")
+
+    monkeypatch.setattr(
+        "sys.argv", ["sdkcraft", "try", "--destructive-mode", *filenames]
+    )
+    monkeypatch.setattr("sdkcraft.commands.lifecycle.user_data_path", lambda: data_home)
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    try_area = data_home / "workshop" / "try" / "my-project"
+    files = sorted(path.name for path in try_area.iterdir())
+    assert files == [
+        "my-project_all.sdk",
+        "my-project_all.sdk.sha3-384",
+        "my-project_all.sdk.yaml",
+    ]
+
+    try_area = data_home / "workshop" / "try" / "multi"
+    files = sorted(path.name for path in try_area.iterdir())
+    assert files == [
+        "multi_ppc64el_ubuntu@22.04.sdk",
+        "multi_ppc64el_ubuntu@22.04.sdk.sha3-384",
+        "multi_ppc64el_ubuntu@22.04.sdk.yaml",
+        "multi_ppc64el_ubuntu@24.04.sdk",
+        "multi_ppc64el_ubuntu@24.04.sdk.sha3-384",
+        "multi_ppc64el_ubuntu@24.04.sdk.yaml",
+    ]
+
+    monkeypatch.setattr(
+        "sys.argv", ["sdkcraft", "try", "--destructive-mode", "not-an-sdk"]
+    )
+    return_code = sdkcraft.cli.main()
+    assert return_code != 0
+
+    invalid_name = "inval!d-N@me_all.sdk"
+    with tarfile.open(invalid_name, "w") as tf:
+        tf.add("meta")
+    monkeypatch.setattr(
+        "sys.argv", ["sdkcraft", "try", "--destructive-mode", invalid_name]
+    )
+    return_code = sdkcraft.cli.main()
+    assert return_code != 0

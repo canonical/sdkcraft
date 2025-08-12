@@ -15,11 +15,12 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Main application class for sdkcraft."""
 
-from craft_application import Application, AppMetadata
-from craft_application.commands.lifecycle import PackCommand
-from craft_cli import Dispatcher
-from typing_extensions import override
+from typing import override
 
+from craft_application import Application, AppMetadata
+from craft_cli import Dispatcher
+
+from sdkcraft.commands import PackCommand
 from sdkcraft.models import Project
 
 APP_METADATA = AppMetadata(
@@ -28,6 +29,8 @@ APP_METADATA = AppMetadata(
     docs_url="https://canonical-workshop.readthedocs-hosted.com/{version}",
     source_ignore_patterns=["*.sdk"],
     ProjectClass=Project,
+    supports_multi_base=True,
+    always_repack=False,
 )
 
 

@@ -1,0 +1,31 @@
+summary: SDKcraft repack after changes test
+
+restore: |
+  run_sdkcraft clean || true
+
+execute: |
+  ensure_repacked() {
+    run_sdkcraft pack
+    hash="$(sha256sum my-sdk-name_all.sdk | cut -d' ' -f1)"
+    [ "$hash" != "$previous" ]
+    previous="$hash"
+  }
+
+  previous=''
+  ensure_repacked
+
+  sed 's/foo/bar/' -i sdk.yaml
+  ensure_repacked
+
+  sed 's/foo/bar/' -i hooks/setup-base
+  ensure_repacked
+
+  rm hooks/setup-base
+  ensure_repacked
+
+  rmdir hooks
+  ensure_repacked
+
+  run_sdkcraft pack
+  hash="$(sha256sum my-sdk-name_all.sdk | cut -d' ' -f1)"
+  [ "$hash" = "$previous" ]
