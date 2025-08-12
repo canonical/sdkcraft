@@ -27,7 +27,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
-import platformdirs
 from craft_application import PackageService
 from craft_application.commands import lifecycle
 from craft_application.errors import CraftValidationError
@@ -37,6 +36,7 @@ from craft_platforms import BuildInfo
 from pydantic import TypeAdapter, ValidationError
 from typing_extensions import override
 
+from sdkcraft.env import user_data_path
 from sdkcraft.errors import SdkcraftFilenameError
 from sdkcraft.models.constraints import ProjectName
 
@@ -137,7 +137,7 @@ class TryCommand(PackCommand):
         if not artifacts:
             return
 
-        try_area = platformdirs.user_data_path("workshop") / "try"
+        try_area = user_data_path() / "workshop" / "try"
         try_area.mkdir(parents=True, exist_ok=True)
 
         with ExitStack() as stack:
@@ -259,7 +259,7 @@ class CleanCommand(lifecycle.CleanCommand):
 
 
 def _remove_try_sdk(name: str) -> None:
-    try_area = platformdirs.user_data_path("workshop") / "try"
+    try_area = user_data_path() / "workshop" / "try"
     with (
         TemporaryDirectory(dir=try_area) as cleanup,
         suppress(FileNotFoundError),

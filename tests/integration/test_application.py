@@ -1,6 +1,5 @@
 import stat
 import subprocess
-import sys
 import tarfile
 from collections import Counter
 from datetime import datetime
@@ -65,7 +64,7 @@ def test_global_environment(
 
     Path("sdk.yaml").write_text(sdk_yaml)
 
-    monkeypatch.setattr(sys, "argv", ["sdkcraft", "prime", "--destructive-mode"])
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "prime", "--destructive-mode"])
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -91,7 +90,7 @@ def test_pack(
     (Path("hooks") / "setup-base").write_text("touch /etc/fstab\n")
     (Path("hooks") / "setup-base").chmod(stat.S_IRWXU | stat.S_IWGRP | stat.S_IROTH)
 
-    monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -168,7 +167,7 @@ def test_pack_base_agnostic(
 
     Path("sdk.yaml").write_text(sdk_yaml)
 
-    monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -204,7 +203,7 @@ def test_pack_architecture_agnostic(
 
     Path("sdk.yaml").write_text(sdk_yaml)
 
-    monkeypatch.setattr(sys, "argv", ["sdkcraft", "pack", "--destructive-mode"])
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -224,8 +223,8 @@ def test_try(
     Path("sdk.yaml").write_text(sdk_yaml)
     data_home = tmp_path_factory.mktemp("share")
 
-    monkeypatch.setattr(sys, "argv", ["sdkcraft", "try", "--destructive-mode"])
-    monkeypatch.setenv("XDG_DATA_HOME", str(data_home))
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "try", "--destructive-mode"])
+    monkeypatch.setattr("sdkcraft.commands.lifecycle.user_data_path", lambda: data_home)
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -245,7 +244,7 @@ def test_try(
     primed_meta = (new_path / "prime" / "meta" / "sdk.yaml").read_text()
     assert tried_meta == primed_meta
 
-    monkeypatch.setattr(sys, "argv", ["sdkcraft", "clean", "--destructive-mode"])
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "clean", "--destructive-mode"])
     return_code = sdkcraft.cli.main()
     assert return_code == 0
     assert not try_area.exists()
@@ -274,9 +273,9 @@ def test_try_files(
             tf.add("meta")
 
     monkeypatch.setattr(
-        sys, "argv", ["sdkcraft", "try", "--destructive-mode", *filenames]
+        "sys.argv", ["sdkcraft", "try", "--destructive-mode", *filenames]
     )
-    monkeypatch.setenv("XDG_DATA_HOME", str(data_home))
+    monkeypatch.setattr("sdkcraft.commands.lifecycle.user_data_path", lambda: data_home)
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -301,7 +300,7 @@ def test_try_files(
     ]
 
     monkeypatch.setattr(
-        sys, "argv", ["sdkcraft", "try", "--destructive-mode", "not-an-sdk"]
+        "sys.argv", ["sdkcraft", "try", "--destructive-mode", "not-an-sdk"]
     )
     return_code = sdkcraft.cli.main()
     assert return_code != 0
@@ -310,7 +309,7 @@ def test_try_files(
     with tarfile.open(invalid_name, "w") as tf:
         tf.add("meta")
     monkeypatch.setattr(
-        sys, "argv", ["sdkcraft", "try", "--destructive-mode", invalid_name]
+        "sys.argv", ["sdkcraft", "try", "--destructive-mode", invalid_name]
     )
     return_code = sdkcraft.cli.main()
     assert return_code != 0
