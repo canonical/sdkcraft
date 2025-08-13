@@ -1,0 +1,16 @@
+summary: SDKcraft clean test
+
+restore: |
+  run_sdkcraft clean || true
+
+execute: |
+  # Check clean works immediately
+  run_sdkcraft init
+  run_sdkcraft clean
+
+  # Check clean works after packing
+  run_sdkcraft pack
+  run_sdkcraft clean
+
+  # Check clean works twice
+  run_sdkcraft clean
