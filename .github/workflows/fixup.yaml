@@ -1,0 +1,8 @@
+name: Check for fixup and squash commits
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    uses: canonical/workshop/.github/workflows/fixup.yaml@main
