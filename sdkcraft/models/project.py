@@ -26,7 +26,18 @@ from craft_application import models
 from craft_application.models import project
 from pydantic import AfterValidator, BeforeValidator, Field
 
-from sdkcraft.models.constraints import Endpoint, ProjectName
+from sdkcraft.models.constraints import (
+    FILE_MODE_MASK,
+    Endpoint,
+    FileMode,
+    ProjectName,
+    UserGroupID,
+)
+
+DEFAULT_UID = 1000
+DEFAULT_GID = 1000
+ROOT_UMASK = 0o022
+NORMAL_UMASK = 0o002
 
 
 class CameraPlug(models.CraftBaseModel):
@@ -62,11 +73,20 @@ class GPUPlug(models.CraftBaseModel):
             raise ValueError("gpu interface plugs must be named 'gpu'")
 
 
+def _default_mode(plug: dict[str, Any]) -> int:
+    if plug.get("uid", DEFAULT_UID) == 0:
+        return FILE_MODE_MASK & ~ROOT_UMASK
+    return FILE_MODE_MASK & ~NORMAL_UMASK
+
+
 class MountPlug(models.CraftBaseModel):
     """SDKcraft project mount plug definition."""
 
     interface: Literal["mount"]
     workshop_target: str
+    uid: UserGroupID = DEFAULT_UID
+    gid: UserGroupID = DEFAULT_GID
+    mode: FileMode = Field(default_factory=_default_mode)
     read_only: bool = False
 
 

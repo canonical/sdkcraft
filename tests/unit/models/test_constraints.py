@@ -17,7 +17,13 @@
 
 import pytest
 from pydantic import TypeAdapter, ValidationError
-from sdkcraft.models.constraints import PROJECT_NAME_REGEX, Endpoint, ProjectName
+from sdkcraft.models.constraints import (
+    PROJECT_NAME_REGEX,
+    Endpoint,
+    FileMode,
+    ProjectName,
+    UserGroupID,
+)
 
 project_name_adapter: TypeAdapter[ProjectName] = TypeAdapter(ProjectName)
 
@@ -69,6 +75,60 @@ def test_project_name_forbids_reserved():
 def test_project_name_json_schema_includes_pattern():
     schema = project_name_adapter.json_schema()
     assert schema["pattern"] == PROJECT_NAME_REGEX
+
+
+file_mode_adapter: TypeAdapter[FileMode] = TypeAdapter(FileMode)
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (0, 0),
+        (0o644, 0o644),
+        ("0644", 0o644),
+        ("0o644", 0o644),
+        (0o700, 0o700),
+        ("0700", 0o700),
+        ("0o700", 0o700),
+        (0o777, 0o777),
+        ("0777", 0o777),
+        ("0o777", 0o777),
+    ],
+)
+def test_file_mode_valid(*, value: int | str, expected: int):
+    assert file_mode_adapter.validate_python(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["invalid-value", -1, "099", "0o99", "0_o644", 0o1000, "1000", "01000", "0o1000"],
+)
+def test_file_mode_invalid(value: int | str):
+    with pytest.raises(ValidationError):
+        file_mode_adapter.validate_python(value)
+
+
+user_group_id_adapter: TypeAdapter[UserGroupID] = TypeAdapter(UserGroupID)
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (0, 0),
+        ("0", 0),
+        (1000, 1000),
+        ("1000", 1000),
+        (0xFFFFFFFE, 0xFFFFFFFE),
+    ],
+)
+def test_user_group_id_valid(*, value: int | str, expected: int):
+    assert user_group_id_adapter.validate_python(value) == expected
+
+
+@pytest.mark.parametrize("value", ["invalid-value", -1, (1 << 32) - 1, (1 << 32)])
+def test_user_group_id_invalid(value: int | str):
+    with pytest.raises(ValidationError):
+        user_group_id_adapter.validate_python(value)
 
 
 endpoint_adapter: TypeAdapter[Endpoint] = TypeAdapter(Endpoint)

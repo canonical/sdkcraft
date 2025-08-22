@@ -17,7 +17,7 @@
 
 import re
 from ipaddress import ip_address
-from typing import Annotated
+from typing import Annotated, Any
 from urllib.parse import urlsplit, urlunsplit
 
 from craft_application.models import constraints
@@ -33,6 +33,11 @@ MESSAGE_RESERVED_NAME = (
 PROJECT_NAME_REGEX = RESERVED_NAME_REGEX + constraints.PROJECT_NAME_REGEX
 PROJECT_NAME_COMPILED_REGEX = re.compile(PROJECT_NAME_REGEX)
 
+OCTAL_COMPILED_REGEX = re.compile("0[0-9]")
+
+INVALID_UID = 0xFFFFFFFF
+FILE_MODE_MASK = 0o777
+
 
 ProjectName = Annotated[
     str,
@@ -44,6 +49,27 @@ ProjectName = Annotated[
         )
     ),
 ]
+
+
+def _str_as_int(value: Any) -> Any:  # noqa: ANN401
+    if not isinstance(value, str):
+        return value
+
+    if OCTAL_COMPILED_REGEX.match(value):
+        value = f"0o{value[1:]}"
+    return int(value, base=0)
+
+
+# Python uses YAML 1.1 whereas Go supports a hybrid of 1.1 and 1.2. The main
+# difference for us is that PyYAML parses 0o777 as a str, not an int. The
+# interface system is lenient about accepting other strings, and so is
+# pydantic, but the latter doesn't support binary, hex or octal strings.
+# This type accepts both ints and strs, and works like strconv.ParseInt.
+Int = Annotated[int, BeforeValidator(_str_as_int)]
+
+
+UserGroupID = Annotated[Int, Field(ge=0, lt=INVALID_UID)]
+FileMode = Annotated[Int, Field(ge=0, le=FILE_MODE_MASK)]
 
 
 def _parse_netloc(netloc: str) -> tuple[str | None, int | None]:
