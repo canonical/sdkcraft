@@ -124,7 +124,7 @@ and then launch a workshop for SDKcraft:
    workshop launch
 
 
-Run linters and tests using the following scripts:
+Run linters and tests using the following actions:
 
 .. code-block:: console
 

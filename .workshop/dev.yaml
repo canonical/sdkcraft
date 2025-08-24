@@ -2,7 +2,7 @@ name: dev
 base: ubuntu@24.04
 sdks:
   - name: project-sdkcraft
-scripts:
+actions:
   format: |
     uv run ruff check --fix
     uv run ruff format
