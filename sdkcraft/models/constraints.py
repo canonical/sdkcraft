@@ -33,6 +33,21 @@ MESSAGE_RESERVED_NAME = (
 PROJECT_NAME_REGEX = RESERVED_NAME_REGEX + constraints.PROJECT_NAME_REGEX
 PROJECT_NAME_COMPILED_REGEX = re.compile(PROJECT_NAME_REGEX)
 
+PLUG_NAME_DESCRIPTION = """\
+The name of the {0}. This is used when connecting and disconnecting.
+
+The {0} name must consist only of lower-case ASCII letters (``a-z``), numerals
+(``0-9``), and hyphens (``-``). It must start with a letter, not end with a
+hyphen, and not contain two consecutive hyphens.
+"""
+PLUG_NAME_REGEX = r"^[a-z](-?[a-z0-9])*$"
+PLUG_NAME_COMPILED_REGEX = re.compile(PLUG_NAME_REGEX)
+MESSAGE_INVALID_PLUG_NAME = (
+    "invalid name: {0} names can only use ASCII lowercase letters, numbers, and hyphens. "
+    "They must start with a letter, may not end with a hyphen, "
+    "and may not have two hyphens in a row."
+)
+
 OCTAL_COMPILED_REGEX = re.compile("0[0-9]")
 
 INVALID_UID = 0xFFFFFFFF
@@ -46,6 +61,46 @@ ProjectName = Annotated[
     BeforeValidator(
         constraints.get_validator_by_regex(
             RESERVED_NAME_COMPILED_REGEX, MESSAGE_RESERVED_NAME
+        )
+    ),
+]
+
+
+PlugName = Annotated[
+    str,
+    Field(
+        strict=True,
+        pattern=PLUG_NAME_COMPILED_REGEX,
+        description=PLUG_NAME_DESCRIPTION.format("plug"),
+        title="Plug Name",
+        examples=[
+            "desktop",
+            "gpu",
+            "ssh-agent",
+        ],
+    ),
+    BeforeValidator(
+        constraints.get_validator_by_regex(
+            PLUG_NAME_COMPILED_REGEX, MESSAGE_INVALID_PLUG_NAME.format("plug")
+        )
+    ),
+]
+SlotName = Annotated[
+    str,
+    Field(
+        strict=True,
+        pattern=PLUG_NAME_COMPILED_REGEX,
+        description=PLUG_NAME_DESCRIPTION.format("slot"),
+        title="Slot Name",
+        examples=[
+            "dashboard",
+            "gdb",
+            "toolchain",
+        ],
+    ),
+    BeforeValidator(
+        constraints.get_validator_by_regex(
+            PLUG_NAME_COMPILED_REGEX, MESSAGE_INVALID_PLUG_NAME.format("slot")
         )
     ),
 ]

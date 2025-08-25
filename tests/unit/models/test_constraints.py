@@ -21,6 +21,7 @@ from sdkcraft.models.constraints import (
     PROJECT_NAME_REGEX,
     Endpoint,
     FileMode,
+    PlugName,
     ProjectName,
     UserGroupID,
 )
@@ -75,6 +76,26 @@ def test_project_name_forbids_reserved():
 def test_project_name_json_schema_includes_pattern():
     schema = project_name_adapter.json_schema()
     assert schema["pattern"] == PROJECT_NAME_REGEX
+
+
+plug_name_adapter: TypeAdapter[PlugName] = TypeAdapter(PlugName)
+
+
+def test_plug_name_invalid():
+    with pytest.raises(ValidationError):
+        plug_name_adapter.validate_python("Abc")
+
+    with pytest.raises(ValidationError):
+        plug_name_adapter.validate_python("1bc")
+
+    with pytest.raises(ValidationError):
+        plug_name_adapter.validate_python("-abc")
+
+    with pytest.raises(ValidationError):
+        plug_name_adapter.validate_python("abc-")
+
+    with pytest.raises(ValidationError):
+        plug_name_adapter.validate_python("a--b--c")
 
 
 file_mode_adapter: TypeAdapter[FileMode] = TypeAdapter(FileMode)

@@ -30,7 +30,9 @@ from sdkcraft.models.constraints import (
     FILE_MODE_MASK,
     Endpoint,
     FileMode,
+    PlugName,
     ProjectName,
+    SlotName,
     UserGroupID,
 )
 
@@ -175,12 +177,12 @@ def _slot_policies(slots: dict[str, Slot]) -> dict[str, Slot]:
 
 
 Plugs = Annotated[
-    dict[str, Plug],
+    dict[PlugName, Plug],
     BeforeValidator(_implicit_interfaces),
     AfterValidator(_plug_policies),
 ]
 Slots = Annotated[
-    dict[str, Slot],
+    dict[SlotName, Slot],
     BeforeValidator(_implicit_interfaces),
     AfterValidator(_slot_policies),
 ]
