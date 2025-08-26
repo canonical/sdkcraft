@@ -28,6 +28,7 @@ from pydantic import AfterValidator, BeforeValidator, Field
 
 from sdkcraft.models.constraints import (
     FILE_MODE_MASK,
+    CleanAbsPath,
     Endpoint,
     FileMode,
     PlugName,
@@ -85,7 +86,7 @@ class MountPlug(models.CraftBaseModel):
     """SDKcraft project mount plug definition."""
 
     interface: Literal["mount"]
-    workshop_target: str
+    workshop_target: CleanAbsPath
     uid: UserGroupID = DEFAULT_UID
     gid: UserGroupID = DEFAULT_GID
     mode: FileMode = Field(default_factory=_default_mode)
@@ -96,7 +97,7 @@ class MountSlot(models.CraftBaseModel):
     """SDKcraft project mount slot definition."""
 
     interface: Literal["mount"]
-    workshop_source: str
+    workshop_source: CleanAbsPath
 
 
 class SSHPlug(models.CraftBaseModel):

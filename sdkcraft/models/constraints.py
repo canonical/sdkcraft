@@ -15,6 +15,7 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Constrained pydantic types for SDKcraft."""
 
+import posixpath
 import re
 from ipaddress import ip_address
 from typing import Annotated, Any
@@ -104,6 +105,17 @@ SlotName = Annotated[
         )
     ),
 ]
+
+
+def _is_clean_abspath(path: str) -> str:
+    if not posixpath.isabs(path):
+        raise ValueError(f"path {path!r} must be absolute")
+    if posixpath.normpath(path) != path:
+        raise ValueError(f"path {path!r} is not clean")
+    return path
+
+
+CleanAbsPath = Annotated[str, AfterValidator(_is_clean_abspath)]
 
 
 def _str_as_int(value: Any) -> Any:  # noqa: ANN401

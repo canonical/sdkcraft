@@ -19,6 +19,7 @@ import pytest
 from pydantic import TypeAdapter, ValidationError
 from sdkcraft.models.constraints import (
     PROJECT_NAME_REGEX,
+    CleanAbsPath,
     Endpoint,
     FileMode,
     PlugName,
@@ -96,6 +97,26 @@ def test_plug_name_invalid():
 
     with pytest.raises(ValidationError):
         plug_name_adapter.validate_python("a--b--c")
+
+
+clean_abs_path_adapter: TypeAdapter[CleanAbsPath] = TypeAdapter(CleanAbsPath)
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["/mnt", "/run/user/1000/sdk", "/home/workshop/.cache/dir"],
+)
+def test_clean_abs_path_valid(*, value: str):
+    clean_abs_path_adapter.validate_python(value)
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["relative/path", "/tmp/../etc/gshadow", "/../path", "/mnt/.", "/home//workshop"],
+)
+def test_clean_abs_path_invalid(value: str):
+    with pytest.raises(ValidationError):
+        clean_abs_path_adapter.validate_python(value)
 
 
 file_mode_adapter: TypeAdapter[FileMode] = TypeAdapter(FileMode)
