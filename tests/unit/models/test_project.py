@@ -58,6 +58,26 @@ def test_project_create_valid(project_data: dict[str, Any]):
     assert project.package_repositories is None
 
 
+def test_mount_plug_defaults():
+    plug = {"interface": "mount", "workshop-target": "/data"}
+
+    result = MountPlug.unmarshal(plug)
+    assert result.mode == 0o775
+    assert result.uid == 1000
+    assert result.gid == 1000
+    assert not result.read_only
+
+
+def test_mount_plug_defaults_uid_root():
+    plug = {"interface": "mount", "workshop-target": "/data", "uid": 0}
+
+    result = MountPlug.unmarshal(plug)
+    assert result.mode == 0o755
+    assert result.uid == 0
+    assert result.gid == 1000
+    assert not result.read_only
+
+
 @pytest.mark.parametrize(
     ("value", "expected"),
     [
@@ -75,7 +95,7 @@ def test_project_create_valid(project_data: dict[str, Any]):
     ],
 )
 def test_mount_plug_read_only_valid(
-    *, value: bool | str | float | None, expected: bool
+    *, value: bool | float | str | None, expected: bool
 ):
     plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
     if value is None:
@@ -85,7 +105,7 @@ def test_mount_plug_read_only_valid(
 
 
 @pytest.mark.parametrize("value", ["invalid-value", 2])
-def test_mount_plug_read_only_invalid(value: str | int):
+def test_mount_plug_read_only_invalid(value: int | str):
     plug = {"interface": "mount", "workshop-target": "/data", "read-only": value}
     with pytest.raises(ValidationError):
         MountPlug.unmarshal(plug)

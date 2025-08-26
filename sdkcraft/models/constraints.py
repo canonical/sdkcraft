@@ -15,9 +15,10 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Constrained pydantic types for SDKcraft."""
 
+import posixpath
 import re
 from ipaddress import ip_address
-from typing import Annotated
+from typing import Annotated, Any
 from urllib.parse import urlsplit, urlunsplit
 
 from craft_application.models import constraints
@@ -33,6 +34,26 @@ MESSAGE_RESERVED_NAME = (
 PROJECT_NAME_REGEX = RESERVED_NAME_REGEX + constraints.PROJECT_NAME_REGEX
 PROJECT_NAME_COMPILED_REGEX = re.compile(PROJECT_NAME_REGEX)
 
+PLUG_NAME_DESCRIPTION = """\
+The name of the {0}. This is used when connecting and disconnecting.
+
+The {0} name must consist only of lower-case ASCII letters (``a-z``), numerals
+(``0-9``), and hyphens (``-``). It must start with a letter, not end with a
+hyphen, and not contain two consecutive hyphens.
+"""
+PLUG_NAME_REGEX = r"^[a-z](-?[a-z0-9])*$"
+PLUG_NAME_COMPILED_REGEX = re.compile(PLUG_NAME_REGEX)
+MESSAGE_INVALID_PLUG_NAME = (
+    "invalid name: {0} names can only use ASCII lowercase letters, numbers, and hyphens. "
+    "They must start with a letter, may not end with a hyphen, "
+    "and may not have two hyphens in a row."
+)
+
+OCTAL_COMPILED_REGEX = re.compile("0[0-9]")
+
+INVALID_UID = 0xFFFFFFFF
+FILE_MODE_MASK = 0o777
+
 
 ProjectName = Annotated[
     str,
@@ -44,6 +65,78 @@ ProjectName = Annotated[
         )
     ),
 ]
+
+
+PlugName = Annotated[
+    str,
+    Field(
+        strict=True,
+        pattern=PLUG_NAME_COMPILED_REGEX,
+        description=PLUG_NAME_DESCRIPTION.format("plug"),
+        title="Plug Name",
+        examples=[
+            "desktop",
+            "gpu",
+            "ssh-agent",
+        ],
+    ),
+    BeforeValidator(
+        constraints.get_validator_by_regex(
+            PLUG_NAME_COMPILED_REGEX, MESSAGE_INVALID_PLUG_NAME.format("plug")
+        )
+    ),
+]
+SlotName = Annotated[
+    str,
+    Field(
+        strict=True,
+        pattern=PLUG_NAME_COMPILED_REGEX,
+        description=PLUG_NAME_DESCRIPTION.format("slot"),
+        title="Slot Name",
+        examples=[
+            "dashboard",
+            "gdb",
+            "toolchain",
+        ],
+    ),
+    BeforeValidator(
+        constraints.get_validator_by_regex(
+            PLUG_NAME_COMPILED_REGEX, MESSAGE_INVALID_PLUG_NAME.format("slot")
+        )
+    ),
+]
+
+
+def _is_clean_abspath(path: str) -> str:
+    if not posixpath.isabs(path):
+        raise ValueError(f"path {path!r} must be absolute")
+    if posixpath.normpath(path) != path:
+        raise ValueError(f"path {path!r} is not clean")
+    return path
+
+
+CleanAbsPath = Annotated[str, AfterValidator(_is_clean_abspath)]
+
+
+def _str_as_int(value: Any) -> Any:  # noqa: ANN401
+    if not isinstance(value, str):
+        return value
+
+    if OCTAL_COMPILED_REGEX.match(value):
+        value = f"0o{value[1:]}"
+    return int(value, base=0)
+
+
+# Python uses YAML 1.1 whereas Go supports a hybrid of 1.1 and 1.2. The main
+# difference for us is that PyYAML parses 0o777 as a str, not an int. The
+# interface system is lenient about accepting other strings, and so is
+# pydantic, but the latter doesn't support binary, hex or octal strings.
+# This type accepts both ints and strs, and works like strconv.ParseInt.
+Int = Annotated[int, BeforeValidator(_str_as_int)]
+
+
+UserGroupID = Annotated[Int, Field(ge=0, lt=INVALID_UID)]
+FileMode = Annotated[Int, Field(ge=0, le=FILE_MODE_MASK)]
 
 
 def _parse_netloc(netloc: str) -> tuple[str | None, int | None]:

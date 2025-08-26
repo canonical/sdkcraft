@@ -26,7 +26,21 @@ from craft_application import models
 from craft_application.models import project
 from pydantic import AfterValidator, BeforeValidator, Field
 
-from sdkcraft.models.constraints import Endpoint, ProjectName
+from sdkcraft.models.constraints import (
+    FILE_MODE_MASK,
+    CleanAbsPath,
+    Endpoint,
+    FileMode,
+    PlugName,
+    ProjectName,
+    SlotName,
+    UserGroupID,
+)
+
+DEFAULT_UID = 1000
+DEFAULT_GID = 1000
+ROOT_UMASK = 0o022
+NORMAL_UMASK = 0o002
 
 
 class CameraPlug(models.CraftBaseModel):
@@ -62,11 +76,20 @@ class GPUPlug(models.CraftBaseModel):
             raise ValueError("gpu interface plugs must be named 'gpu'")
 
 
+def _default_mode(plug: dict[str, Any]) -> int:
+    if plug.get("uid", DEFAULT_UID) == 0:
+        return FILE_MODE_MASK & ~ROOT_UMASK
+    return FILE_MODE_MASK & ~NORMAL_UMASK
+
+
 class MountPlug(models.CraftBaseModel):
     """SDKcraft project mount plug definition."""
 
     interface: Literal["mount"]
-    workshop_target: str
+    workshop_target: CleanAbsPath
+    uid: UserGroupID = DEFAULT_UID
+    gid: UserGroupID = DEFAULT_GID
+    mode: FileMode = Field(default_factory=_default_mode)
     read_only: bool = False
 
 
@@ -74,7 +97,7 @@ class MountSlot(models.CraftBaseModel):
     """SDKcraft project mount slot definition."""
 
     interface: Literal["mount"]
-    workshop_source: str
+    workshop_source: CleanAbsPath
 
 
 class SSHPlug(models.CraftBaseModel):
@@ -155,12 +178,12 @@ def _slot_policies(slots: dict[str, Slot]) -> dict[str, Slot]:
 
 
 Plugs = Annotated[
-    dict[str, Plug],
+    dict[PlugName, Plug],
     BeforeValidator(_implicit_interfaces),
     AfterValidator(_plug_policies),
 ]
 Slots = Annotated[
-    dict[str, Slot],
+    dict[SlotName, Slot],
     BeforeValidator(_implicit_interfaces),
     AfterValidator(_slot_policies),
 ]
