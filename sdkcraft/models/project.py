@@ -37,8 +37,7 @@ from sdkcraft.models.constraints import (
     UserGroupID,
 )
 
-DEFAULT_UID = 1000
-DEFAULT_GID = 1000
+WORKSHOP_UID_GID = 1000
 ROOT_UMASK = 0o022
 NORMAL_UMASK = 0o002
 
@@ -76,8 +75,16 @@ class GPUPlug(models.CraftBaseModel):
             raise ValueError("gpu interface plugs must be named 'gpu'")
 
 
+def _default_uid_gid(plug: dict[str, Any]) -> int:
+    path = plug.get("workshop_target", "")
+    for prefix in ("/home/workshop", "/project", "/run/user/1000"):
+        if path == prefix or path.startswith(prefix + "/"):
+            return WORKSHOP_UID_GID
+    return 0
+
+
 def _default_mode(plug: dict[str, Any]) -> int:
-    if plug.get("uid", DEFAULT_UID) == 0:
+    if plug.get("uid", WORKSHOP_UID_GID) == 0:
         return FILE_MODE_MASK & ~ROOT_UMASK
     return FILE_MODE_MASK & ~NORMAL_UMASK
 
@@ -87,8 +94,8 @@ class MountPlug(models.CraftBaseModel):
 
     interface: Literal["mount"]
     workshop_target: CleanAbsPath
-    uid: UserGroupID = DEFAULT_UID
-    gid: UserGroupID = DEFAULT_GID
+    uid: UserGroupID = Field(default_factory=_default_uid_gid)
+    gid: UserGroupID = Field(default_factory=_default_uid_gid)
     mode: FileMode = Field(default_factory=_default_mode)
     read_only: bool = False
 
