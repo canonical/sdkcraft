@@ -20,6 +20,7 @@ This module defines an sdk.yaml file, exportable to a JSON schema.
 
 import json
 from pathlib import Path
+from string import Template
 from typing import Annotated, Any, Literal, Protocol, TypeGuard, runtime_checkable
 
 from craft_application import models
@@ -100,11 +101,20 @@ class MountPlug(models.CraftBaseModel):
     read_only: bool = False
 
 
+def _expand_sdk(path: str) -> str:
+    try:
+        return Template(path).substitute({"SDK": "/var/lib/workshop/sdk/unknown"})
+    except KeyError as e:
+        key = next(iter(e.args), None)
+        suffix = f"in {path!r}" if key is None else f"{key!r}"
+        raise ValueError(f"unexpected variable {suffix}")
+
+
 class MountSlot(models.CraftBaseModel):
     """SDKcraft project mount slot definition."""
 
     interface: Literal["mount"]
-    workshop_source: CleanAbsPath
+    workshop_source: Annotated[CleanAbsPath, BeforeValidator(_expand_sdk)]
 
 
 class SSHPlug(models.CraftBaseModel):

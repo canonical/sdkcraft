@@ -26,6 +26,7 @@ from sdkcraft.models.project import (
     DesktopPlug,
     GPUPlug,
     MountPlug,
+    MountSlot,
     Part,
     Plugs,
     Project,
@@ -56,6 +57,27 @@ def test_project_create_valid(project_data: dict[str, Any]):
     assert project.slots == {}
     assert project.parts == {"default-part": {"plugin": "nil"}}
     assert project.package_repositories is None
+
+
+def test_mount_plug_sdk_variable():
+    plug = {"interface": "mount", "workshop-target": "$SDK/subdir"}
+
+    with pytest.raises(ValidationError):
+        MountPlug.unmarshal(plug)
+
+
+def test_mount_slot_sdk_variable():
+    slot = {"interface": "mount", "workshop-source": "$SDK/subdir"}
+
+    result = MountSlot.unmarshal(slot)
+    assert result.workshop_source == "/var/lib/workshop/sdk/unknown/subdir"
+
+
+def test_mount_slot_invalid_variable():
+    slot = {"interface": "mount", "workshop-source": "$HOME/subdir"}
+
+    with pytest.raises(ValidationError):
+        MountSlot.unmarshal(slot)
 
 
 @pytest.mark.parametrize(
