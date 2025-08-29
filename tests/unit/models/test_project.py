@@ -26,6 +26,7 @@ from sdkcraft.models.project import (
     DesktopPlug,
     GPUPlug,
     MountPlug,
+    MountSlot,
     Part,
     Plugs,
     Project,
@@ -58,23 +59,66 @@ def test_project_create_valid(project_data: dict[str, Any]):
     assert project.package_repositories is None
 
 
-def test_mount_plug_defaults():
-    plug = {"interface": "mount", "workshop-target": "/data"}
+def test_mount_plug_sdk_variable():
+    plug = {"interface": "mount", "workshop-target": "$SDK/subdir"}
+
+    with pytest.raises(ValidationError):
+        MountPlug.unmarshal(plug)
+
+
+def test_mount_slot_sdk_variable():
+    slot = {"interface": "mount", "workshop-source": "$SDK/subdir"}
+
+    result = MountSlot.unmarshal(slot)
+    assert result.workshop_source == "/var/lib/workshop/sdk/unknown/subdir"
+
+
+def test_mount_slot_invalid_variable():
+    slot = {"interface": "mount", "workshop-source": "$HOME/subdir"}
+
+    with pytest.raises(ValidationError):
+        MountSlot.unmarshal(slot)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/home/workshop",
+        "/home/workshop/.cache/dir",
+        "/project",
+        "/project/.cache",
+        "/run/user/1000",
+        "/run/user/1000/sdk",
+    ],
+)
+def test_mount_plug_defaults_workshop(path: str):
+    plug = {"interface": "mount", "workshop-target": path}
 
     result = MountPlug.unmarshal(plug)
-    assert result.mode == 0o775
     assert result.uid == 1000
     assert result.gid == 1000
+    assert result.mode == 0o775
     assert not result.read_only
 
 
-def test_mount_plug_defaults_uid_root():
-    plug = {"interface": "mount", "workshop-target": "/data", "uid": 0}
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/mnt",
+        "/mnt/sdk",
+        "/root",
+        "/root/.cache/dir",
+        "/run/user/1001",
+        "/run/user/1001/sdk",
+    ],
+)
+def test_mount_plug_defaults_root(path: str):
+    plug = {"interface": "mount", "workshop-target": path}
 
     result = MountPlug.unmarshal(plug)
-    assert result.mode == 0o755
     assert result.uid == 0
-    assert result.gid == 1000
+    assert result.gid == 0
+    assert result.mode == 0o755
     assert not result.read_only
 
 
