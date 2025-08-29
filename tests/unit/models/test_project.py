@@ -59,18 +59,20 @@ def test_project_create_valid(project_data: dict[str, Any]):
     assert project.package_repositories is None
 
 
-def test_mount_plug_sdk_variable():
-    plug = {"interface": "mount", "workshop-target": "$SDK/subdir"}
+@pytest.mark.parametrize("path", ["$SDK", "$SDK/subdir"])
+def test_mount_plug_sdk_variable(path: str):
+    plug = {"interface": "mount", "workshop-target": path}
 
-    with pytest.raises(ValidationError):
-        MountPlug.unmarshal(plug)
+    result = MountPlug.unmarshal(plug)
+    assert result.workshop_target == path
 
 
-def test_mount_slot_sdk_variable():
-    slot = {"interface": "mount", "workshop-source": "$SDK/subdir"}
+@pytest.mark.parametrize("path", ["$SDK", "$SDK/subdir"])
+def test_mount_slot_sdk_variable(path: str):
+    slot = {"interface": "mount", "workshop-source": path}
 
     result = MountSlot.unmarshal(slot)
-    assert result.workshop_source == "/var/lib/workshop/sdk/unknown/subdir"
+    assert result.workshop_source == path
 
 
 def test_mount_slot_invalid_variable():

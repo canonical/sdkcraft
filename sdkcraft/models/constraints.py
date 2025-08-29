@@ -18,6 +18,7 @@
 import posixpath
 import re
 from ipaddress import ip_address
+from string import Template
 from typing import Annotated, Any
 from urllib.parse import urlsplit, urlunsplit
 
@@ -108,9 +109,16 @@ SlotName = Annotated[
 
 
 def _is_clean_abspath(path: str) -> str:
-    if not posixpath.isabs(path):
+    try:
+        expanded = Template(path).substitute({"SDK": "/var/lib/workshop/sdk/unknown"})
+    except KeyError as e:
+        key = next(iter(e.args), None)
+        suffix = f"in {path!r}" if key is None else f"{key!r}"
+        raise ValueError(f"unexpected variable {suffix}")
+
+    if not posixpath.isabs(expanded):
         raise ValueError(f"path {path!r} must be absolute")
-    if posixpath.normpath(path) != path:
+    if posixpath.normpath(expanded) != expanded:
         raise ValueError(f"path {path!r} is not clean")
     return path
 
