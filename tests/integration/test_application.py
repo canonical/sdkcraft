@@ -6,12 +6,13 @@ from datetime import datetime
 from hashlib import file_digest, sha3_384
 from pathlib import Path
 
+import craft_parts.callbacks
 import pytest
 import sdkcraft.cli
 import yaml
 from craft_platforms import DebianArchitecture
 
-pytestmark = [pytest.mark.slow, pytest.mark.usefixtures("reset_callbacks", "state_dir")]
+pytestmark = [pytest.mark.slow, pytest.mark.usefixtures("state_dir")]
 
 
 @pytest.fixture
@@ -244,6 +245,7 @@ def test_try(
     primed_meta = (new_path / "prime" / "meta" / "sdk.yaml").read_text()
     assert tried_meta == primed_meta
 
+    craft_parts.callbacks.unregister_all()
     monkeypatch.setattr("sys.argv", ["sdkcraft", "clean", "--destructive-mode"])
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -299,6 +301,7 @@ def test_try_files(
         "multi_ppc64el_ubuntu@24.04.sdk.yaml",
     ]
 
+    craft_parts.callbacks.unregister_all()
     monkeypatch.setattr(
         "sys.argv", ["sdkcraft", "try", "--destructive-mode", "not-an-sdk"]
     )
@@ -308,6 +311,8 @@ def test_try_files(
     invalid_name = "inval!d-N@me_all.sdk"
     with tarfile.open(invalid_name, "w") as tf:
         tf.add("meta")
+
+    craft_parts.callbacks.unregister_all()
     monkeypatch.setattr(
         "sys.argv", ["sdkcraft", "try", "--destructive-mode", invalid_name]
     )

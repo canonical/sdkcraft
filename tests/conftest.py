@@ -19,7 +19,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, cast
 
-import craft_parts.callbacks
 import pytest
 from craft_application.services import ServiceFactory
 from craft_application.util import dump_yaml
@@ -137,16 +136,6 @@ def release_version() -> str:
     except (FileNotFoundError, PartsError) as e:
         # For non-Ubuntu platform, just skip this test case
         pytest.skip(f"failed to read Ubuntu release version: {e}")
-
-
-@pytest.fixture
-def reset_callbacks() -> Iterator[None]:
-    """Fixture that resets the status of craft-part's various lifecycle callbacks,
-    so that tests can start with a clean slate.
-    """
-    craft_parts.callbacks.unregister_all()
-    yield
-    craft_parts.callbacks.unregister_all()
 
 
 @pytest.fixture
