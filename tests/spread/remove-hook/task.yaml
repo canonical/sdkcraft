@@ -29,7 +29,7 @@ execute: |
   fi
 
   # verify images were deleted
-  if lxc image list --project sdkcraft &> /dev/null; then
+  if [[ -n "$(lxc image list --project sdkcraft --format=csv --columns=f)" ]]; then
     echo "images were not removed"
 
     # show snap log
