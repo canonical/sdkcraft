@@ -18,6 +18,7 @@
 from craft_application import ServiceFactory
 
 from .buildplan import BuildPlanService
+from .lifecycle import LifecycleService
 from .package import PackageService
 from .project import ProjectService
 
@@ -25,12 +26,14 @@ from .project import ProjectService
 def register_sdkcraft_services() -> None:
     """Register SDKcraft-specific services."""
     ServiceFactory.register("build_plan", BuildPlanService)
+    ServiceFactory.register("lifecycle", LifecycleService)
     ServiceFactory.register("package", PackageService)
     ServiceFactory.register("project", ProjectService)
 
 
 __all__ = [
     "BuildPlanService",
+    "LifecycleService",
     "PackageService",
     "ProjectService",
     "register_sdkcraft_services",

@@ -198,11 +198,6 @@ Slots = Annotated[
 
 def _after_validate_part(item: dict[str, Any]) -> dict[str, Any]:
     """Verify SDK-specific attributes for a part."""
-    if item.get("stage-packages") is not None:
-        raise ValueError(
-            "'stage-packages' are not supported by SDKcraft. Consider using 'setup-base' hook to install packages required by your SDK"
-        )
-
     if item.get("stage-snaps") is not None:
         raise ValueError(
             "'stage-snaps' are not supported by SDKcraft. Consider using 'setup-base' hook to install snaps required by your SDK"
