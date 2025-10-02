@@ -105,7 +105,7 @@ def test_build_base_only(build_plan_service: BuildPlanService):
         pytest.param(
             {
                 "name": "base-and-build-base-ppc64el",
-                "base": "ubuntu@25.10",
+                "base": "ubuntu@22.04",
                 "build-base": "ubuntu@20.04",
                 "platforms": {"ppc64el": None},
             },

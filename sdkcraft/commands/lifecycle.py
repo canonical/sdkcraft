@@ -130,8 +130,7 @@ class TryCommand(PackCommand):
             for build_info in build_plan
         }
 
-        project = self._services.get("project").get()
-        self._try(project.name, artifacts)
+        self._try(self._project.name, artifacts)
 
     def _try(self, name: str, artifacts: Mapping[str, Path]) -> None:
         if not artifacts:
@@ -254,8 +253,7 @@ class CleanCommand(lifecycle.CleanCommand):
         super()._run(parsed_args, **kwargs)
 
         if not parsed_args.parts:
-            project = self._services.get("project").get()
-            _remove_try_sdk(project.name)
+            _remove_try_sdk(self._project.name)
 
 
 def _remove_try_sdk(name: str) -> None:
