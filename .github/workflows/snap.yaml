@@ -10,7 +10,7 @@ jobs:
       - uses: canonical/action-build@v1
         id: snapcraft
 
-      - uses: snapcore/action-publish@v1
+      - uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_CREDENTIALS }}
         with:
