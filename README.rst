@@ -1,42 +1,76 @@
 SDKcraft
 ========
 
-**A tool that packages and publishes SDKs to be used with Workshop,
-a related user-facing product**.
+.. image:: https://github.com/canonical/sdkcraft/actions/workflows/qa.yaml/badge.svg
+   :target: https://github.com/canonical/sdkcraft/actions/workflows/qa.yaml
+   :alt: QA Status
+
+SDKcraft is a tool that packages and publishes SDKs to be used with
+`Workshop <https://github.com/canonical/workshop>`_,
+a related user-facing product.
+SDKcraft solves the essential problem of creating reproducible, distributable
+development environments by allowing developers to define, build, and package
+complete SDKs as singular installable units.
+
+SDKcraft is useful for developers who need to distribute complex development
+toolchains, maintainers who want to ensure consistent development environments
+across teams, and organizations looking to streamline toolchain distribution and
+management.
 
 
-Getting Started
----------------
+Using SDKcraft
+--------------
 
-Follow the sections below
-or refer to the
-`how-to guide
-<https://canonical-workshop.readthedocs-hosted.com/en/latest/how-to/use-sdkcraft/>`_
-in our docs for a more detailed introduction to SDKcraft.
+Here are the core SDKcraft commands that demonstrate the essence of the tool.
 
-To know more about `Workshop <https://github.com/canonical/workshop/>`_,
-the user-facing counterpart to SDKcraft,
-start with its own `Tutorial
-<https://canonical-workshop.readthedocs-hosted.com/en/latest/tutorial/>`_.
-
-
-Installation
-~~~~~~~~~~~~
-
-SDKcraft requires
-`LXD 5.21+ <https://canonical.com/lxd>`_
-for low-level operation:
+Initialize a new SDK project:
 
 .. code-block:: console
 
-   sudo snap install lxd
-   sudo lxd init --auto
+   sdkcraft init
+
+Build and package your SDK:
+
+.. code-block:: console
+
+   sdkcraft pack
+
+Test your SDK in a clean environment:
+
+.. code-block:: console
+
+   sdkcraft try
+
+Clean build artifacts:
+
+.. code-block:: console
+
+   sdkcraft clean
+
+Publish your SDK to the SDK Store:
+
+.. code-block:: console
+
+   sdkcraft.publish ./my-sdk.sdk latest/edge
 
 
-Download the latest snap from the
+Installation
+------------
+
+SDKcraft is supported on Ubuntu and other ``snap``-enabled Linux distributions.
+
+Authenticate to the Snap Store and install the snap
+using the `--classic <https://snapcraft.io/docs/install-modes>`_ option:
+
+.. code-block:: console
+
+   sudo snap login
+   sudo snap install --classic sdkcraft
+
+
+Alternatively, you can download the latest SDKcraft snap from the
 `Releases <https://github.com/canonical/sdkcraft/releases/>`_
-page on GitHub and install it,
-using the options
+page on GitHub and install it, using the options
 `--dangerous <https://snapcraft.io/docs/install-modes>`_
 and
 `--classic <https://snapcraft.io/docs/install-modes>`_,
@@ -44,143 +78,53 @@ for example:
 
 .. code-block:: console
 
-   sudo snap install --dangerous --classic ./sdkcraft_0.1.5_amd64.snap
+   sudo snap install --dangerous --classic ./sdkcraft_0.1.12_amd64.snap
 
 
-Packing an SDK
---------------
-
-#. Browse to the directory with the prepared SDK files
-   and initialise an SDK:
-
-   .. code-block:: console
-
-      cd readme
-      sdkcraft init
-
-
-#. Update the metadata in ``sdk.yaml``,
-   at least its ``name``, ``summary`` and ``description``:
-
-   .. code-block:: yaml
-
-      name: readme
-      base: ubuntu@22.04
-      version: '0.1'
-      summary: Readme SDK
-      description: |
-        This is my Readme SDK's description.
-      license: GPL-3.0
-      platforms:
-         amd64:
-
-      parts:
-        my-part:
-          plugin: nil
-
-
-#. Under ``readme/``, run:
-
-   .. code-block:: console
-
-      sdkcraft
-
-
-   This builds all SDK parts
-   defined in the ``sdk.yaml`` file,
-   e.g. pulling source code, applying patches, configuring and compiling it
-   according to the part definition.
-
-   After the build, SDKcraft packs the SDK.
-   The resulting ``readme.sdk`` file contains the build artefacts
-   along with SDK metadata, hooks and other components.
-
-
-Publishing the SDK
-------------------
-
-An SDK can be released on the `SDK Store
-<https://github.com/canonical/sdks>`_.
-The store is currently on public GCS storage,
-and publishers need write permissions.
-To release an SDK in the ``edge`` track of the latest channel:
-
-.. code-block:: console
-
-   sdkcraft.publish ./readme.sdk latest/edge
-
-
-Testing
--------
-
-With Workshop
+Prerequisites
 ~~~~~~~~~~~~~
 
-Install `Workshop`_,
-and then launch a workshop for SDKcraft:
+SDKcraft requires
+`LXD 6.3+ <https://canonical.com/lxd>`_
+for low-level operation.
+
+If the ``snap install`` command reports an issue with LXD,
+install a recent LXD version with ``snap``:
 
 .. code-block:: console
 
-   workshop launch
+   sudo snap install --channel=6/stable lxd  # to install
+   sudo snap refresh --channel=6/stable lxd  # to update
 
 
-Run linters and tests using the following actions:
+Documentation
+-------------
 
-.. code-block:: console
+Refer to `Part 4 of the tutorial
+<https://canonical-workshop.readthedocs-hosted.com/stable/tutorial/part-4-craft-sdks/>`_
+in our docs for a detailed introduction to SDKcraft.
 
-   workshop run format
-   workshop run lint
-   workshop run test
-   workshop run integration
-
-
-In a virtual environment
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Install `uv <https://docs.astral.sh/uv/>`_ and create a virtual environment for SDKcraft:
-
-.. code-block:: console
-
-   make setup-tests
+To know more about `Workshop <https://github.com/canonical/workshop/>`_ in general,
+jump straight to the
+`documentation home page <https://canonical-workshop.readthedocs-hosted.com/>`_.
 
 
-To run unit tests and the integration test, you can either use ``uv run`` or enable the virtual environment manually:
+Community and Support
+---------------------
 
-.. code-block:: console
+Use the following resources for communication, support, and feedback:
 
-   uv run pytest tests/unit
-   uv run pytest tests/integration
+- `Code of conduct <https://ubuntu.com/community/ethos/code-of-conduct>`__
 
-   # or
-   source .venv/bin/activate
-   pytest tests/unit
-   pytest tests/integration
+- `Pulse reviews on Discourse <https://discourse.canonical.com/c/engineering/sdk/34>`__
 
+- `Mattermost channel <https://chat.canonical.com/canonical/channels/sdk>`__
 
-To run a local test from the source code, use the destructive mode:
-
-.. code-block:: console
-
-   python -m sdkcraft --destructive-mode
+- `Product and documentation feedback <https://github.com/canonical/sdkcraft/issues/>`__
 
 
-It allows injecting the ``sdkcraft`` snap from the host instead of the Snap Store,
-providing a faster way to run simple local tests during development,
-but isn't enough for an end-to-end test.
+Contributions
+-------------
 
-
-With ``spread``
-~~~~~~~~~~~~~~~
-
-For a sufficient end-to-end test,
-the snap should be packed and installed before running.
-Install our fork of `Spread <https://github.com/snapcore/spread>`_ to run it:
-
-.. code-block:: console
-
-   git clone https://github.com/dmitry-lyfar/spread
-   cd spread
-   go install ./...
-
-   cd ../sdkcraft
-   spread
+To join the development effort, see `How to contribute
+<https://canonical-workshop.readthedocs-hosted.com/latest/contributing/>`_.
