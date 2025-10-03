@@ -20,6 +20,8 @@ concurrency:
 jobs:
   build-snap:
     runs-on: ubuntu-latest
+    outputs:
+      snap: ${{ steps.snapcraft.outputs.snap }}
     steps:
       - uses: actions/checkout@v3
 
@@ -31,7 +33,6 @@ jobs:
         with:
           name: snap
           path: ${{ steps.snapcraft.outputs.snap }}
-
   snap-tests:
     needs: build-snap
     strategy:
@@ -71,3 +72,18 @@ jobs:
           path: tests
       - name: Run spread
         run: spread $SNAPCRAFT_BUILD_ENVIRONMENT:${{matrix.os}}:tests/spread/
+  publish:
+    needs: [build-snap, snap-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download snap artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: snap
+      - uses: canonical/action-publish@v1
+        if: github.event_name == 'push'
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_CREDENTIALS }}
+        with:
+          snap: ${{ needs.build-snap.outputs.snap }}
+          release: edge

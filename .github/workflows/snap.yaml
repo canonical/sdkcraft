@@ -10,6 +10,13 @@ jobs:
       - uses: canonical/action-build@v1
         id: snapcraft
 
+      - uses: canonical/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: stable
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
