@@ -16,6 +16,7 @@ apps:
     environment:
       PATH: ${SNAP}/bin:${SNAP}/usr/bin:${PATH}
       PYTHONPATH: ${SNAP}/lib/python3.12/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
+      CRAFT_IDLE_MINS: 10
   publish:
     environment:
       PATH: ${SNAP}/bin:${PATH}
