@@ -21,6 +21,7 @@ from craft_application import Application, AppMetadata
 from craft_cli import Dispatcher
 
 from sdkcraft.commands import PackCommand
+from sdkcraft.config import ConfigModel
 from sdkcraft.models import Project
 
 APP_METADATA = AppMetadata(
@@ -31,6 +32,7 @@ APP_METADATA = AppMetadata(
     ProjectClass=Project,
     supports_multi_base=True,
     always_repack=False,
+    ConfigModel=ConfigModel,
 )
 
 
