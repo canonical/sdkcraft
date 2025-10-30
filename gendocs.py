@@ -23,21 +23,11 @@ from craft_cli.dispatcher import (
     _CustomArgumentParser,  # type: ignore[reportPrivateUsage]
 )
 from craft_cli.helptexts import OutputFormat
+from sdkcraft import cli
 
 
 def generate_docs(output_dir: Path) -> None:
     """Generate CLI reference documentation."""
-    # Initialize emitter
-    emit.init(
-        EmitterMode.BRIEF,
-        "gendocs",
-        "Starting documentation generation",
-        log_filepath=None,
-    )
-
-    # Import here to ensure app is available
-    from sdkcraft import cli
-
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Create app instance to access command groups and dispatcher
@@ -143,6 +133,14 @@ if __name__ == "__main__":
     if len(sys.argv) != EXPECTED_ARGS:
         print("Usage: gendocs.py <output_directory>", file=sys.stderr)
         sys.exit(1)
+
+    # Initialize emitter before generating docs
+    emit.init(
+        EmitterMode.BRIEF,
+        "gendocs",
+        "Starting documentation generation",
+        log_filepath=None,
+    )
 
     output_directory = Path(sys.argv[1])
     generate_docs(output_directory)
