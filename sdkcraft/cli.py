@@ -20,7 +20,13 @@ import logging
 from craft_application.services import ServiceFactory
 
 from sdkcraft.application import APP_METADATA, Sdkcraft
-from sdkcraft.commands import CleanCommand, InitCommand, PackCommand, TryCommand
+from sdkcraft.commands import (
+    CleanCommand,
+    GendocsCommand,
+    InitCommand,
+    PackCommand,
+    TryCommand,
+)
 from sdkcraft.services import register_sdkcraft_services
 
 
@@ -30,7 +36,7 @@ def _create_app() -> Sdkcraft:
     app = Sdkcraft(APP_METADATA, factory)
 
     app.add_command_group("Lifecycle", [CleanCommand, PackCommand, TryCommand])
-    app.add_command_group("Other", [InitCommand])
+    app.add_command_group("Other", [GendocsCommand, InitCommand])
 
     return app
 
