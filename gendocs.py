@@ -70,8 +70,9 @@ def generate_docs(output_dir: Path) -> None:
         # Generate individual file for this command
         individual_filename = f"sdkcraft-{cmd.name}.md"
         individual_path = output_dir / individual_filename
-        individual_path.write_text(command_section)
-        print(f"Generated {individual_path}")
+        individual_content = f"{command_section}\n"
+        individual_path.write_text(individual_content)
+        emit.message(f"Generated {individual_path}")
         command_files.append((cmd.name, individual_filename))
 
     # Generate index.md with links to individual files (sorted alphabetically)
@@ -79,7 +80,7 @@ def generate_docs(output_dir: Path) -> None:
     index_content = _generate_index(command_files)
     index_path = output_dir / "index.md"
     index_path.write_text(index_content)
-    print(f"Generated {index_path}")
+    emit.message(f"Generated {index_path}")
 
 
 def _generate_index(command_files: list[tuple[str, str]]) -> str:
@@ -131,7 +132,8 @@ def _generate_index(command_files: list[tuple[str, str]]) -> str:
 if __name__ == "__main__":
     EXPECTED_ARGS = 2
     if len(sys.argv) != EXPECTED_ARGS:
-        print("Usage: gendocs.py <output_directory>", file=sys.stderr)
+        emit.init(EmitterMode.BRIEF, "gendocs", "gendocs", log_filepath=None)
+        emit.error("Usage: gendocs.py <output_directory>")
         sys.exit(1)
 
     # Initialize emitter before generating docs
