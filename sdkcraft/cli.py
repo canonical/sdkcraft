@@ -22,7 +22,6 @@ from craft_application.services import ServiceFactory
 from sdkcraft.application import APP_METADATA, Sdkcraft
 from sdkcraft.commands import (
     CleanCommand,
-    GendocsCommand,
     InitCommand,
     PackCommand,
     TryCommand,
@@ -36,7 +35,7 @@ def _create_app() -> Sdkcraft:
     app = Sdkcraft(APP_METADATA, factory)
 
     app.add_command_group("Lifecycle", [CleanCommand, PackCommand, TryCommand])
-    app.add_command_group("Other", [GendocsCommand, InitCommand])
+    app.add_command_group("Other", [InitCommand])
 
     return app
 
