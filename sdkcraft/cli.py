@@ -20,7 +20,12 @@ import logging
 from craft_application.services import ServiceFactory
 
 from sdkcraft.application import APP_METADATA, Sdkcraft
-from sdkcraft.commands import CleanCommand, InitCommand, PackCommand, TryCommand
+from sdkcraft.commands import (
+    CleanCommand,
+    InitCommand,
+    PackCommand,
+    TryCommand,
+)
 from sdkcraft.services import register_sdkcraft_services
 
 
