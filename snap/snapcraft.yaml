@@ -44,6 +44,10 @@ parts:
       - -usr/share/man
       - -usr/share/lintian
       - -usr/share/doc
+    override-build: |
+      craftctl default
+
+      $CRAFT_PART_INSTALL/usr/bin/python3 -m compileall -q -j $CRAFT_PARALLEL_BUILD_COUNT $CRAFT_PART_INSTALL/usr/lib
   sdkcraft:
     source: .
     plugin: uv
@@ -51,15 +55,24 @@ parts:
       - astral-uv
     override-build: |
       craftctl default
-      rm $CRAFT_PART_INSTALL/bin/python*
-      ln -s ../usr/bin/python3 $CRAFT_PART_INSTALL/bin/python3
-      ln -s python3 $CRAFT_PART_INSTALL/bin/python
+
+      # Fix interpreter path for subsequent build commands.
+      ln -sf $CRAFT_STAGE/usr/bin/python3 $CRAFT_PART_INSTALL/bin/python
+      # Fix erroneous link introduced by craft-parts plugin.
+      ln -sf python $CRAFT_PART_INSTALL/bin/python3
+
+      $CRAFT_PART_INSTALL/bin/python -m compileall -q -j $CRAFT_PARALLEL_BUILD_COUNT $CRAFT_PART_INSTALL/lib
     build-attributes:
       - enable-patchelf
     build-environment:
       - PARTS_PYTHON_VENV_ARGS: --system-site-packages
     after:
       - sdkcraft-libs
+    override-stage: |
+      craftctl default
+
+      # Fix interpreter path for the installed snap.
+      ln -sf ../usr/bin/python3 $CRAFT_STAGE/bin/python
   scripts:
     plugin: dump
     source: sdkcraft
