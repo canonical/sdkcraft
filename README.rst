@@ -1,6 +1,18 @@
 SDKcraft
 ========
 
+.. warning::
+
+   SDKcraft is currently an internal Canonical project.
+   All code, documentation, and materials in this repository
+   are company-private and must not be shared outside Canonical
+   without prior authorization.
+
+   Do not redistribute or discuss this content or the project externally
+   (at public forums, in social media, with customers)
+   until an official public release is announced.
+
+
 .. image:: https://github.com/canonical/sdkcraft/actions/workflows/qa.yaml/badge.svg
    :target: https://github.com/canonical/sdkcraft/actions/workflows/qa.yaml
    :alt: QA Status
