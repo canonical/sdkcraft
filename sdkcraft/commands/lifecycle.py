@@ -176,9 +176,9 @@ class TryCommand(PackCommand):
         try_name = f"try-{name}"
         command = "workshop refresh"
 
-        emit.progress(f"Copied {name} SDK ({platforms}) to try area.", permanent=True)
+        emit.progress(f"Copied {name!r} SDK ({platforms}) to try area.", permanent=True)
         emit.message(
-            f"To use it, add {try_name!r} to the list of SDKs and run {command!r}."
+            f"To use it in a workshop, add {try_name!r} to the list of SDKs in the workshop file and run {command!r}."
         )
 
 
