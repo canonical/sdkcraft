@@ -68,11 +68,13 @@ parts:
       - PARTS_PYTHON_VENV_ARGS: --system-site-packages
     after:
       - sdkcraft-libs
-    override-stage: |
-      craftctl default
-
+  python:
+    plugin: nil
+    after:
+      - sdkcraft
+    override-prime: |
       # Fix interpreter path for the installed snap.
-      ln -sf ../usr/bin/python3 $CRAFT_STAGE/bin/python
+      ln -sf ../usr/bin/python3 $CRAFT_PRIME/bin/python
   scripts:
     plugin: dump
     source: sdkcraft
