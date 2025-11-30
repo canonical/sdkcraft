@@ -15,6 +15,8 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Services for SDKcraft."""
 
+from __future__ import annotations
+
 from craft_application import ServiceFactory
 
 from .buildplan import BuildPlanService

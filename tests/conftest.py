@@ -12,12 +12,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 import os
 import platform
-from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 from craft_application.services import ServiceFactory
@@ -32,6 +33,9 @@ from sdkcraft.services import (
     ProjectService,
     register_sdkcraft_services,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 @pytest.fixture

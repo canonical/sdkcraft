@@ -17,9 +17,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from itertools import chain, product
-from typing import Any, override
+from typing import TYPE_CHECKING, Any, override
 
 from craft_application.services import buildplan
 from craft_platforms import (
@@ -33,6 +32,9 @@ from craft_platforms import (
 
 from sdkcraft.errors import RepeatedPlatformError
 from sdkcraft.models.project import Project
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class BuildPlanService(buildplan.BuildPlanService):

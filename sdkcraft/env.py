@@ -15,6 +15,8 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Environment variable parsing."""
 
+from __future__ import annotations
+
 import codecs
 import re
 import subprocess

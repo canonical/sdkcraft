@@ -29,15 +29,10 @@ indent_size = 2
 max_line_length = off
 
 [{*.markdown,*.md,*.rst}]
-max_line_length = off
 ij_visual_guides = none
 
 [{*.toml,Cargo.lock,Cargo.toml.orig,Gopkg.lock,Pipfile,poetry.lock}]
 max_line_length = off
 
-[{*.ini, *.cfg}]
-max_line_length = off
-
 [{*.yaml,*.yml}]
 indent_size = 2
-max_line_length = off
