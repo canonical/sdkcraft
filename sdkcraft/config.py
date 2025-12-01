@@ -15,6 +15,8 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Configuration model for SDKcraft."""
 
+from __future__ import annotations
+
 import craft_application
 from pydantic import NonNegativeInt
 

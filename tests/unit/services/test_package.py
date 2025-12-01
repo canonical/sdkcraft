@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 import yaml
-from craft_platforms import DebianArchitecture
-from sdkcraft.services.package import PackageService, datetime_as_utc_str
+from sdkcraft.services.package import datetime_as_utc_str
+
+if TYPE_CHECKING:
+    from craft_platforms import DebianArchitecture
+    from sdkcraft.services.package import PackageService
 
 DEFAULT_METADATA = {
     "name": "default",

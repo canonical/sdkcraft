@@ -14,15 +14,19 @@
 
 """Creation of minimalist SDKcraft projects."""
 
+from __future__ import annotations
+
 import textwrap
-from argparse import Namespace
 from pathlib import Path
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from craft_application.commands import AppCommand
 from craft_cli import emit
 
 from sdkcraft.errors import SdkcraftInitError
+
+if TYPE_CHECKING:
+    from argparse import Namespace
 
 
 def init(sdkcraft_yaml_content: str) -> None:

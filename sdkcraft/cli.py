@@ -15,6 +15,8 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Command-line interface entrypoint."""
 
+from __future__ import annotations
+
 import logging
 
 from craft_application.services import ServiceFactory

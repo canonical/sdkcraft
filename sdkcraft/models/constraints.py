@@ -15,6 +15,8 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Constrained pydantic types for SDKcraft."""
 
+from __future__ import annotations
+
 import posixpath
 import re
 from ipaddress import ip_address

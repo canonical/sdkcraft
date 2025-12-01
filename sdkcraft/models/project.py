@@ -18,6 +18,8 @@
 This module defines an sdk.yaml file, exportable to a JSON schema.
 """
 
+from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Annotated, Any, Literal, Protocol, TypeGuard, runtime_checkable

@@ -15,6 +15,8 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Tests for type constraints."""
 
+from __future__ import annotations
+
 import pytest
 from pydantic import TypeAdapter, ValidationError
 from sdkcraft.models.constraints import (

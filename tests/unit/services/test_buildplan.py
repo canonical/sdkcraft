@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 from craft_platforms import (
     AllOnlyBuildError,
@@ -8,7 +12,9 @@ from craft_platforms import (
     RequiresBaseError,
 )
 from sdkcraft.errors import RepeatedPlatformError
-from sdkcraft.services.buildplan import BuildPlanService
+
+if TYPE_CHECKING:
+    from sdkcraft.services.buildplan import BuildPlanService
 
 
 @pytest.mark.parametrize(

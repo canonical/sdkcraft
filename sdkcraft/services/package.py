@@ -22,12 +22,15 @@ import pathlib
 import shutil
 import subprocess
 from datetime import datetime, timezone
-from typing import override
+from typing import TYPE_CHECKING, override
 
-from craft_application import AppMetadata, services
-from craft_application.models import Project
+from craft_application import services
 
 from sdkcraft import models
+
+if TYPE_CHECKING:
+    from craft_application import AppMetadata
+    from craft_application.models import Project
 
 
 class PackageService(services.PackageService):

@@ -15,6 +15,8 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Main application class for sdkcraft."""
 
+from __future__ import annotations
+
 from typing import override
 
 from craft_application import Application, AppMetadata

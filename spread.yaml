@@ -4,7 +4,7 @@ path: /sdkcraft
 environment:
   PROJECT_PATH: /sdkcraft
   PATH: /snap/bin:$PROJECT_PATH/tests/tools:$PATH
-  CRAFT_DEBUG: 1  # Show exception tracebacks.
+  CRAFT_DEBUG: 1 # Show exception tracebacks.
 
 include:
   - tests/

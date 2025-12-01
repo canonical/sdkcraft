@@ -2,6 +2,7 @@ PROJECT=sdkcraft
 UV_TEST_GROUPS := "--group=dev"
 UV_DOCS_GROUPS := "--group=dev"
 UV_LINT_GROUPS := "--group=dev"
+UV_TICS_GROUPS := "--group=dev"
 
 ifneq ($(wildcard /etc/os-release),)
 include /etc/os-release
@@ -10,25 +11,16 @@ ifdef VERSION_CODENAME
 UV_TEST_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 UV_DOCS_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 UV_LINT_GROUPS += "--group=dev-$(VERSION_CODENAME)"
+UV_TICS_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 endif
 
 include common.mk
 
 .PHONY: format
-format: format-ruff format-codespell  ## Run all automatic formatters
+format: format-ruff format-codespell format-prettier format-pre-commit  ## Run all automatic formatters
 
 .PHONY: lint
-lint: lint-ruff lint-codespell lint-mypy lint-pyright lint-shellcheck lint-twine lint-yamllint  ## Run all linters
-
-.PHONY: lint-yamllint
-lint-yamllint:  ##- Lint YAML files
-ifneq ($(CI),)
-	@echo ::group::$@
-endif
-	uv run yamllint --strict .
-ifneq ($(CI),)
-	@echo ::endgroup::
-endif
+lint: lint-ruff lint-codespell lint-mypy lint-prettier lint-pyright lint-shellcheck lint-twine lint-uv-lockfile  ## Run all linters
 
 .PHONY: test-units
 test-units:  ## Run unit tests
@@ -58,15 +50,6 @@ APT_PACKAGES += libxslt1-dev
 endif
 ifeq ($(wildcard /usr/share/doc/python3-venv/copyright),)
 APT_PACKAGES += python3-venv
-endif
-ifeq ($(wildcard /usr/share/doc/libapt-pkg-dev/copyright),)
-APT_PACKAGES += libapt-pkg-dev
-endif
-ifeq ($(wildcard /usr/share/doc/libgit2-dev/copyright),)
-APT_PACKAGES += libgit2-dev
-endif
-ifeq ($(wildcard /usr/share/doc/fuse-overlayfs/copyright),)
-APT_PACKAGES += fuse-overlayfs
 endif
 
 # Used for installing build dependencies in CI.

@@ -15,17 +15,23 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """SDKcraft project service."""
 
-import os
-import pathlib
-from typing import override
+from __future__ import annotations
 
-from craft_application import AppMetadata, ServiceFactory, services
+import os
+from typing import TYPE_CHECKING, override
+
+from craft_application import services
 from craft_application.errors import (
     ProjectDirectoryMissingError,
     ProjectDirectoryTypeError,
     ProjectFileMissingError,
 )
 from craft_cli import emit
+
+if TYPE_CHECKING:
+    import pathlib
+
+    from craft_application import AppMetadata, ServiceFactory
 
 
 class ProjectService(services.ProjectService):

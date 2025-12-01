@@ -15,6 +15,8 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """metadata.yaml description for SDKcraft output."""
 
+from __future__ import annotations
+
 from craft_application.models import (
     BaseMetadata,
     ProjectTitle,
