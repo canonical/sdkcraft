@@ -17,14 +17,18 @@
 
 from __future__ import annotations
 
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from craft_application import Application, AppMetadata
 from craft_cli import Dispatcher
+from craft_parts.plugins.python_v2.python_plugin import PythonPlugin
 
 from sdkcraft.commands import PackCommand
 from sdkcraft.config import ConfigModel
 from sdkcraft.models import Project
+
+if TYPE_CHECKING:
+    from craft_parts.plugins.plugins import PluginType
 
 APP_METADATA = AppMetadata(
     name="sdkcraft",
@@ -52,3 +56,7 @@ class Sdkcraft(Application):
             docs_base_url=self.app.versioned_docs_url,
             default_command=PackCommand,
         )
+
+    @override
+    def _get_app_plugins(self) -> dict[str, PluginType]:
+        return {"python": PythonPlugin}
