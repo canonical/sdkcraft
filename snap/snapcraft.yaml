@@ -56,16 +56,12 @@ parts:
     override-build: |
       craftctl default
 
-      # Fix interpreter path for subsequent build commands.
-      ln -sf $CRAFT_STAGE/usr/bin/python3 $CRAFT_PART_INSTALL/bin/python
-      # Fix erroneous link introduced by craft-parts plugin.
-      ln -sf python $CRAFT_PART_INSTALL/bin/python3
+      # Enable system-site-packages and fix interpreter path for subsequent build commands
+      uv venv --allow-existing --python $CRAFT_STAGE/usr/bin/python3 --relocatable --system-site-packages $CRAFT_PART_INSTALL
 
       $CRAFT_PART_INSTALL/bin/python -m compileall -q -j $CRAFT_PARALLEL_BUILD_COUNT $CRAFT_PART_INSTALL/lib
     build-attributes:
       - enable-patchelf
-    build-environment:
-      - PARTS_PYTHON_VENV_ARGS: --system-site-packages
     after:
       - sdkcraft-libs
   python:
