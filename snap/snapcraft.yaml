@@ -45,7 +45,7 @@ parts:
       - -usr/share/lintian
       - -usr/share/doc
     override-build: |
-      craftctl default
+      ${SNAP}/libexec/snapcraft/craftctl default
 
       $CRAFT_PART_INSTALL/usr/bin/python3 -m compileall -q -j $CRAFT_PARALLEL_BUILD_COUNT $CRAFT_PART_INSTALL/usr/lib
   sdkcraft:
@@ -54,7 +54,7 @@ parts:
     build-snaps:
       - astral-uv
     override-build: |
-      craftctl default
+      ${SNAP}/libexec/snapcraft/craftctl default
 
       # Enable system-site-packages and fix interpreter path for subsequent build commands
       uv venv --allow-existing --python $CRAFT_STAGE/usr/bin/python3 --relocatable --system-site-packages $CRAFT_PART_INSTALL
