@@ -58,10 +58,10 @@ parts:
 
       # Enable system-site-packages and fix interpreter path for subsequent build commands
       uv venv --allow-existing --python $CRAFT_STAGE/usr/bin/python3 --relocatable --system-site-packages $CRAFT_PART_INSTALL
-
-      $CRAFT_PART_INSTALL/bin/python -m compileall -q -j $CRAFT_PARALLEL_BUILD_COUNT $CRAFT_PART_INSTALL/lib
     build-attributes:
       - enable-patchelf
+    build-environment:
+      - UV_COMPILE_BYTECODE: "1"
     after:
       - sdkcraft-libs
   python:
