@@ -74,6 +74,8 @@ parts:
   scripts:
     plugin: dump
     source: sdkcraft
+    stage:
+      - bin/*.sh
     organize:
       "*.sh": bin/
     build-attributes:
