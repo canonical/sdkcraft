@@ -120,6 +120,15 @@ To know more about `Workshop <https://github.com/canonical/workshop/>`_ in gener
 jump straight to the
 `documentation home page <https://canonical-workshop.readthedocs-hosted.com/>`_.
 
+Generate the project schema JSON:
+
+.. code-block:: console
+
+   uv run python sdkcraft/models/project.py
+
+This uses the exact version of ``craft-application`` locked in ``uv.lock``,
+ensuring schema consistency.
+
 
 Community and Support
 ---------------------
