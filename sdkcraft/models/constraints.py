@@ -120,8 +120,11 @@ def _is_clean_abspath(path: str) -> str:
 
     if not posixpath.isabs(expanded):
         raise ValueError(f"path {path!r} must be absolute")
-    if posixpath.normpath(expanded) != expanded:
-        raise ValueError(f"path {path!r} is not clean")
+
+    cleaned = posixpath.normpath(expanded)
+    if cleaned != expanded:
+        raise ValueError(f"path {path!r} should be shortened to {cleaned!r}")
+
     return path
 
 
