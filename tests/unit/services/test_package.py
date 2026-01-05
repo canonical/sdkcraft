@@ -46,6 +46,8 @@ def test_default_metadata(
             {
                 "name": "build-base-metadata",
                 "version": "1.0",
+                "summary": "default project",
+                "description": "default project",
                 "build-base": "ubuntu@20.04",
                 "platforms": {
                     "all": {
@@ -66,6 +68,8 @@ def test_build_base_metadata(
     metadata = {
         "name": "build-base-metadata",
         "version": "1.0",
+        "summary": "default project",
+        "description": "default project",
         "architecture": "all",
         "sdkcraft-started-at": "1970-01-01T00:00:00Z",
     }
@@ -80,6 +84,8 @@ def test_build_base_metadata(
             {
                 "name": "multi-base-metadata",
                 "version": "1.0",
+                "summary": "default project",
+                "description": "default project",
                 "platforms": {
                     "ubuntu@22.04:amd64": None,
                     "ubuntu@22.04:arm64": None,
@@ -98,6 +104,8 @@ def test_multi_base_metadata(
     metadata = {
         "name": "multi-base-metadata",
         "version": "1.0",
+        "summary": "default project",
+        "description": "default project",
         "base": "ubuntu@24.04",
         "architecture": str(fake_arch),
         "sdkcraft-started-at": "1970-01-01T00:00:00Z",

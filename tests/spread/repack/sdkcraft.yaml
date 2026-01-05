@@ -1,6 +1,7 @@
 name: my-sdk-name
 version: "0.1"
 summary: foo
+description: bar
 build-base: ubuntu@22.04
 platforms:
   all:
