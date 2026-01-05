@@ -232,10 +232,10 @@ class Project(models.Project):
 def export_schema() -> None:
     """SDKcraft project schema export.
 
-    To run: PYTHONPATH=. python sdkcraft/models/project.py.
+    To run: uv run python sdkcraft/models/project.py.
     """
     schema = Project.model_json_schema()
-    with Path("schema.json").open("w") as file:
+    with Path("schema-sdkcraft.json").open("w") as file:
         json.dump(schema, file, indent=2)
 
 
