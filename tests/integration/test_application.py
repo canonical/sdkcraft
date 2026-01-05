@@ -18,7 +18,7 @@ pytestmark = [pytest.mark.slow, pytest.mark.usefixtures("state_dir")]
 
 
 @pytest.fixture
-def sdk_yaml_template() -> str:
+def sdkcraft_yaml_template() -> str:
     return """\
 name: my-project
 title: My Project
@@ -44,14 +44,14 @@ parts:
 
 
 @pytest.fixture
-def sdk_yaml(sdk_yaml_template: str, release_version: str) -> str:
+def sdkcraft_yaml(sdkcraft_yaml_template: str, release_version: str) -> str:
     arch = str(DebianArchitecture.from_host())
     replacements = {
         "RELEASE_VERSION": release_version,
         "DEBIAN_ARCH": arch,
     }
 
-    result = sdk_yaml_template
+    result = sdkcraft_yaml_template
     for key, value in replacements.items():
         result = result.replace(key, value)
     return result
@@ -59,13 +59,13 @@ def sdk_yaml(sdk_yaml_template: str, release_version: str) -> str:
 
 def test_global_environment(
     new_path: Path,
-    sdk_yaml: str,
+    sdkcraft_yaml: str,
     monkeypatch: pytest.MonkeyPatch,
 ):
     """Test our additions to the global environment that is available to the
     build process."""
 
-    Path("sdk.yaml").write_text(sdk_yaml)
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
 
     monkeypatch.setattr("sys.argv", ["sdkcraft", "prime", "--destructive-mode"])
 
@@ -83,12 +83,12 @@ def test_global_environment(
 
 def test_pack(
     new_path: Path,
-    sdk_yaml: str,
+    sdkcraft_yaml: str,
     monkeypatch: pytest.MonkeyPatch,
 ):
     """Test packed SDK contents."""
 
-    Path("sdk.yaml").write_text(sdk_yaml)
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
     Path("hooks").mkdir()
     (Path("hooks") / "setup-base").write_text("touch /etc/fstab\n")
     (Path("hooks") / "setup-base").chmod(stat.S_IRWXU | stat.S_IWGRP | stat.S_IROTH)
@@ -147,7 +147,7 @@ def test_pack(
 
 
 @pytest.mark.parametrize(
-    "sdk_yaml_template",
+    "sdkcraft_yaml_template",
     [
         pytest.param(
             """\
@@ -163,12 +163,12 @@ platforms:
 )
 def test_pack_base_agnostic(
     new_path: Path,
-    sdk_yaml: str,
+    sdkcraft_yaml: str,
     monkeypatch: pytest.MonkeyPatch,
 ):
     """Test packed SDK contents."""
 
-    Path("sdk.yaml").write_text(sdk_yaml)
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
 
     monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
 
@@ -181,7 +181,7 @@ def test_pack_base_agnostic(
 
 
 @pytest.mark.parametrize(
-    "sdk_yaml_template",
+    "sdkcraft_yaml_template",
     [
         pytest.param(
             """\
@@ -199,12 +199,12 @@ platforms:
 def test_pack_architecture_agnostic(
     new_path: Path,
     release_version: str,
-    sdk_yaml: str,
+    sdkcraft_yaml: str,
     monkeypatch: pytest.MonkeyPatch,
 ):
     """Test packed SDK contents."""
 
-    Path("sdk.yaml").write_text(sdk_yaml)
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
 
     monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
 
@@ -217,13 +217,13 @@ def test_pack_architecture_agnostic(
 
 def test_try(
     new_path: Path,
-    sdk_yaml: str,
+    sdkcraft_yaml: str,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path_factory: pytest.TempPathFactory,
 ):
     """Test packed SDK contents."""
 
-    Path("sdk.yaml").write_text(sdk_yaml)
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
     data_home = tmp_path_factory.mktemp("share")
 
     monkeypatch.setattr("sys.argv", ["sdkcraft", "try", "--destructive-mode"])

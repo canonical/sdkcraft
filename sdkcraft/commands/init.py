@@ -32,23 +32,29 @@ if TYPE_CHECKING:
 def init(sdkcraft_yaml_content: str) -> None:
     """Initialize an SDKcraft project.
 
-    :param sdkcraft_yaml_content: Content of the sdk.yaml file
+    :param sdkcraft_yaml_content: Content of the sdkcraft.yaml file
     :raises SdkcraftInitError: raises initialization error in case of conflicts
-    with existing sdk.yaml files
+    with existing sdkcraft.yaml files
     """
-    sdk_yaml_path = Path("sdk.yaml")
+    sdkcraft_yaml_path = Path("sdkcraft.yaml")
+    dot_sdkcraft_yaml_path = Path(".sdkcraft.yaml")
+    sdk_yaml_path = sdkcraft_yaml_path.with_name("sdk.yaml")
     dot_sdk_yaml_path = sdk_yaml_path.with_name(".sdk.yaml")
 
+    if sdkcraft_yaml_path.is_file():
+        raise SdkcraftInitError(sdkcraft_yaml_path)
+    if dot_sdkcraft_yaml_path.is_file():
+        raise SdkcraftInitError(dot_sdkcraft_yaml_path)
     if sdk_yaml_path.is_file():
         raise SdkcraftInitError(sdk_yaml_path)
     if dot_sdk_yaml_path.is_file():
         raise SdkcraftInitError(dot_sdk_yaml_path)
 
-    sdk_yaml_path.parent.mkdir(exist_ok=True)
+    sdkcraft_yaml_path.parent.mkdir(exist_ok=True)
 
-    sdk_yaml_path.write_text(sdkcraft_yaml_content)
+    sdkcraft_yaml_path.write_text(sdkcraft_yaml_content)
 
-    emit.progress(f"Created {sdk_yaml_path}.")
+    emit.progress(f"Created {sdkcraft_yaml_path}.")
 
 
 class InitCommand(AppCommand):
@@ -59,7 +65,7 @@ class InitCommand(AppCommand):
     overview = textwrap.dedent(
         """
         Initialize an SDKcraft project by creating a minimalist,
-        yet functional, sdk.yaml file in the current directory.
+        yet functional, sdkcraft.yaml file in the current directory.
         """
     )
 

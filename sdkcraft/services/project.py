@@ -17,65 +17,38 @@
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING, override
 
 from craft_application import services
-from craft_application.errors import (
-    ProjectDirectoryMissingError,
-    ProjectDirectoryTypeError,
-    ProjectFileMissingError,
-)
-from craft_cli import emit
+from craft_application.errors import ProjectFileMissingError
 
 if TYPE_CHECKING:
-    import pathlib
-
-    from craft_application import AppMetadata, ServiceFactory
+    from pathlib import Path
 
 
 class ProjectService(services.ProjectService):
     """A service for handling access to the project."""
 
-    __sdk_file_path: pathlib.Path | None
-
-    def __init__(
-        self, app: AppMetadata, services: ServiceFactory, *, project_dir: pathlib.Path
-    ) -> None:
-        super().__init__(app, services, project_dir=project_dir)
-        self.__sdk_file_path = None
-
     @override
-    def resolve_project_file_path(self) -> pathlib.Path:
+    def resolve_project_file_path(self) -> Path:
         """Get the path to the project file from the root project directory."""
-        if self.__sdk_file_path:
-            return self.__sdk_file_path
 
-        if not self._project_dir.is_dir():
-            if not self._project_dir.exists():
-                raise ProjectDirectoryMissingError(self._project_dir)
-            raise ProjectDirectoryTypeError(self._project_dir)
+        try:
+            return super().resolve_project_file_path()
+        except ProjectFileMissingError:
+            try:
+                return (self._project_dir / ".sdkcraft.yaml").resolve(strict=True)
+            except FileNotFoundError:
+                pass
 
-        path = _resolve_project_file_path(self._project_dir)
-        emit.trace(f"Project file found at {path}")
-        self.__sdk_file_path = path
-        return path
+            try:
+                return (self._project_dir / "sdk.yaml").resolve(strict=True)
+            except FileNotFoundError:
+                pass
 
+            try:
+                return (self._project_dir / ".sdk.yaml").resolve(strict=True)
+            except FileNotFoundError:
+                pass
 
-def _resolve_project_file_path(project_dir: pathlib.Path) -> pathlib.Path:
-    try:
-        return (project_dir / "sdk.yaml").resolve(strict=True)
-    except FileNotFoundError:
-        pass
-
-    try:
-        return (project_dir / ".sdk.yaml").resolve(strict=True)
-    except FileNotFoundError:
-        pass
-
-    raise ProjectFileMissingError(
-        f"Project file 'sdk.yaml' not found in '{project_dir}'.",
-        details="The project file could not be found.",
-        resolution="Ensure the project file exists.",
-        retcode=os.EX_NOINPUT,
-    )
+            raise

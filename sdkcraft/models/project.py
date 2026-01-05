@@ -15,7 +15,7 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """SDKcraft project definition.
 
-This module defines an sdk.yaml file, exportable to a JSON schema.
+This module defines an sdkcraft.yaml file, exportable to a JSON schema.
 """
 
 from __future__ import annotations

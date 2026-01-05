@@ -84,7 +84,7 @@ def default_factory(
     project_dir = tmp_path_factory.mktemp("project")
     work_dir = tmp_path_factory.mktemp("work")
 
-    with (project_dir / "sdk.yaml").open("w") as f:
+    with (project_dir / "sdkcraft.yaml").open("w") as f:
         dump_yaml(project_data, f)
 
     factory.update_kwargs("lifecycle", cache_dir=cache_dir, work_dir=work_dir)
