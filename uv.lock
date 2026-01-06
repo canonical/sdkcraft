@@ -1468,6 +1468,7 @@ dependencies = [
     { name = "craft-parts" },
     { name = "craft-platforms" },
     { name = "pydantic" },
+    { name = "pyyaml" },
 ]
 
 [package.optional-dependencies]
@@ -1487,6 +1488,7 @@ dev = [
     { name = "pytest" },
     { name = "ruff" },
     { name = "twine" },
+    { name = "types-pyyaml" },
     { name = "yamllint" },
 ]
 dev-jammy = [
@@ -1510,6 +1512,7 @@ requires-dist = [
     { name = "craft-platforms", specifier = ">=0.10.0" },
     { name = "pydantic", specifier = ">=2.11.7" },
     { name = "python-apt", marker = "sys_platform == 'linux' and extra == 'apt'", specifier = ">=2.4.0", index = "https://people.canonical.com/~lengau/python-apt-ubuntu-wheels/" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
 ]
 provides-extras = ["apt"]
 
@@ -1522,6 +1525,7 @@ dev = [
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "ruff", specifier = ">=0.9.10" },
     { name = "twine", specifier = ">=6.1.0" },
+    { name = "types-pyyaml", specifier = ">=6.0.12.20250915" },
     { name = "yamllint", specifier = ">=1.35.1" },
 ]
 dev-jammy = [{ name = "python-apt", marker = "sys_platform == 'linux'", specifier = "~=2.4.0", index = "https://people.canonical.com/~lengau/python-apt-ubuntu-wheels/" }]
@@ -1599,6 +1603,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e0/a8/949edebe3a82774c1ec34f637f5dd82d1cf22c25e963b7d63771083bbee5/twine-6.2.0.tar.gz", hash = "sha256:e5ed0d2fd70c9959770dce51c8f39c8945c574e18173a7b81802dab51b4b75cf", size = 172262, upload-time = "2025-09-04T15:43:17.255Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3a/7a/882d99539b19b1490cac5d77c67338d126e4122c8276bf640e411650c830/twine-6.2.0-py3-none-any.whl", hash = "sha256:418ebf08ccda9a8caaebe414433b0ba5e25eb5e4a927667122fbe8f829f985d8", size = 42727, upload-time = "2025-09-04T15:43:15.994Z" },
+]
+
+[[package]]
+name = "types-pyyaml"
+version = "6.0.12.20250915"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7e/69/3c51b36d04da19b92f9e815be12753125bd8bc247ba0470a982e6979e71c/types_pyyaml-6.0.12.20250915.tar.gz", hash = "sha256:0f8b54a528c303f0e6f7165687dd33fafa81c807fcac23f632b63aa624ced1d3", size = 17522, upload-time = "2025-09-15T03:01:00.728Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bd/e0/1eed384f02555dde685fff1a1ac805c1c7dcb6dd019c916fe659b1c1f9ec/types_pyyaml-6.0.12.20250915-py3-none-any.whl", hash = "sha256:e7d4d9e064e89a3b3cae120b4990cd370874d2bf12fa5f46c97018dd5d3c9ab6", size = 20338, upload-time = "2025-09-15T03:00:59.218Z" },
 ]
 
 [[package]]
