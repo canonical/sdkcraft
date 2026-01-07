@@ -7,7 +7,7 @@ execute: |
   arch="$(dpkg --print-architecture)"
 
   run_sdkcraft init
-  test -f sdk.yaml
+  test -f sdkcraft.yaml
   run_sdkcraft pack
 
   test -f "my-sdk-name_${arch}_ubuntu@22.04.sdk"

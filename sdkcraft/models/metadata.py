@@ -17,6 +17,9 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from craft_application.models import (
     BaseMetadata,
     ProjectTitle,
@@ -53,3 +56,18 @@ class Metadata(BaseMetadata):
     sdkcraft_started_at: str
 
     model_config = ConfigDict(use_enum_values=True)
+
+
+def export_schema() -> None:
+    """SDK metadata schema export.
+
+    To run: uv run python sdkcraft/models/metadata.py.
+    """
+    schema = Metadata.model_json_schema()
+    with Path("schema-sdk.json").open("w") as file:
+        json.dump(schema, file, indent=2)
+
+
+if __name__ == "__main__":
+    # Call the export function
+    export_schema()

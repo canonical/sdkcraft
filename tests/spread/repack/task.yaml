@@ -14,7 +14,7 @@ execute: |
   previous=''
   ensure_repacked
 
-  sed 's/foo/bar/' -i sdk.yaml
+  sed 's/foo/bar/' -i sdkcraft.yaml
   ensure_repacked
 
   sed 's/foo/bar/' -i hooks/setup-base

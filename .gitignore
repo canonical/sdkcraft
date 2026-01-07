@@ -156,4 +156,4 @@ dmypy.json
 
 # Local e2e test
 /.spread-reuse.yaml
-/sdk.yaml
+/sdkcraft.yaml

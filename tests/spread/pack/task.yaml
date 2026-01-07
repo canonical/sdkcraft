@@ -8,7 +8,7 @@ execute: |
 
   # Create an SDK with hooks
   run_sdkcraft init
-  test -f sdk.yaml
+  test -f sdkcraft.yaml
   mkdir hooks
   touch hooks/{setup-base,check-health,utils.sh}
 
