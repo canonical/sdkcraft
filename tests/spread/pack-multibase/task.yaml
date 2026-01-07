@@ -1,4 +1,5 @@
 summary: SDKcraft multi-base pack test
+kill-timeout: 30m
 
 restore: |
   run_sdkcraft clean || true
