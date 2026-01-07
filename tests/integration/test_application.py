@@ -25,8 +25,8 @@ title: My Project
 version: 1.2.3
 base: ubuntu@22.04
 build-base: "ubuntu@RELEASE_VERSION"
-summary: "example of global variables"
-description: "example of global variables"
+summary: default project
+description: default project
 license: Apache-2.0
 platforms:
   DEBIAN_ARCH:
@@ -153,6 +153,8 @@ def test_pack(
             """\
 name: my-project
 version: 1.2.3
+summary: default project
+description: default project
 build-base: ubuntu@RELEASE_VERSION
 platforms:
   DEBIAN_ARCH:
@@ -187,6 +189,8 @@ def test_pack_base_agnostic(
             """\
 name: my-project
 version: 1.2.3
+summary: default project
+description: default project
 platforms:
   all:
     build-on: ubuntu@RELEASE_VERSION:DEBIAN_ARCH

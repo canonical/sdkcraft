@@ -1,5 +1,7 @@
 name: my-sdk-name
 version: "0.1"
+summary: My SDK
+description: My amazing SDK
 platforms:
   focal-armv7:
     build-on: ["ubuntu@20.04:amd64", "ubuntu@20.04:arm64"]
