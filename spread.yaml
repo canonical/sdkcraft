@@ -40,7 +40,11 @@ prepare: |
 
   # install lxd (previously removing the APT version, if there)
   [ -e /usr/bin/lxd ] && apt-get remove --purge --yes lxd lxd-client lxcfs liblxc1
-  snap install lxd
+  if snap list lxd >/dev/null; then
+      snap refresh --channel=6/stable lxd
+  else
+      snap install --channel=6/stable lxd
+  fi
 
   # Hold snap refreshes for 24h.
   snap set system refresh.hold="$(date --date=tomorrow +%Y-%m-%dT%H:%M:%S%:z)"
