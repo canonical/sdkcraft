@@ -23,13 +23,13 @@ jobs:
     outputs:
       snap: ${{ steps.snapcraft.outputs.snap }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - uses: canonical/action-build@v1
         id: snapcraft
 
       - name: Upload snap artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: snap
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -42,7 +42,7 @@ jobs:
     runs-on: [self-hosted, Linux, jammy, X64, xlarge]
     steps:
       - name: Install LXD
-        uses: canonical/setup-lxd@main
+        uses: canonical/setup-lxd@v1
         with:
           channel: 6/stable
       - name: Cleanup job workspace
@@ -50,11 +50,11 @@ jobs:
           rm -rf "${{ github.workspace }}"
           mkdir "${{ github.workspace }}"
       - name: Checkout SDKcraft
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: "1.23"
           cache: false
@@ -66,7 +66,7 @@ jobs:
           go install ./...
           popd
       - name: Download snap artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: snap
           path: tests
@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download snap artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: snap
       - uses: canonical/action-publish@v1
