@@ -12,14 +12,12 @@ compression: lzo
 
 apps:
   sdkcraft:
-    command: bin/python3 -m sdkcraft
+    command: bin/sdkcraft
     environment:
       PATH: ${SNAP}/bin:${SNAP}/usr/bin:${PATH}
-      PYTHONPATH: ${SNAP}/lib/python3.12/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
   publish:
     environment:
       PATH: ${SNAP}/bin:${PATH}
-      PYTHONPATH: ${SNAP}/lib/python3.12/dist-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
     command: bin/publish.sh
 parts:
   sdkcraft-libs:
