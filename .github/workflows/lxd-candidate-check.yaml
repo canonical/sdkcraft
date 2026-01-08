@@ -1,18 +1,8 @@
-name: End to end tests
+name: LXD Candidate Check
 on:
-  pull_request:
-  push:
-    branches:
-      - main
-  schedule:
-    - cron: "0 0 */2 * *"
   workflow_dispatch:
-
-# Cancel currently-running builds when pushing new commits to a PR or branch
-# https://stackoverflow.com/a/72408109
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
-  cancel-in-progress: true
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   build-snap:
@@ -31,17 +21,17 @@ jobs:
           name: snap
           path: ${{ steps.snapcraft.outputs.snap }}
   snap-tests:
-    needs: build-snap
+    needs: [build-snap]
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, ubuntu-22.04]
-    runs-on: [self-hosted, Linux, jammy, X64, xlarge]
+    runs-on: [self-hosted, linux, jammy, x64, xlarge]
     steps:
       - name: Install LXD
         uses: canonical/setup-lxd@v1
         with:
-          channel: 6/stable
+          channel: 6/candidate
       - name: Cleanup job workspace
         run: |
           rm -rf "${{ github.workspace }}"
@@ -53,7 +43,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.23"
+          go-version: "1.25"
           cache: false
       - name: Install spread
         run: |
@@ -67,20 +57,10 @@ jobs:
         with:
           name: snap
           path: tests
+      - name: Override LXD channel
+        run: |
+          cat <<EOF >>tests/spread/.env
+          LXD_CHANNEL='6/candidate'
+          EOF
       - name: Run spread
         run: spread ${{matrix.os}}:tests/spread/
-  publish:
-    needs: [build-snap, snap-tests]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download snap artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: snap
-      - uses: canonical/action-publish@v1
-        if: github.event_name == 'push'
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_CREDENTIALS }}
-        with:
-          snap: ${{ needs.build-snap.outputs.snap }}
-          release: edge

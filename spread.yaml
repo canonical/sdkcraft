@@ -24,6 +24,12 @@ debug: |
 prepare: |
   set -e
 
+  # Allow CI jobs to override environment.
+  LXD_CHANNEL='6/stable'
+  if [ -f /sdkcraft/tests/spread/.env ]; then
+      . /sdkcraft/tests/spread/.env
+  fi
+
   mkdir -p /etc/systemd/system/snapd.service.d
   cat <<EOF >/etc/systemd/system/snapd.service.d/override.conf
   # Workaround for https://bugs.launchpad.net/snapd/+bug/2104066
@@ -40,7 +46,11 @@ prepare: |
 
   # install lxd (previously removing the APT version, if there)
   [ -e /usr/bin/lxd ] && apt-get remove --purge --yes lxd lxd-client lxcfs liblxc1
-  snap install lxd
+  if snap list lxd >/dev/null; then
+      snap refresh --channel="$LXD_CHANNEL" lxd
+  else
+      snap install --channel="$LXD_CHANNEL" lxd
+  fi
 
   # Hold snap refreshes for 24h.
   snap set system refresh.hold="$(date --date=tomorrow +%Y-%m-%dT%H:%M:%S%:z)"
