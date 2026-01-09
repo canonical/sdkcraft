@@ -1,0 +1,85 @@
+summary: LXD init test
+
+restore: |
+  if lxc network info lxdbr1 &>/dev/null; then
+    lxc profile device remove default eth0 || true
+    lxc network delete lxdbr1
+  fi
+
+  if [ -n "$(ip link show dev lxdbr0 type dummy)" ]; then
+    ip link del lxdbr0
+  fi
+
+  lxc network delete workshopbr0 || true
+  lxc storage delete workshop || true
+
+  run_sdkcraft clean || true
+
+execute: |
+  # We manually initialize LXD, rather than running e.g. `sdkcraft pull`,
+  # to avoid redownloading base images every time we delete the storage pool.
+  lxd_init() {
+    /snap/sdkcraft/current/bin/python lxdinit.py
+  }
+
+  # Remove all devices.
+  if lxc project info sdkcraft &>/dev/null; then
+    lxc project delete --force sdkcraft
+  fi
+  lxc profile device remove default root || true
+  lxc profile device remove default eth0 || true
+  lxc storage delete default
+  lxc network delete lxdbr0
+
+  # Check SDKcraft works with a fresh LXD install.
+  lxd_init
+  lxc profile device get default root pool | MATCH default
+  lxc profile device get default eth0 network | MATCH lxdbr0
+
+  # Remove default devices.
+  lxc profile device remove default root eth0
+  lxc storage delete default
+  lxc network delete lxdbr0
+
+  # Create Workshop devices.
+  lxc storage create workshop dir
+  lxc network create workshopbr0
+
+  # Check SDKcraft works with a fresh Workshop install.
+  lxd_init
+  lxc profile device get default root pool | MATCH default
+  lxc profile device get default eth0 network | MATCH lxdbr0
+
+  # Clean up Workshop devices.
+  lxc storage delete workshop
+  lxc network delete workshopbr0
+
+  # Remove default devices from profile.
+  lxc profile device remove default root eth0
+
+  # Check SDKcraft works with a partial LXD install.
+  lxd_init
+  lxc profile device get default root pool | MATCH default
+  lxc profile device get default eth0 network | MATCH lxdbr0
+
+  # Create an unmanaged lxdbr0 device.
+  lxc profile device remove default eth0
+  lxc network delete lxdbr0
+  ip link add lxdbr0 type dummy
+
+  # Check SDKcraft works with unmanaged network devices.
+  lxd_init
+  lxc profile device get default eth0 network | MATCH lxdbr1
+
+  # Clean up network devices.
+  lxc profile device remove default eth0
+  lxc network delete lxdbr1
+  ip link del lxdbr0
+
+  # Create SDKcraft instance.
+  run_sdkcraft init
+  run_sdkcraft pull
+
+  # Check SDKcraft profile is populated.
+  lxc profile device get default root pool --project sdkcraft | MATCH default
+  lxc profile device get default eth0 network --project sdkcraft | MATCH lxdbr0
