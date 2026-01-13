@@ -65,7 +65,7 @@ class InitCommand(AppCommand):
     overview = textwrap.dedent(
         """
         Initialize an SDKcraft project by creating a minimalist,
-        yet functional, sdkcraft.yaml file in the current directory.
+        yet functional, 'sdkcraft.yaml' file in the current directory.
         """
     )
 
