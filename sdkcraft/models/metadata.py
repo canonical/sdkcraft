@@ -38,9 +38,9 @@ class Metadata(BaseMetadata):
 
     name: ProjectName
     title: ProjectTitle | None = None
-    version: VersionStr | None = None
-    summary: SummaryStr | None = None
-    description: str | None = None
+    version: VersionStr
+    summary: SummaryStr
+    description: str
 
     base: str | None = None
     architecture: str
