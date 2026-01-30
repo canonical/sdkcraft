@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import stat
 import subprocess
 import tarfile
@@ -144,6 +145,46 @@ def test_pack(
         assert setup_base is not None
         with setup_base:
             assert setup_base.read() == b"touch /etc/fstab\n"
+
+
+def test_pack_shellcheck_error_fails(
+    new_path: Path,
+    sdkcraft_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    """Test that pack fails when hooks have shellcheck errors."""
+    _ = new_path
+
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
+    Path("hooks").mkdir()
+    (Path("hooks") / "configure").write_text("#!/bin/bash\necho test\n")
+
+    real_run = subprocess.run
+
+    def mock_run(cmd: list[str], **kwargs):
+        if cmd[0] == "shellcheck":
+            output = json.dumps(
+                [
+                    {
+                        "file": "configure",
+                        "line": 2,
+                        "column": 1,
+                        "level": "error",
+                        "code": 1234,
+                        "message": "Syntax error.",
+                    }
+                ]
+            )
+            return subprocess.CompletedProcess(
+                cmd, returncode=1, stdout=output, stderr=""
+            )
+        return real_run(cmd, **kwargs)
+
+    monkeypatch.setattr("subprocess.run", mock_run)
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
+
+    return_code = sdkcraft.cli.main()
+    assert return_code != 0
 
 
 @pytest.mark.parametrize(

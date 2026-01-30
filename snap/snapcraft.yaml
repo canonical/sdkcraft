@@ -37,6 +37,7 @@ parts:
       - python3-minimal
       - python3.12-minimal
       - python3-apt
+      - shellcheck
       - zstd
     prime:
       - -usr/share/man

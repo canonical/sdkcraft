@@ -219,11 +219,24 @@ Part = Annotated[project.Part, AfterValidator(_after_validate_part)]
 DEFAULT_PART = {"default-part": {"plugin": "nil"}}
 
 
+class LintIgnore(models.CraftBaseModel):
+    """Lint ignore configuration for a specific linter."""
+
+    shellcheck: list[str] = Field(default_factory=list)
+
+
+class LintConfig(models.CraftBaseModel):
+    """SDKcraft lint configuration."""
+
+    ignore: LintIgnore = Field(default_factory=LintIgnore)
+
+
 class Project(models.Project):
     """SDKcraft project definition."""
 
     name: ProjectName
 
+    lint: LintConfig = Field(default_factory=LintConfig)
     plugs: Plugs = {}
     slots: Slots = {}
     parts: dict[str, Part] = DEFAULT_PART

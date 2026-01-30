@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import errno
+import json
 import os
 import shutil
 import subprocess
@@ -50,6 +51,11 @@ class PackCommand(lifecycle.PackCommand):
     """Command to pack the final artifact."""
 
     @override
+    def _run_post_prime_steps(self) -> None:
+        super()._run_post_prime_steps()
+        self._lint_hooks()
+
+    @override
     def _is_already_packed(self) -> bool:
         if not super()._is_already_packed():
             return False
@@ -72,6 +78,85 @@ class PackCommand(lifecycle.PackCommand):
             hooks_time = hooks.parent.stat().st_mtime_ns
 
         return hooks_time < pack_time
+
+    def _lint_hooks(self) -> None:
+        """Run shellcheck linting on hooks directory."""
+        dirs = self._services.get("lifecycle").project_info.dirs
+        hooks_dir = dirs.project_dir / "hooks"
+        ignore_severities = self._project.lint.ignore.shellcheck
+        _run_shellcheck_on_hooks(hooks_dir, ignore_severities)
+
+
+def _run_shellcheck_on_hooks(hooks_dir: Path, ignore_severities: list[str]) -> None:
+    """Run shellcheck on all scripts in hooks directory."""
+    if not hooks_dir.is_dir():
+        return
+
+    script_files = [
+        entry
+        for entry in hooks_dir.iterdir()
+        if entry.is_file() and not entry.is_symlink()
+    ]
+
+    if not script_files:
+        return
+
+    emit.progress("Linting hooks with shellcheck...")
+
+    has_errors = False
+    warnings: list[str] = []
+
+    for script in script_files:
+        result = subprocess.run(
+            ["shellcheck", "--format=json", str(script)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        if result.returncode == 0:
+            continue
+
+        try:
+            issues = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            emit.message(
+                f"Warning: Could not parse shellcheck output for {script.name}"
+            )
+            continue
+
+        for issue in issues:
+            severity = str(issue.get("level", "")).lower()
+            if severity in ignore_severities:
+                continue
+
+            line = issue.get("line", "?")
+            col = issue.get("column", "?")
+            code = str(issue.get("code", ""))
+            message = issue.get("message", "")
+            issue_msg = f"{script.name}:{line}:{col}: [{severity}] {message} (SC{code})"
+
+            if severity == "error" and code != "2148":
+                emit.message(issue_msg)
+                has_errors = True
+            else:
+                warnings.append(issue_msg)
+
+    if warnings:
+        emit.progress("Shellcheck warnings:", permanent=True)
+        for warning in warnings:
+            emit.message(warning)
+
+    if has_errors:
+        raise CraftError(
+            "Shellcheck found errors in hooks scripts.",
+            resolution=(
+                "Fix the errors reported above or add them to "
+                "'lint.ignore.shellcheck' in sdkcraft.yaml"
+            ),
+        )
+
+    emit.progress("Linting completed successfully.", permanent=True)
 
 
 def _walk_mtimes(path: Path) -> Iterator[int]:

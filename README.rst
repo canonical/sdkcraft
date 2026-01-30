@@ -47,6 +47,25 @@ Build and package your SDK:
 
    sdkcraft pack
 
+Linting hooks
+-------------
+
+SDKcraft runs ``shellcheck`` on scripts in the ``hooks/`` directory during the
+``pack`` step. Shellcheck errors (except SC2148) fail the pack, while warnings,
+info, and style findings are reported but do not stop packing.
+
+To ignore specific shellcheck severity levels, add the following to
+``sdkcraft.yaml``:
+
+.. code-block:: yaml
+
+   lint:
+     ignore:
+       shellcheck:
+         - warning
+         - info
+         - style
+
 Test your SDK in a clean environment:
 
 .. code-block:: console

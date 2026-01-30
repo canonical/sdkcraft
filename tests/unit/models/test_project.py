@@ -212,3 +212,16 @@ def test_part_stage_snaps_prohibited():
         match="'stage-snaps' are not supported by SDKcraft",
     ):
         part_adapter.validate_python({"plugin": "nil", "stage-snaps": ["shellcheck"]})
+
+
+def test_project_lint_config_defaults(project_data: dict[str, Any]):
+    """Test that lint configuration has correct defaults."""
+    project = Project.unmarshal(project_data)
+    assert project.lint.ignore.shellcheck == []
+
+
+def test_project_lint_config_custom(project_data: dict[str, Any]):
+    """Test that lint configuration can be customized."""
+    project_data["lint"] = {"ignore": {"shellcheck": ["warning", "info", "style"]}}
+    project = Project.unmarshal(project_data)
+    assert project.lint.ignore.shellcheck == ["warning", "info", "style"]
