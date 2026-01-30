@@ -13,46 +13,20 @@
 #
 #  You should have received a copy of the GNU General Public License along
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Data models for SDKcraft."""
+"""Linters for SDKs."""
 
-from .constraints import Endpoint, ProjectName
-from .linter import LinterIssue, LinterResult
-from .metadata import Metadata
-from .project import (
-    CameraPlug,
-    DesktopPlug,
-    GPUPlug,
-    MountPlug,
-    MountSlot,
-    Part,
-    Plug,
-    Plugs,
-    Project,
-    Slot,
-    Slots,
-    SSHPlug,
-    TunnelPlug,
-    TunnelSlot,
+from sdkcraft.linters.linters import (
+    LinterStatus,
+    format_issue,
+    format_summary,
+    report,
+    run_linters,
 )
 
 __all__ = [
-    "CameraPlug",
-    "DesktopPlug",
-    "Endpoint",
-    "GPUPlug",
-    "LinterIssue",
-    "LinterResult",
-    "Metadata",
-    "MountPlug",
-    "MountSlot",
-    "Part",
-    "Plug",
-    "Plugs",
-    "Project",
-    "ProjectName",
-    "Slot",
-    "Slots",
-    "SSHPlug",
-    "TunnelPlug",
-    "TunnelSlot",
+    "LinterStatus",
+    "format_issue",
+    "format_summary",
+    "report",
+    "run_linters",
 ]

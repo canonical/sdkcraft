@@ -57,3 +57,18 @@ class RepeatedPlatformError(CraftPlatformsError):
             details=f"Same build-for defined in platforms: {bf_platforms}.",
             resolution="Provide only one platform per build-for value.",
         )
+
+
+class LinterError(SdkcraftError):
+    """SDK linting returned an error."""
+
+    def __init__(self, status: int, *, resolution: str | None = None) -> None:
+        self.retcode = status
+        super().__init__("Linter errors found!", resolution=resolution)
+
+
+class ShellCheckError(SdkcraftError):
+    """ShellCheck returned an error."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__(f"Cannot run shellcheck: {message}")

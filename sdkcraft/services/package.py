@@ -27,6 +27,8 @@ from typing import TYPE_CHECKING, override
 from craft_application import services
 
 from sdkcraft import models
+from sdkcraft.errors import LinterError
+from sdkcraft.linters import LinterStatus, format_summary, report, run_linters
 
 if TYPE_CHECKING:
     from craft_application import AppMetadata
@@ -55,6 +57,12 @@ class PackageService(services.PackageService):
         :param dest: Directory into which to write the package(s).
         :returns: A list of paths to created packages.
         """
+        issues = run_linters(prime_dir)
+        status = report(issues, intermediate=True)
+        if status >= LinterStatus.ERRORS:
+            summary = format_summary(issues, LinterStatus.ERRORS)
+            raise LinterError(status, resolution=f"Fix {summary}.")
+
         project, arch = self._project_and_arch()
 
         components = [project.name, arch]
