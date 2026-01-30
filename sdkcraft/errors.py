@@ -41,7 +41,7 @@ class SdkcraftFilenameError(SdkcraftError):
     """Error when parsing a packed SDK filename."""
 
     def __init__(self, sdk_filename: str) -> None:
-        super().__init__(f"invalid SDK filename {sdk_filename!r}")
+        super().__init__(f"Invalid SDK filename {sdk_filename!r}.")
 
 
 class RepeatedPlatformError(CraftPlatformsError):
@@ -53,7 +53,7 @@ class RepeatedPlatformError(CraftPlatformsError):
     ) -> None:
         bf_platforms = ",".join(platforms)
         super().__init__(
-            message="multiple platforms target the same base and architecture",
-            details=f"same build-for defined in platforms: {bf_platforms}",
+            message="Multiple platforms target the same base and architecture.",
+            details=f"Same build-for defined in platforms: {bf_platforms}.",
             resolution="Provide only one platform per build-for value.",
         )
