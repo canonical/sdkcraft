@@ -5,10 +5,3 @@ python3 -c 'from apt.cache import Cache; Cache(rootdir="/")'
 
 apt-get update
 apt-get install shellcheck
-
-snap install --classic astral-uv
-
-sudo -u workshop -- bash -elo pipefail <<'EOF'
-uv venv ~/.venv
-echo 'export UV_PROJECT_ENVIRONMENT="$HOME/.venv"' >> ~/.profile
-EOF

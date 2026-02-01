@@ -1,0 +1,1 @@
+echo 'export UV_PROJECT_ENVIRONMENT="$HOME/uv-venv"' >> ~/.profile

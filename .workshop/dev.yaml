@@ -1,6 +1,8 @@
 name: dev
 base: ubuntu@24.04
 sdks:
+  - name: uv
+    channel: 24.04/edge
   - name: project-sdkcraft
 actions:
   format: |
