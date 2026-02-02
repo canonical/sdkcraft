@@ -34,6 +34,8 @@ set -x
 cat >>'~/.profile' <<'EOF'
 PATH="/opt/bin:$PATH"
 EOF
+
+echo '⚽' >'~/file'
 """
 
 MULTI_COLUMN = """\
@@ -84,6 +86,14 @@ In hooks/setup-project line 5 [shellcheck warning]
 Tilde does not expand in quotes. Use $HOME.
   cat >>'~/.profile' <<'EOF'
         ^^^^^^^^^^^^
+"""
+
+WIDE_COLUMN = """\
+In hooks/setup-project line 9 [shellcheck warning]
+Tilde does not expand in quotes. Use $HOME.
+  echo '⚽' >'~/file'
+             ^^^^^^^^
+More information: https://www.shellcheck.net/wiki/SC2088
 """
 
 
@@ -149,6 +159,11 @@ Tilde does not expand in quotes. Use $HOME.
             {"url": None},
             NO_URL,
             id="no_url",
+        ),
+        pytest.param(
+            {"line": 9, "end_line": None, "column": 11, "end_column": 18},
+            WIDE_COLUMN,
+            id="wide_column",
         ),
     ],
 )

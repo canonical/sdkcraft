@@ -24,6 +24,7 @@ from itertools import chain, groupby, islice
 from typing import TYPE_CHECKING, cast
 
 from craft_cli import emit
+from rich.text import Text
 
 from sdkcraft.linters.shellcheck import ShellCheck
 from sdkcraft.models import LinterIssue, LinterResult
@@ -143,8 +144,8 @@ def format_issue(issue: LinterIssue) -> str:
             section = list(islice(f, issue.line - 1, end_line))
 
         if len(section) == 1 and issue.column is not None:
-            spaces = len(section[-1][: issue.column - 1])
-            carets = len(section[-1][issue.column - 1 : end_column])
+            spaces = _cell_len(section[-1][: issue.column - 1])
+            carets = _cell_len(section[-1][issue.column - 1 : end_column])
             section.append(" " * spaces + "^" * carets + "\n")
 
         lines.extend(f"  {line}" if line else "" for line in section)
@@ -153,6 +154,10 @@ def format_issue(issue: LinterIssue) -> str:
         lines.append(f"More information: {issue.url}\n")
 
     return "".join(lines)
+
+
+def _cell_len(text: str) -> int:
+    return Text(text).cell_len
 
 
 def _max_status(status: LinterStatus, issue: LinterIssue) -> LinterStatus:
