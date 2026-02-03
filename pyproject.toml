@@ -9,6 +9,7 @@ dependencies = [
     "craft-platforms>=0.10.0",
     "pydantic>=2.11.7",
     "pyyaml>=6.0.3",
+    "rich>=14.2.0",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",

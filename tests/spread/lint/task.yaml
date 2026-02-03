@@ -1,0 +1,23 @@
+summary: SDKcraft lint test
+
+restore: |
+  run_sdkcraft clean || true
+
+execute: |
+  # Create an SDK with problematic hooks
+  run_sdkcraft init
+  test -f sdkcraft.yaml
+  mkdir -p hooks
+  cat <<'EOF' >>hooks/setup-base
+  if [ -f $SDK/apt.list ]; then
+    apt-get update $@
+  fi
+  EOF
+
+  ! run_sdkcraft pack >/dev/null 2>lint.log
+  cat lint.log | MATCH 'if \[ -f \$SDK/apt.list \]; then'
+  cat lint.log | MATCH 'apt-get update \$@'
+
+  sed 's/\$@/"$@"/' -i hooks/setup-base
+  run_sdkcraft pack >/dev/null 2>lint.log
+  cat lint.log | MATCH 'if \[ -f \$SDK/apt.list \]; then'
