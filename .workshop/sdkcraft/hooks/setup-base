@@ -4,4 +4,4 @@
 python3 -c 'from apt.cache import Cache; Cache(rootdir="/")'
 
 apt-get update
-apt-get install shellcheck
+apt-get install make shellcheck
