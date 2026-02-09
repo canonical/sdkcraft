@@ -19,9 +19,7 @@ import sys
 from pathlib import Path
 
 from craft_cli import EmitterMode, emit
-from craft_cli.dispatcher import (
-    _CustomArgumentParser,  # type: ignore[reportPrivateUsage]
-)
+from craft_cli.dispatcher import _CustomArgumentParser
 from craft_cli.helptexts import OutputFormat
 from sdkcraft import cli
 
@@ -31,9 +29,9 @@ def generate_docs(output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Create app instance to access command groups and dispatcher
-    app = cli._create_app()  # noqa: SLF001 # type: ignore[reportPrivateUsage]
-    dispatcher = app._create_dispatcher()  # noqa: SLF001 # type: ignore[reportPrivateUsage]
-    help_builder = dispatcher._help_builder  # noqa: SLF001 # type: ignore[reportPrivateUsage]
+    app = cli._create_app()  # noqa: SLF001
+    dispatcher = app._create_dispatcher()  # noqa: SLF001
+    help_builder = dispatcher._help_builder  # noqa: SLF001
 
     # Collect all commands
     cmd_classes = [

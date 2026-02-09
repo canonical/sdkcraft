@@ -61,7 +61,7 @@ FILE_MODE_MASK = 0o777
 ProjectName = Annotated[
     str,
     Field(pattern=PROJECT_NAME_COMPILED_REGEX),
-    FieldInfo.from_annotation(constraints.ProjectName),  # type: ignore[reportArgumentType]
+    FieldInfo.from_annotation(constraints.ProjectName),  # pyright: ignore[reportArgumentType]
     BeforeValidator(
         constraints.get_validator_by_regex(
             RESERVED_NAME_COMPILED_REGEX, MESSAGE_RESERVED_NAME

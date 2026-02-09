@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Annotated, Any, Literal, Protocol, TypeGuard, runtime_checkable
+from typing import Annotated, Any, Literal, Protocol, runtime_checkable
 
 from craft_application import models
 from craft_application.models import project
@@ -144,11 +144,6 @@ Slot = Annotated[
 ]
 
 
-def _is_dict(items: Any) -> TypeGuard[dict[Any, Any]]:  # noqa: ANN401
-    # Avoid pyright's reportUnknownVariableType and also mypy's redundant-cast.
-    return isinstance(items, dict)
-
-
 def _implicit_interface(name: Any, item: Any) -> Any:  # noqa: ANN401
     if item is None:
         return {"interface": name}
@@ -158,10 +153,13 @@ def _implicit_interface(name: Any, item: Any) -> Any:  # noqa: ANN401
 
 
 def _implicit_interfaces(items: Any) -> Any:  # noqa: ANN401
-    if not _is_dict(items):
+    if not isinstance(items, dict):
         return items
 
-    return {name: _implicit_interface(name, item) for name, item in items.items()}
+    return {
+        name: _implicit_interface(name, item)
+        for name, item in items.items()  # pyright: ignore[reportUnknownVariableType]
+    }
 
 
 @runtime_checkable
