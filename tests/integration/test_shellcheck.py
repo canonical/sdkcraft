@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 from sdkcraft.errors import ShellCheckError
 from sdkcraft.linters.shellcheck import ShellCheck
+from sdkcraft.models import Location
 
 pytestmark = [pytest.mark.slow]
 
@@ -50,10 +51,7 @@ touch '~/.profile'
             "linter": "shellcheck",
             "path": hook.relative_to(path),
             "abspath": hook,
-            "line": 2,
-            "end_line": 2,
-            "column": 3,
-            "end_column": 6,
+            "location": Location(line=2, end_line=2, column=3, end_column=6),
         }
     )
     assert issues[0] == expected
@@ -63,10 +61,7 @@ touch '~/.profile'
             "linter": "shellcheck",
             "path": helper.relative_to(path),
             "abspath": helper,
-            "line": 1,
-            "end_line": 1,
-            "column": 7,
-            "end_column": 18,
+            "location": Location(line=1, end_line=1, column=7, end_column=18),
         }
     )
     assert issues[1] == expected

@@ -33,6 +33,15 @@ class LinterResult(StrEnum):
     ERROR = "error"
 
 
+class Location(CraftBaseModel):
+    """Region of text within a file."""
+
+    line: int | None = None
+    end_line: int | None = None
+    column: int | None = None
+    end_column: int | None = None
+
+
 class LinterIssue(CraftBaseModel):
     """Linter issue."""
 
@@ -44,7 +53,4 @@ class LinterIssue(CraftBaseModel):
 
     path: Path
     abspath: Path | None = None
-    line: int | None = None
-    end_line: int | None = None
-    column: int | None = None
-    end_column: int | None = None
+    location: Location = Location()

@@ -16,7 +16,7 @@
 """Data models for SDKcraft."""
 
 from .constraints import Endpoint, ProjectName
-from .linter import LinterIssue, LinterResult
+from .linter import LinterIssue, LinterResult, Location
 from .metadata import Metadata
 from .project import (
     CameraPlug,
@@ -42,6 +42,7 @@ __all__ = [
     "GPUPlug",
     "LinterIssue",
     "LinterResult",
+    "Location",
     "Metadata",
     "MountPlug",
     "MountSlot",

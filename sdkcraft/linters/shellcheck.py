@@ -26,7 +26,7 @@ from pydantic import BaseModel, ConfigDict, HttpUrl
 from pydantic.alias_generators import to_camel
 
 from sdkcraft.errors import ShellCheckError
-from sdkcraft.models import LinterIssue, LinterResult
+from sdkcraft.models import LinterIssue, LinterResult, Location
 
 HOOKS = (
     "setup-base",
@@ -170,8 +170,10 @@ def _comment_as_issue(sdk_dir: Path, comment: PositionedComment) -> LinterIssue:
         url=HttpUrl(f"https://www.shellcheck.net/wiki/SC{comment.code:04}"),
         path=comment.file,
         abspath=sdk_dir / comment.file,
-        line=comment.line,
-        end_line=comment.end_line,
-        column=comment.column,
-        end_column=comment.end_column - 1,
+        location=Location(
+            line=comment.line,
+            end_line=comment.end_line,
+            column=comment.column,
+            end_column=comment.end_column - 1,
+        ),
     )
