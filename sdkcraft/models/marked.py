@@ -35,6 +35,13 @@ class Marked[T](ABC):
     def node(self) -> Node:
         """Access the YAML node which encodes the object."""
 
+    @classmethod
+    def unwrap(cls, value: Any) -> Any:  # noqa: ANN401
+        """Return the inner object if the given value is marked."""
+        if isinstance(value, Marked):
+            return value.value  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        return value
+
 
 class MarkedAny[T](Marked[T]):
     """Holds a generic object together with the YAML node it came from."""

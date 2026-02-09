@@ -16,7 +16,8 @@
 """Data models for SDKcraft."""
 
 from .constraints import Endpoint, ProjectName
-from .linter import LinterIssue, LinterResult, Location
+from .linter import LinterIssue, LinterResult
+from .located import Location
 from .marked import MarkedLoader
 from .metadata import Metadata
 from .project import (

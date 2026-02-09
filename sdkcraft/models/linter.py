@@ -23,6 +23,8 @@ from pathlib import Path
 from craft_application.models import CraftBaseModel
 from pydantic import HttpUrl
 
+from sdkcraft.models.located import Location
+
 
 @unique
 class LinterResult(StrEnum):
@@ -31,15 +33,6 @@ class LinterResult(StrEnum):
     ISSUE = "issue"
     WARNING = "warning"
     ERROR = "error"
-
-
-class Location(CraftBaseModel):
-    """Region of text within a file."""
-
-    line: int | None = None
-    end_line: int | None = None
-    column: int | None = None
-    end_column: int | None = None
 
 
 class LinterIssue(CraftBaseModel):
