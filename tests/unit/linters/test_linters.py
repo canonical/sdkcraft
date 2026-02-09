@@ -149,6 +149,12 @@ More information: https://www.shellcheck.net/wiki/SC2088
         ),
         pytest.param(
             {},
+            {"end_line": 7, "end_column": 0},
+            MULTI_LINE,
+            id="multi_line_zero_end_column",
+        ),
+        pytest.param(
+            {},
             {"line": None, "column": None},
             NO_LINE,
             id="no_line",

@@ -137,6 +137,11 @@ def format_issue(issue: LinterIssue) -> str:
 
     location = ""
     if rows is not None:
+        # Edge case: PyYAML can report end_column=0, which means the actual
+        # end was on the previous line, but it forgot how long the line was.
+        if columns is not None and columns[1] == 0:
+            rows = (rows[0], rows[1] - 1)
+
         if rows[1] > rows[0]:
             location = f" lines {rows[0]}-{rows[1]}"
         else:
@@ -152,6 +157,10 @@ def format_issue(issue: LinterIssue) -> str:
             section = list(islice(f, rows[0] - 1, rows[1]))
 
         if len(section) == 1 and columns is not None:
+            # PyYAML edge case again.
+            if columns[1] == 0:
+                columns = (columns[0], len(section[-1]))
+
             spaces = _cell_len(section[-1][: columns[0] - 1])
             carets = _cell_len(section[-1][columns[0] - 1 : columns[1]])
             section.append(" " * spaces + "^" * carets + "\n")
