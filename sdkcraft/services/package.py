@@ -21,7 +21,7 @@ import os
 import pathlib
 import shutil
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, override
 
 from craft_application import services
@@ -47,7 +47,7 @@ class PackageService(services.PackageService):
         super().__init__(app, services)
 
         if started_at is None:
-            started_at = datetime.now(timezone.utc)
+            started_at = datetime.now(UTC)
         self._started_at = started_at
 
     @override
@@ -162,7 +162,7 @@ def datetime_as_utc_str(dt: datetime) -> str:
         raise NotImplementedError("timezone required")
 
     # Append Z because Go does not recognize +00:00 as UTC.
-    return dt.astimezone(timezone.utc).replace(tzinfo=None).isoformat() + "Z"
+    return dt.astimezone(UTC).replace(tzinfo=None).isoformat() + "Z"
 
 
 def copytree(source: os.PathLike[str], target: pathlib.Path) -> None:

@@ -156,7 +156,7 @@ strict = false
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py312"
 src = ["sdkcraft", "tests"]
 
 [tool.ruff.format]
