@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from craft_application import services
+from craft_application import AppMetadata, ServiceFactory, services
 from craft_application.errors import ProjectFileMissingError
 
 if TYPE_CHECKING:
@@ -29,10 +29,23 @@ if TYPE_CHECKING:
 class ProjectService(services.ProjectService):
     """A service for handling access to the project."""
 
+    __sdkcraft_project_file_path: Path | None
+
+    @override
+    def __init__(
+        self, app: AppMetadata, services: ServiceFactory, *, project_dir: Path
+    ) -> None:
+        super().__init__(app, services, project_dir=project_dir)
+        self.__sdkcraft_project_file_path = None
+
     @override
     def resolve_project_file_path(self) -> Path:
         """Get the path to the project file from the root project directory."""
+        if not self.__sdkcraft_project_file_path:
+            self.__sdkcraft_project_file_path = self._resolve_project_file_path()
+        return self.__sdkcraft_project_file_path
 
+    def _resolve_project_file_path(self) -> Path:
         try:
             return super().resolve_project_file_path()
         except ProjectFileMissingError:
