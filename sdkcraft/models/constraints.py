@@ -28,6 +28,8 @@ from craft_application.models import constraints
 from pydantic import AfterValidator, BeforeValidator, Field
 from pydantic.fields import FieldInfo
 
+from sdkcraft.dirs import WORKSHOP_SDKS_DIR
+
 RESERVED_NAME_REGEX = r"(?!^(system|try-.*|project-.*|sketch)$)"
 RESERVED_NAME_COMPILED_REGEX = re.compile(RESERVED_NAME_REGEX)
 MESSAGE_RESERVED_NAME = (
@@ -112,7 +114,7 @@ type SlotName = Annotated[
 
 def _is_clean_abspath(path: str) -> str:
     try:
-        expanded = Template(path).substitute({"SDK": "/var/lib/workshop/sdk/unknown"})
+        expanded = Template(path).substitute(SDK=WORKSHOP_SDKS_DIR / "unknown")
     except KeyError as e:
         key = next(iter(e.args), None)
         suffix = f"in {path!r}" if key is None else f"{key!r}"

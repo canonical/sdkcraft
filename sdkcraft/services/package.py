@@ -22,13 +22,14 @@ import pathlib
 import shutil
 import subprocess
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, cast, override
 
 from craft_application import services
 
 from sdkcraft import models
 from sdkcraft.errors import LinterError
 from sdkcraft.linters import LinterStatus, format_summary, report, run_linters
+from sdkcraft.services.project import ProjectService
 
 if TYPE_CHECKING:
     from craft_application import AppMetadata
@@ -57,7 +58,10 @@ class PackageService(services.PackageService):
         :param dest: Directory into which to write the package(s).
         :returns: A list of paths to created packages.
         """
-        issues = run_linters(prime_dir)
+        project_service = cast(ProjectService, self._services.get("project"))
+        marked_project = project_service.get_marked()
+
+        issues = run_linters(prime_dir, marked_project)
         status = report(issues, intermediate=True)
         if status >= LinterStatus.ERRORS:
             summary = format_summary(issues, LinterStatus.ERRORS)

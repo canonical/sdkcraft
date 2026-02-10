@@ -26,8 +26,9 @@ from typing import TYPE_CHECKING
 from craft_cli import emit
 from rich.text import Text
 
+from sdkcraft.linters.interfaces import InterfaceCheck
 from sdkcraft.linters.shellcheck import ShellCheck
-from sdkcraft.models import LinterIssue, LinterResult, Location
+from sdkcraft.models import LinterIssue, LinterResult, Location, MarkedProject
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -44,12 +45,13 @@ class LinterStatus(IntEnum):
     ERRORS = 3
 
 
-def run_linters(prime_dir: Path) -> list[LinterIssue]:
+def run_linters(prime_dir: Path, project: MarkedProject) -> list[LinterIssue]:
     """Run all linters on the SDK at the given path."""
     emit.progress("Running linters...")
 
     issues = [
         ShellCheck().run(prime_dir / "sdk"),
+        InterfaceCheck().run(prime_dir, project),
     ]
     return list(chain.from_iterable(issues))
 
