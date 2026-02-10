@@ -44,12 +44,12 @@ class LinterStatus(IntEnum):
     ERRORS = 3
 
 
-def run_linters(path: Path) -> list[LinterIssue]:
+def run_linters(prime_dir: Path) -> list[LinterIssue]:
     """Run all linters on the SDK at the given path."""
     emit.progress("Running linters...")
 
     issues = [
-        ShellCheck().run(path / "sdk"),
+        ShellCheck().run(prime_dir / "sdk"),
     ]
     return list(chain.from_iterable(issues))
 

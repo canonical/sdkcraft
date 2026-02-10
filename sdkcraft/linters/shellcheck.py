@@ -84,10 +84,10 @@ class JSON1(ShellCheckModel):
 class ShellCheck:
     """ShellCheck linter for SDK hooks."""
 
-    def run(self, path: Path) -> list[LinterIssue]:
+    def run(self, sdk_dir: Path) -> list[LinterIssue]:
         """Run shellcheck on the given SDK's hooks."""
         hooks = [Path("hooks", hook) for hook in HOOKS]
-        args = [str(hook) for hook in hooks if (path / hook).is_file()]
+        args = [str(hook) for hook in hooks if (sdk_dir / hook).is_file()]
         if not args:
             return []
 
@@ -102,7 +102,7 @@ class ShellCheck:
         ]
 
         process = subprocess.run(
-            command, capture_output=True, check=False, cwd=path, text=True
+            command, capture_output=True, check=False, cwd=sdk_dir, text=True
         )
         if process.returncode > 1:
             raise ShellCheckError(process.stderr)
@@ -110,7 +110,7 @@ class ShellCheck:
 
         _workaround_issue_3397(output)
 
-        return [_comment_as_issue(path, comment) for comment in output.comments]
+        return [_comment_as_issue(sdk_dir, comment) for comment in output.comments]
 
 
 def _workaround_issue_3397(output: JSON1) -> None:
@@ -153,7 +153,7 @@ def _replacement_key(replacement: Replacement) -> ReplacementKey:
     )
 
 
-def _comment_as_issue(path: Path, comment: PositionedComment) -> LinterIssue:
+def _comment_as_issue(sdk_dir: Path, comment: PositionedComment) -> LinterIssue:
     match comment.level:
         case "style" | "info":
             result = LinterResult.ISSUE
@@ -169,7 +169,7 @@ def _comment_as_issue(path: Path, comment: PositionedComment) -> LinterIssue:
         message=comment.message,
         url=HttpUrl(f"https://www.shellcheck.net/wiki/SC{comment.code:04}"),
         path=comment.file,
-        abspath=path / comment.file,
+        abspath=sdk_dir / comment.file,
         line=comment.line,
         end_line=comment.end_line,
         column=comment.column,
