@@ -22,6 +22,8 @@ from typing import TYPE_CHECKING, override
 from craft_application import AppMetadata, ServiceFactory, services
 from craft_application.errors import ProjectFileMissingError
 
+from sdkcraft.models import MarkedLoader, MarkedProject
+
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -65,3 +67,13 @@ class ProjectService(services.ProjectService):
                 pass
 
             raise
+
+    def get_marked(self) -> MarkedProject:
+        """Get the project data structure with associated line numbers."""
+        path = self.resolve_project_file_path()
+        with path.open() as f:
+            marked = MarkedLoader.load(f)
+
+        return MarkedProject.unmarshal(
+            marked | {"path": path.relative_to(self._project_dir), "abspath": path}
+        )
