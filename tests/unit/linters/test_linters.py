@@ -23,8 +23,7 @@ from typing import Any
 import pytest
 from pydantic import HttpUrl
 from sdkcraft.linters.linters import LinterStatus, format_issue, format_summary
-from sdkcraft.models import LinterIssue
-from sdkcraft.models.linter import LinterResult
+from sdkcraft.models import LinterIssue, LinterResult, Location
 
 SETUP_PROJECT = """\
 #!/bin/bash
@@ -98,69 +97,88 @@ More information: https://www.shellcheck.net/wiki/SC2088
 
 
 @pytest.mark.parametrize(
-    ("diff", "text"),
+    ("model_diff", "location_diff", "text"),
     [
         pytest.param(
+            {},
             {},
             MULTI_COLUMN,
             id="multi_column",
         ),
         pytest.param(
+            {},
             {"end_line": None},
             MULTI_COLUMN,
             id="implicit_end_line",
         ),
         pytest.param(
+            {},
             {"column": 8, "end_column": 8},
             ONE_COLUMN,
             id="one_column",
         ),
         pytest.param(
+            {},
             {"column": 8, "end_column": None},
             ONE_COLUMN,
             id="implicit_one_column",
         ),
         pytest.param(
+            {},
             {"column": None, "end_column": None},
             NO_COLUMN,
             id="no_column",
         ),
         pytest.param(
+            {},
             {"column": None},
             NO_COLUMN,
             id="stray_end_column",
         ),
         pytest.param(
+            {},
             {"end_line": 6},
             MULTI_LINE,
             id="multi_line",
         ),
         pytest.param(
+            {},
             {"end_line": 6, "column": None},
             MULTI_LINE,
             id="multi_line_no_column",
         ),
         pytest.param(
+            {},
+            {"end_line": 7, "end_column": 0},
+            MULTI_LINE,
+            id="multi_line_zero_end_column",
+        ),
+        pytest.param(
+            {},
             {"line": None, "column": None},
             NO_LINE,
             id="no_line",
         ),
         pytest.param(
+            {},
             {"line": None},
             NO_LINE,
             id="stray_column",
         ),
         pytest.param(
             {"abspath": None},
+            {},
             NO_FILE,
             id="no_abspath",
         ),
         pytest.param(
             {"url": None},
+            {},
             NO_URL,
             id="no_url",
         ),
         pytest.param(
+            {},
             {"line": 9, "end_line": None, "column": 11, "end_column": 18},
             WIDE_COLUMN,
             id="wide_column",
@@ -168,7 +186,10 @@ More information: https://www.shellcheck.net/wiki/SC2088
     ],
 )
 def test_format_issue(
-    diff: dict[str, Any], text: str, tmp_path_factory: pytest.TempPathFactory
+    model_diff: dict[str, Any],
+    location_diff: dict[str, Any],
+    text: str,
+    tmp_path_factory: pytest.TempPathFactory,
 ):
     path = tmp_path_factory.mktemp("sdk")
     hook = path / "hooks" / "setup-project"
@@ -183,12 +204,10 @@ def test_format_issue(
         url=HttpUrl("https://www.shellcheck.net/wiki/SC2088"),
         path=hook.relative_to(path),
         abspath=hook,
-        line=5,
-        end_line=5,
-        column=7,
-        end_column=18,
+        location=Location(line=5, end_line=5, column=7, end_column=18),
     )
 
+    diff = model_diff | {"location": complete.location.model_copy(update=location_diff)}
     issue = complete.model_copy(update=diff)
     assert format_issue(issue) == text
 

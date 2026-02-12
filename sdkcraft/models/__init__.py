@@ -17,6 +17,9 @@
 
 from .constraints import Endpoint, ProjectName
 from .linter import LinterIssue, LinterResult
+from .located import Location
+from .marked import MarkedLoader
+from .marked_project import MarkedProject
 from .metadata import Metadata
 from .project import (
     CameraPlug,
@@ -42,6 +45,9 @@ __all__ = [
     "GPUPlug",
     "LinterIssue",
     "LinterResult",
+    "Location",
+    "MarkedLoader",
+    "MarkedProject",
     "Metadata",
     "MountPlug",
     "MountSlot",

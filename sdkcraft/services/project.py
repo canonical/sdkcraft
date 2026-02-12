@@ -19,8 +19,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from craft_application import services
+from craft_application import AppMetadata, ServiceFactory, services
 from craft_application.errors import ProjectFileMissingError
+
+from sdkcraft.models import MarkedLoader, MarkedProject
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -29,10 +31,23 @@ if TYPE_CHECKING:
 class ProjectService(services.ProjectService):
     """A service for handling access to the project."""
 
+    __sdkcraft_project_file_path: Path | None
+
+    @override
+    def __init__(
+        self, app: AppMetadata, services: ServiceFactory, *, project_dir: Path
+    ) -> None:
+        super().__init__(app, services, project_dir=project_dir)
+        self.__sdkcraft_project_file_path = None
+
     @override
     def resolve_project_file_path(self) -> Path:
         """Get the path to the project file from the root project directory."""
+        if not self.__sdkcraft_project_file_path:
+            self.__sdkcraft_project_file_path = self._resolve_project_file_path()
+        return self.__sdkcraft_project_file_path
 
+    def _resolve_project_file_path(self) -> Path:
         try:
             return super().resolve_project_file_path()
         except ProjectFileMissingError:
@@ -52,3 +67,13 @@ class ProjectService(services.ProjectService):
                 pass
 
             raise
+
+    def get_marked(self) -> MarkedProject:
+        """Get the project data structure with associated line numbers."""
+        path = self.resolve_project_file_path()
+        with path.open() as f:
+            marked = MarkedLoader.load(f)
+
+        return MarkedProject.unmarshal(
+            marked | {"path": path.relative_to(self._project_dir), "abspath": path}
+        )

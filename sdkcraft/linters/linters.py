@@ -21,13 +21,14 @@ from collections import Counter
 from enum import IntEnum, unique
 from functools import partial, reduce
 from itertools import chain, groupby, islice
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from craft_cli import emit
 from rich.text import Text
 
+from sdkcraft.linters.interfaces import InterfaceCheck
 from sdkcraft.linters.shellcheck import ShellCheck
-from sdkcraft.models import LinterIssue, LinterResult
+from sdkcraft.models import LinterIssue, LinterResult, Location, MarkedProject
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -44,12 +45,13 @@ class LinterStatus(IntEnum):
     ERRORS = 3
 
 
-def run_linters(path: Path) -> list[LinterIssue]:
+def run_linters(prime_dir: Path, project: MarkedProject) -> list[LinterIssue]:
     """Run all linters on the SDK at the given path."""
     emit.progress("Running linters...")
 
     issues = [
-        ShellCheck().run(path / "sdk"),
+        ShellCheck().run(prime_dir / "sdk"),
+        InterfaceCheck().run(prime_dir, project),
     ]
     return list(chain.from_iterable(issues))
 
@@ -79,13 +81,21 @@ def report(issues: list[LinterIssue], *, intermediate: bool = False) -> LinterSt
 
 
 def _issue_key(issue: LinterIssue) -> tuple[Path, list[int], str, str]:
-    location = [
-        0 if n is None else n
-        for n in (issue.line, issue.column, issue.end_line, issue.end_column)
-    ]
     code = "" if issue.code is None else issue.code
 
-    return (issue.path, location, issue.linter, code)
+    return (issue.path, _location_key(issue.location), issue.linter, code)
+
+
+def _location_key(location: Location) -> list[int]:
+    return [
+        0 if n is None else n
+        for n in (
+            location.line,
+            location.column,
+            location.end_line,
+            location.end_column,
+        )
+    ]
 
 
 def format_summary(issues: Iterable[LinterIssue], level: LinterStatus) -> str:
@@ -124,28 +134,37 @@ def _format_result_count(result: LinterResult, count: int) -> str:
 
 def format_issue(issue: LinterIssue) -> str:
     """Format the given issue as a multiline string."""
-    end_line = issue.line if issue.end_line is None else issue.end_line
-    end_column = issue.column if issue.end_column is None else issue.end_column
+    rows = _resolve_end(issue.location.line, issue.location.end_line)
+    columns = _resolve_end(issue.location.column, issue.location.end_column)
 
     location = ""
-    if issue.line is not None:
-        if cast(int, end_line) > issue.line:
-            location = f" lines {issue.line}-{end_line}"
+    if rows is not None:
+        # Edge case: PyYAML can report end_column=0, which means the actual
+        # end was on the previous line, but it forgot how long the line was.
+        if columns is not None and columns[1] == 0:
+            rows = (rows[0], rows[1] - 1)
+
+        if rows[1] > rows[0]:
+            location = f" lines {rows[0]}-{rows[1]}"
         else:
-            location = f" line {issue.line}"
+            location = f" line {rows[0]}"
 
     lines = [
         f"In {issue.path}{location} [{issue.linter} {issue.result}]\n",
         issue.message + "\n",
     ]
 
-    if issue.abspath is not None and issue.line is not None:
+    if issue.abspath is not None and rows is not None:
         with issue.abspath.open() as f:
-            section = list(islice(f, issue.line - 1, end_line))
+            section = list(islice(f, rows[0] - 1, rows[1]))
 
-        if len(section) == 1 and issue.column is not None:
-            spaces = _cell_len(section[-1][: issue.column - 1])
-            carets = _cell_len(section[-1][issue.column - 1 : end_column])
+        if len(section) == 1 and columns is not None:
+            # PyYAML edge case again.
+            if columns[1] == 0:
+                columns = (columns[0], len(section[-1]))
+
+            spaces = _cell_len(section[-1][: columns[0] - 1])
+            carets = _cell_len(section[-1][columns[0] - 1 : columns[1]])
             section.append(" " * spaces + "^" * carets + "\n")
 
         lines.extend(f"  {line}" if line else "" for line in section)
@@ -154,6 +173,16 @@ def format_issue(issue: LinterIssue) -> str:
         lines.append(f"More information: {issue.url}\n")
 
     return "".join(lines)
+
+
+def _resolve_end(start: int | None, end: int | None) -> tuple[int, int] | None:
+    if start is None:
+        return None
+
+    if end is None:
+        return (start, start)
+
+    return (start, end)
 
 
 def _cell_len(text: str) -> int:
