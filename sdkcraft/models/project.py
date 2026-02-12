@@ -22,11 +22,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Annotated, Any, Literal, Protocol, TypeGuard, runtime_checkable
+from typing import Annotated, Any, Literal, Protocol, runtime_checkable
 
 from craft_application import models
 from craft_application.models import project
-from pydantic import AfterValidator, BeforeValidator, Field
+from pydantic import AfterValidator, BeforeValidator, Discriminator, Field
 
 from sdkcraft.models.constraints import (
     FILE_MODE_MASK,
@@ -134,19 +134,11 @@ class TunnelSlot(models.CraftBaseModel):
     endpoint: Endpoint = ""
 
 
-Plug = Annotated[
+type Plug = Annotated[
     CameraPlug | DesktopPlug | GPUPlug | MountPlug | SSHPlug | TunnelPlug,
-    Field(discriminator="interface"),
+    Discriminator("interface"),
 ]
-Slot = Annotated[
-    MountSlot | TunnelSlot,
-    Field(discriminator="interface"),
-]
-
-
-def _is_dict(items: Any) -> TypeGuard[dict[Any, Any]]:  # noqa: ANN401
-    # Avoid pyright's reportUnknownVariableType and also mypy's redundant-cast.
-    return isinstance(items, dict)
+type Slot = Annotated[MountSlot | TunnelSlot, Discriminator("interface")]
 
 
 def _implicit_interface(name: Any, item: Any) -> Any:  # noqa: ANN401
@@ -158,10 +150,13 @@ def _implicit_interface(name: Any, item: Any) -> Any:  # noqa: ANN401
 
 
 def _implicit_interfaces(items: Any) -> Any:  # noqa: ANN401
-    if not _is_dict(items):
+    if not isinstance(items, dict):
         return items
 
-    return {name: _implicit_interface(name, item) for name, item in items.items()}
+    return {
+        name: _implicit_interface(name, item)
+        for name, item in items.items()  # pyright: ignore[reportUnknownVariableType]
+    }
 
 
 @runtime_checkable
@@ -186,12 +181,12 @@ def _slot_policies(slots: dict[str, Slot]) -> dict[str, Slot]:
     return slots
 
 
-Plugs = Annotated[
+type Plugs = Annotated[
     dict[PlugName, Plug],
     BeforeValidator(_implicit_interfaces),
     AfterValidator(_plug_policies),
 ]
-Slots = Annotated[
+type Slots = Annotated[
     dict[SlotName, Slot],
     BeforeValidator(_implicit_interfaces),
     AfterValidator(_slot_policies),
@@ -213,7 +208,7 @@ def _after_validate_part(item: dict[str, Any]) -> dict[str, Any]:
     return item
 
 
-Part = Annotated[project.Part, AfterValidator(_after_validate_part)]
+type Part = Annotated[project.Part, AfterValidator(_after_validate_part)]
 
 
 DEFAULT_PART = {"default-part": {"plugin": "nil"}}

@@ -25,14 +25,13 @@ from contextlib import ExitStack, suppress
 from hashlib import file_digest, sha3_384
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 
 from craft_application.commands import lifecycle
 from craft_application.errors import CraftValidationError
 from craft_application.util import is_managed_mode
 from craft_cli import CraftError, emit
 from pydantic import TypeAdapter, ValidationError
-from typing_extensions import override
 
 from sdkcraft.env import user_data_path
 from sdkcraft.errors import SdkcraftFilenameError

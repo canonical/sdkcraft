@@ -58,10 +58,10 @@ INVALID_UID = 0xFFFFFFFF
 FILE_MODE_MASK = 0o777
 
 
-ProjectName = Annotated[
+type ProjectName = Annotated[
     str,
     Field(pattern=PROJECT_NAME_COMPILED_REGEX),
-    FieldInfo.from_annotation(constraints.ProjectName),  # type: ignore[reportArgumentType]
+    FieldInfo.from_annotation(constraints.ProjectName),  # pyright: ignore[reportArgumentType]
     BeforeValidator(
         constraints.get_validator_by_regex(
             RESERVED_NAME_COMPILED_REGEX, MESSAGE_RESERVED_NAME
@@ -70,7 +70,7 @@ ProjectName = Annotated[
 ]
 
 
-PlugName = Annotated[
+type PlugName = Annotated[
     str,
     Field(
         strict=True,
@@ -89,7 +89,7 @@ PlugName = Annotated[
         )
     ),
 ]
-SlotName = Annotated[
+type SlotName = Annotated[
     str,
     Field(
         strict=True,
@@ -128,7 +128,7 @@ def _is_clean_abspath(path: str) -> str:
     return path
 
 
-CleanAbsPath = Annotated[str, AfterValidator(_is_clean_abspath)]
+type CleanAbsPath = Annotated[str, AfterValidator(_is_clean_abspath)]
 
 
 def _str_as_int(value: Any) -> Any:  # noqa: ANN401
@@ -145,11 +145,11 @@ def _str_as_int(value: Any) -> Any:  # noqa: ANN401
 # interface system is lenient about accepting other strings, and so is
 # pydantic, but the latter doesn't support binary, hex or octal strings.
 # This type accepts both ints and strs, and works like strconv.ParseInt.
-Int = Annotated[int, BeforeValidator(_str_as_int)]
+type Int = Annotated[int, BeforeValidator(_str_as_int)]
 
 
-UserGroupID = Annotated[Int, Field(ge=0, lt=INVALID_UID)]
-FileMode = Annotated[Int, Field(ge=0, le=FILE_MODE_MASK)]
+type UserGroupID = Annotated[Int, Field(ge=0, lt=INVALID_UID)]
+type FileMode = Annotated[Int, Field(ge=0, le=FILE_MODE_MASK)]
 
 
 def _parse_netloc(netloc: str) -> tuple[str | None, int | None]:
@@ -223,4 +223,4 @@ def _validate_endpoint(endpoint: str) -> str:
     return endpoint
 
 
-Endpoint = Annotated[str, AfterValidator(_validate_endpoint)]
+type Endpoint = Annotated[str, AfterValidator(_validate_endpoint)]

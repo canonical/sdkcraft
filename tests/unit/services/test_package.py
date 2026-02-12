@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -160,7 +160,7 @@ def test_write_metadata(
     ("dt", "utc"),
     [
         (
-            datetime.fromtimestamp(0, timezone.utc),
+            datetime.fromtimestamp(0, UTC),
             "1970-01-01T00:00:00Z",
         ),
         (

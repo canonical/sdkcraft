@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import os
 import platform
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -88,7 +88,7 @@ def default_factory(
         dump_yaml(project_data, f)
 
     factory.update_kwargs("lifecycle", cache_dir=cache_dir, work_dir=work_dir)
-    factory.update_kwargs("package", started_at=datetime.fromtimestamp(0, timezone.utc))
+    factory.update_kwargs("package", started_at=datetime.fromtimestamp(0, UTC))
     factory.update_kwargs("project", project_dir=project_dir)
     factory.update_kwargs("provider", work_dir=work_dir)
 

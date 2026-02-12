@@ -3,22 +3,11 @@ base: ubuntu@24.04
 sdks:
   - name: uv
     channel: 24.04/edge
+  - name: node
+    channel: 24.04/edge
   - name: project-sdkcraft
 actions:
-  format: |
-    uv run ruff check --fix
-    uv run ruff format
-    uv run codespell --toml pyproject.toml --write-changes
-  lint: |
-    set -x
-    uv run ruff check
-    uv run ruff format --diff
-    uv run codespell --toml pyproject.toml
-    uv run mypy --show-traceback --show-error-codes sdkcraft
-    uv run pyright
-    git ls-files | file --mime-type -Nnf- | grep shellscript | cut -f1 -d: | xargs -r shellcheck
-    uv build --quiet .
-    uv run twine check dist/*
-    uv run yamllint --strict .
+  format: uv run make format
+  lint: uv run make lint
   test: uv run --group "dev-$(lsb_release -cs)" pytest tests/unit "$@"
   integration: uv run --group "dev-$(lsb_release -cs)" pytest tests/integration "$@"

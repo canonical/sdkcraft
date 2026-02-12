@@ -118,9 +118,9 @@ def _workaround_issue_3397(output: JSON1) -> None:
     output.comments = [comment for comment, _ in groupby(output.comments)]
 
 
-ReplacementKey = tuple[int, str, list[int], str]
-FixKey = list[ReplacementKey]
-CommentKey = tuple[Path, list[int], str, int, str, bool, FixKey]
+type ReplacementKey = tuple[int, str, list[int], str]
+type FixKey = list[ReplacementKey]
+type CommentKey = tuple[Path, list[int], str, int, str, bool, FixKey]
 
 
 def _comment_key(comment: PositionedComment) -> CommentKey:
