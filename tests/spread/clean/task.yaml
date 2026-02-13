@@ -6,10 +6,7 @@ restore: |
 execute: |
   # Check clean works immediately
   run_sdkcraft init
-  # TODO: remove when fixed: https://github.com/canonical/craft-providers/issues/856
-  if lxc project info sdkcraft &>/dev/null; then
-    run_sdkcraft clean
-  fi
+  run_sdkcraft clean
 
   # Check clean works after packing
   run_sdkcraft pack
