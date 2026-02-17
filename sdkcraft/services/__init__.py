@@ -23,6 +23,7 @@ from .buildplan import BuildPlanService
 from .package import PackageService
 from .project import ProjectService
 from .provider import ProviderService
+from .tryservice import TryService
 
 
 def register_sdkcraft_services() -> None:
@@ -31,6 +32,7 @@ def register_sdkcraft_services() -> None:
     ServiceFactory.register("package", PackageService)
     ServiceFactory.register("project", ProjectService)
     ServiceFactory.register("provider", ProviderService)
+    ServiceFactory.register("try", TryService)
 
 
 __all__ = [
@@ -39,4 +41,5 @@ __all__ = [
     "ProjectService",
     "ProviderService",
     "register_sdkcraft_services",
+    "TryService",
 ]

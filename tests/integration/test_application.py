@@ -218,7 +218,7 @@ def test_try(
     data_home = tmp_path_factory.mktemp("share")
 
     monkeypatch.setattr("sys.argv", ["sdkcraft", "try", "--destructive-mode"])
-    monkeypatch.setattr("sdkcraft.commands.lifecycle.user_data_path", lambda: data_home)
+    monkeypatch.setattr("sdkcraft.env.user_data_path", lambda: data_home)
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
@@ -267,7 +267,7 @@ def test_try_files(
     monkeypatch.setattr(
         "sys.argv", ["sdkcraft", "try", "--destructive-mode", *filenames]
     )
-    monkeypatch.setattr("sdkcraft.commands.lifecycle.user_data_path", lambda: data_home)
+    monkeypatch.setattr("sdkcraft.env.user_data_path", lambda: data_home)
 
     return_code = sdkcraft.cli.main()
     assert return_code == 0
