@@ -47,7 +47,9 @@ class TryService(AppService):
             try_area.mkdir(parents=True, exist_ok=True)
 
         with ExitStack() as stack:
-            target = Path(stack.enter_context(TemporaryDirectory(dir=try_area)))
+            temp_dir = TemporaryDirectory(prefix="tmp.", dir=try_area, delete=False)
+            stack.callback(temp_dir.cleanup)
+            target = Path(temp_dir.name)
 
             for artifact in artifacts.values():
                 _copy_to(artifact, target)
@@ -73,7 +75,7 @@ class TryService(AppService):
 
         with (
             suppress(FileNotFoundError),
-            TemporaryDirectory(dir=try_area) as cleanup,
+            TemporaryDirectory(prefix="tmp.", dir=try_area) as cleanup,
         ):
             (try_area / name).replace(cleanup)
 
