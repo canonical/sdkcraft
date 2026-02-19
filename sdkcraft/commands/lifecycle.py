@@ -30,7 +30,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from sdkcraft.errors import SdkcraftFilenameError
 from sdkcraft.models.constraints import ProjectName
-from sdkcraft.services import TestingService, TryService
+from sdkcraft.services import ProjectService, TestingService, TryService
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser, Namespace
@@ -154,10 +154,16 @@ class TestCommand(PackCommand):
             for build_info in build_plan
         }
 
+        project_service = cast(ProjectService, self._services.get("project"))
+        bases = [
+            project_service.get_with_base(build_info).base for build_info in build_plan
+        ]
+
         testing_service.sdkcraft_test(
             dirs.project_dir,
             artifacts,
             test_expressions=parsed_args.test_expressions,
+            bases=bases,
             shell=shell,
             shell_after=shell_after,
             debug=parsed_args.debug,

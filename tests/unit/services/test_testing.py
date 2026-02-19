@@ -20,8 +20,20 @@ def fake_which(mocker: MockerFixture) -> MockType:
     return mocker.patch("shutil.which", return_value="/fake-bin/craft.spread")
 
 
+@pytest.fixture
+def spread_list() -> str:
+    return """\
+lxd:ubuntu-24.04:main/launch:jammy
+lxd:ubuntu-24.04:main/launch:noble
+lxd:ubuntu-24.04:main/launch:other
+lxd:ubuntu-24.04:main/refresh
+"""
+
+
 @pytest.fixture(autouse=True)
-def fake_run(fake_arch: DebianArchitecture, mocker: MockerFixture) -> MockType:
+def fake_run(
+    fake_arch: DebianArchitecture, mocker: MockerFixture, spread_list: str
+) -> MockType:
     # We don't use fake_arch here, but it needs to run first because
     # platform.uname can shell out to the `uname` command.
     _ = fake_arch
@@ -29,7 +41,10 @@ def fake_run(fake_arch: DebianArchitecture, mocker: MockerFixture) -> MockType:
     def side_effect(
         cmd: list[str], *_args: Any, **_kwargs: Any
     ) -> CompletedProcess[str]:
-        return CompletedProcess[str](cmd, 0)
+        result = CompletedProcess[str](cmd, 0)
+        if cmd[:2] == ["/fake-bin/craft.spread", "-list"]:
+            result.stdout = spread_list
+        return result
 
     return mocker.patch("subprocess.run", side_effect=side_effect)
 
@@ -74,7 +89,12 @@ def test_spread_arguments(
     (tmp_path / "tests" / "spread.yaml").write_text("{}")
 
     artifacts = {"ppc64el": Path("default_ppc64el_ubuntu@22.04.sdk")}
-    testing_service.sdkcraft_test(tmp_path, artifacts, shell_after=True)
+    testing_service.sdkcraft_test(
+        tmp_path,
+        artifacts,
+        bases=["ubuntu@22.04"],
+        shell_after=True,
+    )
 
     craft_spread = fake_popen.call_args.kwargs["cwd"]
     assert craft_spread.parent == tmp_path / "tests"
@@ -84,7 +104,48 @@ def test_spread_arguments(
         "default", artifacts, craft_spread / "try"
     )
     fake_popen.assert_called_once_with(
-        ["/fake-bin/craft.spread", "-reuse", "-resend", "-shell-after"],
+        [
+            "/fake-bin/craft.spread",
+            "-reuse",
+            "-resend",
+            "-shell-after",
+            "lxd:ubuntu-24.04:main/launch:jammy",
+            "lxd:ubuntu-24.04:main/launch:other",
+            "lxd:ubuntu-24.04:main/refresh",
+        ],
+        cwd=craft_spread,
+    )
+
+
+@pytest.mark.usefixtures("fake_try_service")
+def test_spread_build_base_only(
+    testing_service: TestingService,
+    tmp_path: Path,
+    fake_popen: MockType,
+):
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "spread.yaml").write_text("{}")
+
+    artifacts = {"ppc64el": Path("default_ppc64el_ubuntu@22.04.sdk")}
+    testing_service.sdkcraft_test(
+        tmp_path,
+        artifacts,
+        bases=[None],
+        debug=True,
+    )
+
+    craft_spread = fake_popen.call_args.kwargs["cwd"]
+    fake_popen.assert_called_once_with(
+        [
+            "/fake-bin/craft.spread",
+            "-reuse",
+            "-resend",
+            "-debug",
+            "lxd:ubuntu-24.04:main/launch:jammy",
+            "lxd:ubuntu-24.04:main/launch:noble",
+            "lxd:ubuntu-24.04:main/launch:other",
+            "lxd:ubuntu-24.04:main/refresh",
+        ],
         cwd=craft_spread,
     )
 

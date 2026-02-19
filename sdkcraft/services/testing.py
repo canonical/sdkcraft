@@ -17,6 +17,7 @@
 
 from __future__ import annotations
 
+import re
 import shlex
 import shutil
 import subprocess
@@ -32,9 +33,11 @@ from craft_application.errors import CraftValidationError
 from craft_application.models import CraftBaseModel
 from craft_application.util import dump_yaml, safe_yaml_load
 from craft_cli import CraftError, emit
+from craft_platforms import DistroBase
+from craft_providers.bases import BaseName, BuilddBaseAlias, get_base_alias
 from pydantic import ConfigDict, ValidationError
 
-from sdkcraft.errors import SpreadFileMissingError
+from sdkcraft.errors import SpreadFileMissingError, SpreadListError
 from sdkcraft.services.tryservice import TryService
 
 if TYPE_CHECKING:
@@ -63,6 +66,10 @@ SPREAD_PREPARE_SEP = """\
 
 # Run original prepare script.
 """
+
+# Job names look like backend:system:task(:variant)?(#sample)?.
+SPREAD_VARIANT_INDEX = 3
+SPREAD_SAMPLE = re.compile(r"#\d+$")
 
 # Wait 5 minutes after SIGINT because spread tasks can't be interrupted.
 SIGINT_TIMEOUT = 5 * 60.0
@@ -98,6 +105,7 @@ class TestingService(services.TestingService):
         artifacts: Mapping[str, Path],
         *,
         test_expressions: Iterable[str] = (),
+        bases: Iterable[str | None] = (),
         shell: bool = False,
         shell_after: bool = False,
         debug: bool = False,
@@ -121,15 +129,56 @@ class TestingService(services.TestingService):
             try_service = cast(TryService, self._services.get("try"))
             try_service.copy(self._project.name, artifacts, try_area)
 
-            self.run_spread(
+            jobs = self._filter_spread_jobs_by_base(
                 temp_path,
                 test_expressions=test_expressions,
+                bases=bases,
+            )
+            if not jobs:
+                emit.progress("No tests to run.", permanent=True)
+                return
+
+            self.run_spread(
+                temp_path,
+                test_expressions=jobs,
                 shell=shell,
                 shell_after=shell_after,
                 debug=debug,
             )
 
         emit.progress("Testing successful.", permanent=True)
+
+    def _filter_spread_jobs_by_base(
+        self,
+        spread_path: Path,
+        *,
+        test_expressions: Iterable[str],
+        bases: Iterable[str | None],
+    ) -> list[str]:
+        spread_command = self._get_spread_list_command(test_expressions)
+        try:
+            proc = subprocess.run(
+                spread_command,
+                capture_output=True,
+                text=True,
+                check=True,
+                cwd=spread_path,
+            )
+        except subprocess.CalledProcessError as e:
+            raise SpreadListError(e)
+
+        jobs = proc.stdout.splitlines()
+        distro_bases: list[DistroBase] = []
+        for base in bases:
+            if base is None:
+                # The SDK is base-agnostic and all variants should work.
+                break
+            distro_bases.append(DistroBase.from_str(base))
+        else:
+            jobs = list(filter(JobFilter(distro_bases), jobs))
+
+        emit.debug(f"filtered jobs: {jobs}")
+        return jobs
 
     @override
     def _get_spread_command(
@@ -263,6 +312,38 @@ def _write_spread_yaml(project: SpreadProject, temp_path: Path) -> None:
     with target.open("w") as f:
         dump_yaml(data, f)
     emit.trace(f"Temporary spread file:\n{target.read_text()}")
+
+
+class JobFilter:
+    """Filter spread jobs by base."""
+
+    def __init__(self, bases: Iterable[DistroBase]) -> None:
+        aliases = {
+            get_base_alias(BaseName(name=base.distribution, version=base.series))
+            for base in bases
+        }
+        self.variants = {
+            alias.name.lower(): alias in aliases for alias in BuilddBaseAlias
+        }
+
+    def __call__(self, job: str) -> bool:
+        """Determine whether the given job should be included."""
+        variant = _job_variant(job)
+        if variant is None:
+            return True
+        return self.variants.get(variant.lower(), True)
+
+
+def _job_variant(job: str) -> str | None:
+    parts = job.split(":", SPREAD_VARIANT_INDEX)
+    if len(parts) <= SPREAD_VARIANT_INDEX:
+        return None
+
+    variant = parts[SPREAD_VARIANT_INDEX]
+    if m := SPREAD_SAMPLE.search(variant):
+        variant = variant[: m.start()]
+
+    return variant
 
 
 def _run_spread(command: list[str], cwd: Path) -> None:

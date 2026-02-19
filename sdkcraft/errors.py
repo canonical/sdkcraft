@@ -20,10 +20,12 @@ from typing import TYPE_CHECKING
 
 from craft_cli import CraftError
 from craft_platforms import CraftPlatformsError
+from craft_providers.errors import details_from_called_process_error
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
+    from subprocess import CalledProcessError
 
 
 class SdkcraftError(CraftError):
@@ -76,3 +78,12 @@ class ShellCheckError(SdkcraftError):
 
 class SpreadFileMissingError(SdkcraftError, FileNotFoundError):
     """Error finding spread project file."""
+
+
+class SpreadListError(SdkcraftError):
+    """Error listing spread tests."""
+
+    def __init__(self, exc: CalledProcessError) -> None:
+        super().__init__(
+            "Cannot list SDK tests.", details=details_from_called_process_error(exc)
+        )

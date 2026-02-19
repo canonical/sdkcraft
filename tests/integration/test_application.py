@@ -238,6 +238,7 @@ def test_spread_single_base(
         new_path,
         {arch: Path(f"my-project_{arch}_ubuntu@22.04.sdk")},
         test_expressions=(),
+        bases=["ubuntu@22.04"],
         shell=False,
         shell_after=True,
         debug=False,
@@ -267,7 +268,7 @@ platforms:
     ],
     ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
-def test_spread_base_agnostic(
+def test_spread_build_base_only(
     new_path: Path,
     sdkcraft_yaml: str,
     monkeypatch: pytest.MonkeyPatch,
@@ -297,6 +298,7 @@ def test_spread_base_agnostic(
         new_path,
         {arch: Path(f"my-project_{arch}.sdk")},
         test_expressions=["main/", "docs/"],
+        bases=[None],
         shell=True,
         shell_after=False,
         debug=False,
@@ -348,6 +350,7 @@ def test_spread_multi_base(
         new_path,
         {"chosen": Path(f"my-project_{arch}_ubuntu@{release_version}.sdk")},
         test_expressions=(),
+        bases=[f"ubuntu@{release_version}"],
         shell=False,
         shell_after=False,
         debug=True,
