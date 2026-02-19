@@ -3,7 +3,7 @@
 from .account import StoreLoginCommand, StoreWhoamiCommand
 from .gendocs import GenerateDocsCommand
 from .init import InitCommand
-from .lifecycle import CleanCommand, PackCommand, TryCommand
+from .lifecycle import CleanCommand, PackCommand, TestCommand, TryCommand
 from .register import StoreRegisterCommand
 from .upload import StoreUploadCommand
 
@@ -16,5 +16,6 @@ __all__ = [
     "StoreRegisterCommand",
     "StoreUploadCommand",
     "StoreWhoamiCommand",
+    "TestCommand",
     "TryCommand",
 ]

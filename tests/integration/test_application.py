@@ -7,13 +7,20 @@ from collections import Counter
 from datetime import datetime
 from hashlib import file_digest, sha3_384
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 import sdkcraft.cli
 import yaml
 from craft_platforms import DebianArchitecture
 
-pytestmark = [pytest.mark.slow, pytest.mark.usefixtures("state_dir")]
+if TYPE_CHECKING:
+    from pytest_mock import MockType
+
+pytestmark = [
+    pytest.mark.slow,
+    pytest.mark.usefixtures("fake_testing_service", "state_dir"),
+]
 
 
 @pytest.fixture
@@ -206,6 +213,145 @@ def test_pack_architecture_agnostic(
 
     files = sorted(path.name for path in new_path.glob("*.sdk"))
     assert files == [f"my-project_all_ubuntu@{release_version}.sdk"]
+
+
+def test_spread_single_base(
+    new_path: Path,
+    sdkcraft_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path_factory: pytest.TempPathFactory,
+    fake_testing_service: dict[str, MockType],
+):
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
+
+    monkeypatch.setattr(
+        "sys.argv", ["sdkcraft", "test", "--destructive-mode", "--shell-after"]
+    )
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    fake_testing_service["sanity_check"].assert_called_once_with(new_path)
+
+    arch = str(DebianArchitecture.from_host())
+    fake_testing_service["sdkcraft_test"].assert_called_once_with(
+        new_path,
+        {arch: Path(f"my-project_{arch}_ubuntu@22.04.sdk")},
+        test_expressions=(),
+        shell=False,
+        shell_after=True,
+        debug=False,
+    )
+
+    data_home = tmp_path_factory.mktemp("share")
+    monkeypatch.setattr("sdkcraft.env.user_data_path", lambda: data_home)
+
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "clean", "--destructive-mode"])
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+    fake_testing_service["clean"].assert_called_once_with(new_path)
+
+
+@pytest.mark.parametrize(
+    "sdkcraft_yaml_template",
+    [
+        """\
+name: my-project
+version: 1.2.3
+summary: default project
+description: default project
+build-base: ubuntu@RELEASE_VERSION
+platforms:
+  DEBIAN_ARCH:
+"""
+    ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
+)
+def test_spread_base_agnostic(
+    new_path: Path,
+    sdkcraft_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
+    fake_testing_service: dict[str, MockType],
+):
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
+
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "sdkcraft",
+            "test",
+            "--destructive-mode",
+            "--shell",
+            "main/",
+            "docs/",
+        ],
+    )
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    fake_testing_service["sanity_check"].assert_called_once_with(new_path)
+
+    arch = str(DebianArchitecture.from_host())
+    fake_testing_service["sdkcraft_test"].assert_called_once_with(
+        new_path,
+        {arch: Path(f"my-project_{arch}.sdk")},
+        test_expressions=["main/", "docs/"],
+        shell=True,
+        shell_after=False,
+        debug=False,
+    )
+
+
+@pytest.mark.parametrize(
+    "sdkcraft_yaml_template",
+    [
+        """\
+name: my-project
+version: 1.2.3
+summary: default project
+description: default project
+platforms:
+  chosen:
+    build-on: ubuntu@RELEASE_VERSION:DEBIAN_ARCH
+    build-for: ubuntu@RELEASE_VERSION:DEBIAN_ARCH
+  ignored1:
+    build-on: ubuntu@RELEASE_VERSION:DEBIAN_ARCH
+    build-for: ubuntu@RELEASE_VERSION:i386
+  ignored2:
+    build-on: ubuntu@RELEASE_VERSION:DEBIAN_ARCH
+    build-for: ubuntu@RELEASE_VERSION:s390x
+""",
+    ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
+)
+def test_spread_multi_base(
+    new_path: Path,
+    sdkcraft_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
+    fake_testing_service: dict[str, MockType],
+    release_version: str,
+):
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
+
+    monkeypatch.setattr(
+        "sys.argv", ["sdkcraft", "test", "--destructive-mode", "--debug"]
+    )
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    fake_testing_service["sanity_check"].assert_called_once_with(new_path)
+
+    arch = str(DebianArchitecture.from_host())
+    fake_testing_service["sdkcraft_test"].assert_called_once_with(
+        new_path,
+        {"chosen": Path(f"my-project_{arch}_ubuntu@{release_version}.sdk")},
+        test_expressions=(),
+        shell=False,
+        shell_after=False,
+        debug=True,
+    )
 
 
 def test_try(

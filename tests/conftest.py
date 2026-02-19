@@ -31,11 +31,15 @@ from sdkcraft.services import (
     BuildPlanService,
     PackageService,
     ProjectService,
+    TestingService,
+    TryService,
     register_sdkcraft_services,
 )
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from pytest_mock import MockerFixture, MockType
 
 
 @pytest.fixture
@@ -48,10 +52,8 @@ def fake_arch(
     fake_arch_str: str, monkeypatch: pytest.MonkeyPatch
 ) -> DebianArchitecture:
     arch = DebianArchitecture(fake_arch_str)
-    real_uname = platform.uname
-    monkeypatch.setattr(
-        "platform.uname", lambda: real_uname()._replace(machine=arch.to_platform_arch())
-    )
+    uname = platform.uname()._replace(machine=arch.to_platform_arch())
+    monkeypatch.setattr("platform.uname", lambda: uname)
     return arch
 
 
@@ -130,6 +132,26 @@ def configure_project(project_service: ProjectService) -> None:
 @pytest.fixture
 def build_plan_service(default_factory: ServiceFactory) -> BuildPlanService:
     return cast(BuildPlanService, default_factory.get("build_plan"))
+
+
+@pytest.fixture
+def testing_service(default_factory: ServiceFactory) -> TestingService:
+    return cast(TestingService, default_factory.get("testing"))
+
+
+@pytest.fixture
+def fake_testing_service(mocker: MockerFixture) -> dict[str, MockType]:
+    return mocker.patch.multiple(
+        TestingService,
+        sanity_check=mocker.DEFAULT,
+        sdkcraft_test=mocker.DEFAULT,
+        clean=mocker.DEFAULT,
+    )
+
+
+@pytest.fixture
+def fake_try_service(mocker: MockerFixture) -> dict[str, MockType]:
+    return mocker.patch.multiple(TryService, copy=mocker.DEFAULT, remove=mocker.DEFAULT)
 
 
 @pytest.fixture

@@ -72,3 +72,7 @@ class ShellCheckError(SdkcraftError):
 
     def __init__(self, message: str) -> None:
         super().__init__(f"Cannot run shellcheck: {message}")
+
+
+class SpreadFileMissingError(SdkcraftError, FileNotFoundError):
+    """Error finding spread project file."""

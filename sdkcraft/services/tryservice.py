@@ -39,7 +39,12 @@ class TryService(AppService):
     """Try out SDKs built with SDKcraft."""
 
     def copy(
-        self, name: str, artifacts: Mapping[str, Path], try_area: Path | None = None
+        self,
+        name: str,
+        artifacts: Mapping[str, Path],
+        try_area: Path | None = None,
+        *,
+        progress: bool = False,
     ) -> None:
         """Copy the given artifacts into the named subdirectory of the try area."""
         if try_area is None:
@@ -52,21 +57,22 @@ class TryService(AppService):
             target = Path(temp_dir.name)
 
             for artifact in artifacts.values():
-                _copy_to(artifact, target)
+                _copy_to(artifact, target, progress=progress)
 
             _rename(target, try_area / name)
             stack.pop_all()
 
-        platforms = ", ".join(artifacts.keys())
-        try_name = f"try-{name}"
-        command = "workshop refresh"
+        if progress:
+            platforms = ", ".join(artifacts.keys())
+            try_name = f"try-{name}"
+            command = "workshop refresh"
 
-        emit.progress(
-            f"Copied {name!r} SDK ({platforms}) to the try area.", permanent=True
-        )
-        emit.message(
-            f"To use it, add {try_name!r} to the SDK list in a workshop and run {command!r}."
-        )
+            emit.progress(
+                f"Copied {name!r} SDK ({platforms}) to the try area.", permanent=True
+            )
+            emit.message(
+                f"To use it, add {try_name!r} to the SDK list in a workshop and run {command!r}."
+            )
 
     def remove(self, name: str, try_area: Path | None = None) -> None:
         """Atomically remove the named subdirectory of the try area."""
@@ -80,8 +86,10 @@ class TryService(AppService):
             (try_area / name).replace(cleanup)
 
 
-def _copy_to(artifact: Path, target: Path) -> None:
-    emit.progress(f"Copying {artifact.name}...")
+def _copy_to(artifact: Path, target: Path, *, progress: bool) -> None:
+    if progress:
+        emit.progress(f"Copying {artifact.name}...")
+
     artifact_path = target / artifact.name
     shutil.copy2(artifact, artifact_path)
 
