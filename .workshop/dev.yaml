@@ -5,6 +5,8 @@ sdks:
     channel: 24.04/edge
   - name: node
     channel: 24.04/edge
+  - name: vscode-remote
+    channel: 24.04/edge
   - name: project-sdkcraft
 actions:
   format: uv run make format
