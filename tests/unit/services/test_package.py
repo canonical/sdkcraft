@@ -38,6 +38,7 @@ def test_default_metadata(
     )
 
 
+@pytest.mark.usefixtures("fake_arch")
 @pytest.mark.parametrize(
     ("fake_arch_str", "project_data"),
     [
@@ -60,11 +61,7 @@ def test_default_metadata(
         ),
     ],
 )
-def test_build_base_metadata(
-    fake_arch: DebianArchitecture,
-    package_service_with_configured_project: PackageService,
-):
-    _ = fake_arch
+def test_build_base_metadata(package_service_with_configured_project: PackageService):
     metadata = {
         "name": "build-base-metadata",
         "version": "1.0",
