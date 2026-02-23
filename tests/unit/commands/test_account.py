@@ -17,7 +17,7 @@
 from __future__ import annotations
 
 from argparse import Namespace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from sdkcraft.commands.account import StoreLoginCommand
@@ -47,10 +47,10 @@ def fake_store_login(mocker: MockerFixture) -> MockType:
 
 
 def test_login_calls_store_client(
-    fake_store_login: MockType, emitter: RecordingEmitter
+    app_config: dict[str, Any], fake_store_login: MockType, emitter: RecordingEmitter
 ):
     """Test run() calls login on store client."""
-    cmd = StoreLoginCommand(None)
+    cmd = StoreLoginCommand(app_config)
     cmd.run(Namespace())
 
     fake_store_login.assert_called_once()

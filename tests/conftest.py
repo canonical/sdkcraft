@@ -96,6 +96,14 @@ def default_factory(
 
 
 @pytest.fixture
+def app_config(default_factory: ServiceFactory) -> dict[str, Any]:
+    return {
+        "app": APP_METADATA,
+        "services": default_factory,
+    }
+
+
+@pytest.fixture
 def package_service(default_factory: ServiceFactory) -> PackageService:
     return cast(PackageService, default_factory.get("package"))
 
