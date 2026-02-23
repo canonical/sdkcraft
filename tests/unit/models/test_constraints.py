@@ -202,7 +202,7 @@ endpoint_adapter: TypeAdapter[Endpoint] = TypeAdapter(Endpoint)
         "::",
     ],
 )
-def test_endpoint_valid(value: list[str]):
+def test_endpoint_valid(value: str):
     assert endpoint_adapter.validate_python(value) == value
 
 
@@ -225,6 +225,6 @@ def test_endpoint_valid(value: list[str]):
         ":56789/udp",
     ],
 )
-def test_endpoint_invalid(value: list[str]):
+def test_endpoint_invalid(value: str):
     with pytest.raises(ValidationError):
         endpoint_adapter.validate_python(value)
