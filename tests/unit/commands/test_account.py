@@ -23,6 +23,7 @@ import pytest
 from sdkcraft.commands.account import StoreLoginCommand
 
 if TYPE_CHECKING:
+    from craft_cli.pytest_plugin import RecordingEmitter
     from pytest_mock import MockerFixture, MockType
 
 ############
@@ -40,21 +41,17 @@ def fake_store_login(mocker: MockerFixture) -> MockType:
     )
 
 
-@pytest.fixture
-def fake_emit(mocker: MockerFixture) -> MockType:
-    """Mock emit module."""
-    return mocker.patch("sdkcraft.commands.account.emit")
-
-
 #################
 # Login Command #
 #################
 
 
-def test_login_calls_store_client(fake_store_login: MockType, fake_emit: MockType):
+def test_login_calls_store_client(
+    fake_store_login: MockType, emitter: RecordingEmitter
+):
     """Test run() calls login on store client."""
     cmd = StoreLoginCommand(None)
     cmd.run(Namespace())
 
     fake_store_login.assert_called_once()
-    fake_emit.message.assert_called_with("Login successful")
+    emitter.assert_message("Login successful")
