@@ -19,15 +19,8 @@ if TYPE_CHECKING:
 
 @pytest.mark.parametrize(
     "project_data",
-    [
-        pytest.param(
-            {
-                "name": "no-platforms",
-                "platforms": {},
-            },
-            id=pytest.HIDDEN_PARAM,
-        ),
-    ],
+    [{"name": "no-platforms", "platforms": {}}],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_no_platforms(build_plan_service: BuildPlanService):
     assert build_plan(build_plan_service) == []
@@ -60,15 +53,13 @@ def test_no_base(build_plan_service: BuildPlanService):
 @pytest.mark.parametrize(
     "project_data",
     [
-        pytest.param(
-            {
-                "name": "base-only-ppc64el",
-                "base": "distro@series",
-                "platforms": {"ppc64el": None},
-            },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        {
+            "name": "base-only-ppc64el",
+            "base": "distro@series",
+            "platforms": {"ppc64el": None},
+        }
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_base_only(build_plan_service: BuildPlanService):
     assert build_plan(build_plan_service) == [
@@ -84,15 +75,13 @@ def test_base_only(build_plan_service: BuildPlanService):
 @pytest.mark.parametrize(
     "project_data",
     [
-        pytest.param(
-            {
-                "name": "build-base-only-ppc64el",
-                "build-base": "distro@series",
-                "platforms": {"ppc64el": None},
-            },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        {
+            "name": "build-base-only-ppc64el",
+            "build-base": "distro@series",
+            "platforms": {"ppc64el": None},
+        }
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_build_base_only(build_plan_service: BuildPlanService):
     assert build_plan(build_plan_service) == [
@@ -108,16 +97,14 @@ def test_build_base_only(build_plan_service: BuildPlanService):
 @pytest.mark.parametrize(
     "project_data",
     [
-        pytest.param(
-            {
-                "name": "base-and-build-base-ppc64el",
-                "base": "ubuntu@22.04",
-                "build-base": "ubuntu@20.04",
-                "platforms": {"ppc64el": None},
-            },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        {
+            "name": "base-and-build-base-ppc64el",
+            "base": "ubuntu@22.04",
+            "build-base": "ubuntu@20.04",
+            "platforms": {"ppc64el": None},
+        }
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_base_and_build_base(build_plan_service: BuildPlanService):
     assert build_plan(build_plan_service) == [
@@ -133,14 +120,12 @@ def test_base_and_build_base(build_plan_service: BuildPlanService):
 @pytest.mark.parametrize(
     "project_data",
     [
-        pytest.param(
-            {
-                "name": "multi-base-i386-s390x",
-                "platforms": {"ubuntu@22.04:i386": None, "ubuntu@24.04:s390x": None},
-            },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        {
+            "name": "multi-base-i386-s390x",
+            "platforms": {"ubuntu@22.04:i386": None, "ubuntu@24.04:s390x": None},
+        }
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_multi_base(build_plan_service: BuildPlanService):
     assert build_plan(build_plan_service) == [
@@ -162,20 +147,13 @@ def test_multi_base(build_plan_service: BuildPlanService):
 @pytest.mark.parametrize(
     "project_data",
     [
-        pytest.param(
-            {
-                "name": "architecture-agnostic",
-                "build-base": "ubuntu@20.04",
-                "platforms": {
-                    "all": {
-                        "build-on": ["amd64", "arm64"],
-                        "build-for": "all",
-                    },
-                },
-            },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        {
+            "name": "architecture-agnostic",
+            "build-base": "ubuntu@20.04",
+            "platforms": {"all": {"build-on": ["amd64", "arm64"], "build-for": "all"}},
+        }
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_architecture_agnostic(build_plan_service: BuildPlanService):
     assert build_plan(build_plan_service, ["amd64"]) == [
@@ -200,23 +178,21 @@ def test_architecture_agnostic(build_plan_service: BuildPlanService):
 @pytest.mark.parametrize(
     "project_data",
     [
-        pytest.param(
-            {
-                "name": "multi-base-architecture-agnostic",
-                "platforms": {
-                    "noble": {
-                        "build-on": ["ubuntu@24.04:amd64", "ubuntu@24.04:arm64"],
-                        "build-for": "ubuntu@24.04:all",
-                    },
-                    "jammy": {
-                        "build-on": ["ubuntu@22.04:amd64", "ubuntu@22.04:arm64"],
-                        "build-for": "ubuntu@22.04:all",
-                    },
+        {
+            "name": "multi-base-architecture-agnostic",
+            "platforms": {
+                "noble": {
+                    "build-on": ["ubuntu@24.04:amd64", "ubuntu@24.04:arm64"],
+                    "build-for": "ubuntu@24.04:all",
+                },
+                "jammy": {
+                    "build-on": ["ubuntu@22.04:amd64", "ubuntu@22.04:arm64"],
+                    "build-for": "ubuntu@22.04:all",
                 },
             },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        }
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_multi_base_architecture_agnostic(build_plan_service: BuildPlanService):
     assert build_plan(build_plan_service, ["amd64"]) == [
@@ -253,27 +229,25 @@ def test_multi_base_architecture_agnostic(build_plan_service: BuildPlanService):
 @pytest.mark.parametrize(
     "project_data",
     [
-        pytest.param(
-            {
-                "name": "multi-base-i386-s390x",
-                "platforms": {
-                    "x86": {
-                        "build-on": ["ubuntu@24.04:i386", "ubuntu@24.04:amd64"],
-                        "build-for": "ubuntu@24.04:i386",
-                    },
-                    "arm": {
-                        "build-on": ["ubuntu@24.04:armhf", "ubuntu@24.04:arm64"],
-                        "build-for": ["ubuntu@24.04:armhf"],
-                    },
-                    "legacy": {
-                        "build-on": "ubuntu@20.04:i386",
-                        "build-for": "ubuntu@20.04:i386",
-                    },
+        {
+            "name": "multi-base-i386-s390x",
+            "platforms": {
+                "x86": {
+                    "build-on": ["ubuntu@24.04:i386", "ubuntu@24.04:amd64"],
+                    "build-for": "ubuntu@24.04:i386",
+                },
+                "arm": {
+                    "build-on": ["ubuntu@24.04:armhf", "ubuntu@24.04:arm64"],
+                    "build-for": ["ubuntu@24.04:armhf"],
+                },
+                "legacy": {
+                    "build-on": "ubuntu@20.04:i386",
+                    "build-for": "ubuntu@20.04:i386",
                 },
             },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        }
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_multi_base_extended(build_plan_service: BuildPlanService):
     assert build_plan(build_plan_service, ["amd64", "arm64"]) == [
@@ -435,21 +409,16 @@ def test_repeated_platform_errors(build_plan_service: BuildPlanService):
 @pytest.mark.parametrize(
     "project_data",
     [
-        pytest.param(
-            {
-                "name": "repeated-platform-shorthand",
-                "base": "ubuntu@24.04",
-                "platforms": {
-                    "all": {
-                        "build-on": ["amd64", "arm64"],
-                        "build-for": "all",
-                    },
-                    "ppc64el": None,
-                },
+        {
+            "name": "repeated-platform-shorthand",
+            "base": "ubuntu@24.04",
+            "platforms": {
+                "all": {"build-on": ["amd64", "arm64"], "build-for": "all"},
+                "ppc64el": None,
             },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        }
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_all_only_build_errors(build_plan_service: BuildPlanService):
     with pytest.raises(AllOnlyBuildError):

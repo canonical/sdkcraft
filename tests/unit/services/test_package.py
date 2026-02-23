@@ -42,7 +42,7 @@ def test_default_metadata(
 @pytest.mark.parametrize(
     ("fake_arch_str", "project_data"),
     [
-        pytest.param(
+        (
             "s390x",
             {
                 "name": "build-base-metadata",
@@ -51,15 +51,12 @@ def test_default_metadata(
                 "description": "default project",
                 "build-base": "ubuntu@20.04",
                 "platforms": {
-                    "all": {
-                        "build-on": ["amd64", "s390x"],
-                        "build-for": "all",
-                    },
+                    "all": {"build-on": ["amd64", "s390x"], "build-for": "all"}
                 },
             },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        )
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_build_base_metadata(package_service_with_configured_project: PackageService):
     metadata = {
@@ -76,7 +73,7 @@ def test_build_base_metadata(package_service_with_configured_project: PackageSer
 @pytest.mark.parametrize(
     ("fake_arch_str", "project_data"),
     [
-        pytest.param(
+        (
             "s390x",
             {
                 "name": "multi-base-metadata",
@@ -90,9 +87,9 @@ def test_build_base_metadata(package_service_with_configured_project: PackageSer
                     "ubuntu@24.04:s390x": None,
                 },
             },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        )
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_multi_base_metadata(
     fake_arch: DebianArchitecture,

@@ -147,8 +147,7 @@ def test_pack(
 @pytest.mark.parametrize(
     "sdkcraft_yaml_template",
     [
-        pytest.param(
-            """\
+        """\
 name: my-project
 version: 1.2.3
 summary: default project
@@ -156,10 +155,9 @@ description: default project
 build-base: ubuntu@RELEASE_VERSION
 platforms:
   DEBIAN_ARCH:
-""",
-            id=pytest.HIDDEN_PARAM,
-        ),
+"""
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_pack_base_agnostic(
     new_path: Path,
@@ -181,8 +179,7 @@ def test_pack_base_agnostic(
 @pytest.mark.parametrize(
     "sdkcraft_yaml_template",
     [
-        pytest.param(
-            """\
+        """\
 name: my-project
 version: 1.2.3
 summary: default project
@@ -191,10 +188,9 @@ platforms:
   all:
     build-on: ubuntu@RELEASE_VERSION:DEBIAN_ARCH
     build-for: ubuntu@RELEASE_VERSION:all
-""",
-            id=pytest.HIDDEN_PARAM,
-        ),
+"""
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_pack_architecture_agnostic(
     new_path: Path,
