@@ -86,8 +86,6 @@ def test_pack(
     sdkcraft_yaml: str,
     monkeypatch: pytest.MonkeyPatch,
 ):
-    """Test packed SDK contents."""
-
     Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
     Path("hooks").mkdir()
     (Path("hooks") / "setup-base").write_text("touch /etc/fstab\n")
@@ -168,8 +166,6 @@ def test_pack_base_agnostic(
     sdkcraft_yaml: str,
     monkeypatch: pytest.MonkeyPatch,
 ):
-    """Test packed SDK contents."""
-
     Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
 
     monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
@@ -206,8 +202,6 @@ def test_pack_architecture_agnostic(
     sdkcraft_yaml: str,
     monkeypatch: pytest.MonkeyPatch,
 ):
-    """Test packed SDK contents."""
-
     Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
 
     monkeypatch.setattr("sys.argv", ["sdkcraft", "pack", "--destructive-mode"])
@@ -225,8 +219,6 @@ def test_try(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path_factory: pytest.TempPathFactory,
 ):
-    """Test packed SDK contents."""
-
     Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
     data_home = tmp_path_factory.mktemp("share")
 
@@ -263,8 +255,6 @@ def test_try_files(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path_factory: pytest.TempPathFactory,
 ):
-    """Test packed SDK contents."""
-
     data_home = tmp_path_factory.mktemp("share")
 
     (new_path / "meta").mkdir()
