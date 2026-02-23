@@ -114,11 +114,8 @@ def project_service(default_factory: ServiceFactory) -> ProjectService:
 
 
 @pytest.fixture
-def package_service_with_configured_project(
-    package_service: PackageService, project_service: ProjectService
-) -> PackageService:
+def configure_project(project_service: ProjectService) -> None:
     project_service.configure(platform=None, build_for=None)
-    return package_service
 
 
 @pytest.fixture
