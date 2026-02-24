@@ -42,6 +42,11 @@ class StoreLoginCommand(AppCommand):
         with the exported credentials.
         """
     )
+    hidden = False
+    examples: list[tuple[str, str]] = [
+        ("Log in interactively", "sdkcraft login"),
+    ]
+    related_commands: list[str] | None = None
 
     @override
     def run(self, parsed_args: Namespace) -> None:
@@ -61,6 +66,11 @@ class StoreWhoamiCommand(AppCommand):
         Display information about the currently authenticated user.
         """
     )
+    hidden = False
+    examples: list[tuple[str, str]] = [
+        ("Show current login", "sdkcraft whoami"),
+    ]
+    related_commands: list[str] | None = None
 
     @override
     def run(self, parsed_args: Namespace) -> None:

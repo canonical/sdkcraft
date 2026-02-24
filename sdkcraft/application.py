@@ -17,7 +17,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Any, override
 
 from craft_application import Application, AppMetadata
 from craft_cli import Dispatcher
@@ -44,6 +44,14 @@ APP_METADATA = AppMetadata(
 
 class Sdkcraft(Application):
     """SDKcraft application definition."""
+
+    @property
+    @override
+    def app_config(self) -> dict[str, Any]:
+        """Include command groups so hidden commands can discover siblings."""
+        config = super().app_config
+        config["command_groups"] = self._command_groups
+        return config
 
     @override
     def _create_dispatcher(self) -> Dispatcher:

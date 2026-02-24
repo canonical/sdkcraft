@@ -68,6 +68,11 @@ class InitCommand(AppCommand):
         yet functional, 'sdkcraft.yaml' file in the current directory.
         """
     )
+    hidden = False
+    examples: list[tuple[str, str]] = [
+        ("Initialize a new project", "sdkcraft init"),
+    ]
+    related_commands: list[str] | None = None
 
     _INIT_TEMPLATE_YAML = textwrap.dedent(
         """\
