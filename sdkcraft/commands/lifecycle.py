@@ -112,6 +112,13 @@ class TestCommand(PackCommand):
     def _fill_parser(self, parser: ArgumentParser) -> None:
         # Skip the parser additions that `pack` adds.
         super(lifecycle.PackCommand, self)._fill_parser(parser)
+
+        parser.add_argument(
+            "--list",
+            action="store_true",
+            help="Just show list of jobs that would run.",
+        )
+
         parser.add_argument(
             "test_expressions",
             nargs="*",
@@ -138,26 +145,43 @@ class TestCommand(PackCommand):
         shell, shell_after = parsed_args.shell, parsed_args.shell_after
         parsed_args.shell, parsed_args.shell_after = (False, False)
 
+        build_planner = self.services.get("build_plan")
         if not is_managed_mode():
             build_for = DebianArchitecture.from_host()
-            self.services.get("build_plan").set_build_fors(build_for)
+            build_planner.set_build_fors(build_for)
 
-        super()._run(parsed_args, step_name, **kwargs)
-        if is_managed_mode():
-            # If we're in managed mode, we just need to pack.
-            return
+        if parsed_args.list:
+            self._check_supported_base(parsed_args)
+
+            config = self.services.get("config")
+            platform = parsed_args.platform or config.get("platform")
+            if platform:
+                build_planner.set_platforms(platform)
+        else:
+            super()._run(parsed_args, step_name, **kwargs)
+            if is_managed_mode():
+                # If we're in managed mode, we just need to pack.
+                return
 
         build_plan = self._services.get("build_plan").plan()
+        project_service = cast(ProjectService, self._services.get("project"))
+        bases = [
+            project_service.get_with_base(build_info).base for build_info in build_plan
+        ]
+
+        if parsed_args.list:
+            testing_service.list_tests(
+                dirs.project_dir,
+                test_expressions=parsed_args.test_expressions,
+                bases=bases,
+            )
+            return
+
         package = self._services.get("package")
         artifacts = {
             build_info.platform: _artifact(package, build_info)
             for build_info in build_plan
         }
-
-        project_service = cast(ProjectService, self._services.get("project"))
-        bases = [
-            project_service.get_with_base(build_info).base for build_info in build_plan
-        ]
 
         testing_service.sdkcraft_test(
             dirs.project_dir,

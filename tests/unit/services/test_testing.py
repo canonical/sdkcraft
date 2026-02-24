@@ -9,6 +9,7 @@ from craft_application.util import safe_yaml_load
 from sdkcraft.services.testing import SPREAD_PREPARE, SPREAD_PREPARE_SEP, TestingService
 
 if TYPE_CHECKING:
+    from craft_cli.pytest_plugin import RecordingEmitter
     from craft_platforms import DebianArchitecture
     from pytest_mock import MockerFixture, MockType
 
@@ -185,6 +186,26 @@ sudo apt-get install build-essential
 """
     projects.append({"reroot": "..", "prepare": prepare})
     assert fake_popen.spread_projects == projects
+
+
+@pytest.mark.usefixtures("fake_run")
+def test_spread_list(
+    testing_service: TestingService,
+    tmp_path: Path,
+    emitter: RecordingEmitter,
+):
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "spread.yaml").write_text("{}")
+
+    testing_service.list_tests(tmp_path, bases=["ubuntu@24.04"])
+
+    emitter.assert_messages(
+        [
+            "lxd:ubuntu-24.04:main/launch:noble",
+            "lxd:ubuntu-24.04:main/launch:other",
+            "lxd:ubuntu-24.04:main/refresh",
+        ]
+    )
 
 
 def test_spread_discard(

@@ -148,6 +148,25 @@ class TestingService(services.TestingService):
 
         emit.progress("Testing successful.", permanent=True)
 
+    def list_tests(
+        self,
+        project_path: Path,
+        *,
+        test_expressions: Iterable[str] = (),
+        bases: Iterable[str | None] = (),
+    ) -> None:
+        """List SDK tests."""
+        path, _, _ = _read_spread_yaml(project_path)
+
+        jobs = self._filter_spread_jobs_by_base(
+            path.parent,
+            test_expressions=test_expressions,
+            bases=bases,
+        )
+
+        for job in jobs:
+            emit.message(job)
+
     def _filter_spread_jobs_by_base(
         self,
         spread_path: Path,

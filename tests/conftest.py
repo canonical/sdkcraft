@@ -145,6 +145,7 @@ def fake_testing_service(mocker: MockerFixture) -> dict[str, MockType]:
         TestingService,
         sanity_check=mocker.DEFAULT,
         sdkcraft_test=mocker.DEFAULT,
+        list_tests=mocker.DEFAULT,
         clean=mocker.DEFAULT,
     )
 

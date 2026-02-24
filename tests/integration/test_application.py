@@ -357,6 +357,83 @@ def test_spread_multi_base(
     )
 
 
+@pytest.mark.parametrize(
+    "sdkcraft_yaml_template",
+    [
+        """\
+name: my-project
+version: 1.2.3
+summary: default project
+description: default project
+platforms:
+  ubuntu@20.04:DEBIAN_ARCH:
+  ubuntu@22.04:DEBIAN_ARCH:
+  cross-i386:
+    build-on: ubuntu@24.04:DEBIAN_ARCH
+    build-for: ubuntu@24.04:i386
+""",
+    ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
+)
+def test_spread_list(
+    new_path: Path,
+    sdkcraft_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
+    fake_testing_service: dict[str, MockType],
+):
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
+
+    monkeypatch.setattr("sys.argv", ["sdkcraft", "test", "--list", "main/"])
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    fake_testing_service["list_tests"].assert_called_once_with(
+        new_path,
+        test_expressions=["main/"],
+        bases=["ubuntu@20.04", "ubuntu@22.04"],
+    )
+
+
+@pytest.mark.parametrize(
+    "sdkcraft_yaml_template",
+    [
+        """\
+name: my-project
+version: 1.2.3
+summary: default project
+description: default project
+platforms:
+  ubuntu@20.04:DEBIAN_ARCH:
+  ubuntu@22.04:DEBIAN_ARCH:
+  ubuntu@24.04:DEBIAN_ARCH:
+""",
+    ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
+)
+def test_spread_list_single_base(
+    new_path: Path,
+    sdkcraft_yaml: str,
+    monkeypatch: pytest.MonkeyPatch,
+    fake_testing_service: dict[str, MockType],
+):
+    Path("sdkcraft.yaml").write_text(sdkcraft_yaml)
+
+    arch = str(DebianArchitecture.from_host())
+    monkeypatch.setattr(
+        "sys.argv", ["sdkcraft", "test", "--list", "--platform", f"ubuntu@20.04:{arch}"]
+    )
+
+    return_code = sdkcraft.cli.main()
+    assert return_code == 0
+
+    fake_testing_service["list_tests"].assert_called_once_with(
+        new_path,
+        test_expressions=(),
+        bases=["ubuntu@20.04"],
+    )
+
+
 def test_try(
     new_path: Path,
     sdkcraft_yaml: str,
