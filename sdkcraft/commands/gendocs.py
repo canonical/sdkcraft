@@ -19,7 +19,7 @@ from __future__ import annotations
 import importlib.resources
 import textwrap
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast, override
+from typing import TYPE_CHECKING, Any, override
 
 from craft_application.commands import AppCommand
 from craft_cli import emit
@@ -27,10 +27,8 @@ from gencodo import CommandGroup, TemplateInfo, gen_docs_tree
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser, Namespace
-    from collections.abc import Sequence
 
     import craft_cli
-    from gencodo import Command
 
 
 class GenerateDocsCommand(AppCommand):
@@ -72,7 +70,7 @@ class GenerateDocsCommand(AppCommand):
         command_groups = [
             CommandGroup(
                 name=g.name,
-                commands=cast("Sequence[type[Command]]", g.commands),
+                commands=g.commands,
             )
             for g in self._command_groups
             if not all(getattr(c, "hidden", False) for c in g.commands)
@@ -103,7 +101,7 @@ class GenerateDocsCommand(AppCommand):
 
 def _load_templates() -> TemplateInfo:
     """Load custom reST templates matching the Workshop documentation style."""
-    templates_dir = importlib.resources.files("sdkcraft") / "templates"
+    templates_dir = importlib.resources.files("sdkcraft") / "doc_templates"
     command_template = (templates_dir / "command.rst.j2").read_text(encoding="utf-8")
     index_template = (templates_dir / "index.rst.j2").read_text(encoding="utf-8")
     return TemplateInfo(

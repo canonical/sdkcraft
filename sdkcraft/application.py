@@ -50,7 +50,7 @@ class Sdkcraft(Application):
     def app_config(self) -> dict[str, Any]:
         """Include command groups so hidden commands can discover siblings."""
         config = super().app_config
-        config["command_groups"] = self._command_groups
+        config["command_groups"] = self.command_groups
         return config
 
     @override

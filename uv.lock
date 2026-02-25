@@ -485,14 +485,14 @@ wheels = [
 
 [[package]]
 name = "gencodo-py"
-version = "0.1.1"
+version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jinja2" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/69/25/421802cba8de1136ba12b990220d68b3c033b9562c92fafea2595012e320/gencodo_py-0.1.1.tar.gz", hash = "sha256:bb4018a6b629c7c4972d0b1c67c501d02b59e17fb6c00e128df691a307e98e90", size = 42021, upload-time = "2026-02-24T19:25:39.421Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3d/58/179a11c77453d8767360be64d7878aabe43905dd46377c6dbf8bc8231876/gencodo_py-0.3.0.tar.gz", hash = "sha256:3c2a60290ae503c70462d790a5bdc28b62796f11b253ce8d4e9a92b48f1cb99d", size = 45322, upload-time = "2026-02-25T23:46:20.061Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/58/e9/9335d92e84802a54bed975ba64ebf80af1d8e2ce6ac5c2900ee5ece17404/gencodo_py-0.1.1-py3-none-any.whl", hash = "sha256:80cc0106f1d3c892c29e3250956351b63a5079161bf3be9bc27191363ecfd94a", size = 10085, upload-time = "2026-02-24T19:25:37.536Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/55/26084632e85e94abe98aecbb1c5eb4a5b51a1cd3f3ea53a0f5af743179cb/gencodo_py-0.3.0-py3-none-any.whl", hash = "sha256:a3b5780b2322e52e9b465e60446e2837eda7b5f22c141406daa84c4e04811eee", size = 10328, upload-time = "2026-02-25T23:46:18.733Z" },
 ]
 
 [[package]]
@@ -1709,7 +1709,7 @@ requires-dist = [
     { name = "craft-parts", specifier = ">=2.19.0" },
     { name = "craft-platforms", specifier = ">=0.10.0" },
     { name = "craft-store", specifier = ">=3.0.0" },
-    { name = "gencodo-py", specifier = ">=0.1.1" },
+    { name = "gencodo-py", specifier = ">=0.3.0" },
     { name = "pydantic", specifier = ">=2.11.7" },
     { name = "python-apt", marker = "sys_platform == 'linux' and extra == 'apt'", specifier = ">=2.4.0", index = "https://people.canonical.com/~lengau/python-apt-ubuntu-wheels/" },
     { name = "pyyaml", specifier = ">=6.0.3" },

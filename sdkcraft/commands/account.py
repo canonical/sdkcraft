@@ -42,7 +42,6 @@ class StoreLoginCommand(AppCommand):
         with the exported credentials.
         """
     )
-    hidden = False
     examples: list[tuple[str, str]] = [
         ("Log in interactively", "sdkcraft login"),
     ]
@@ -66,7 +65,6 @@ class StoreWhoamiCommand(AppCommand):
         Display information about the currently authenticated user.
         """
     )
-    hidden = False
     examples: list[tuple[str, str]] = [
         ("Show current login", "sdkcraft whoami"),
     ]

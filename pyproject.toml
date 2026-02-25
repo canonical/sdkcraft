@@ -8,7 +8,7 @@ dependencies = [
     "craft-parts>=2.19.0",
     "craft-platforms>=0.10.0",
     "craft-store>=3.0.0",
-    "gencodo-py>=0.1.1",
+    "gencodo-py>=0.3.0",
     "pydantic>=2.11.7",
     "pyyaml>=6.0.3",
     "rich>=14.2.0",
@@ -91,9 +91,6 @@ git_describe_command = [
     "--exclude",
     "*.*.*.*",
 ]
-
-[tool.setuptools.package-data]
-sdkcraft = ["templates/*.j2"]
 
 [tool.setuptools.packages.find]
 include = ["*craft*"]
