@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from argparse import ArgumentParser, Namespace
 
 
-class RegisterCommand(AppCommand):
+class StoreRegisterCommand(AppCommand):
     """Command to register an SDK name in the store."""
 
     name = "register"

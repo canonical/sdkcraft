@@ -20,9 +20,7 @@ from argparse import Namespace
 from typing import TYPE_CHECKING, Any
 
 import pytest
-from craft_application import AppMetadata
 from sdkcraft.commands.account import StoreLoginCommand
-from sdkcraft.models import Project
 
 if TYPE_CHECKING:
     from craft_cli.pytest_plugin import RecordingEmitter
@@ -31,19 +29,6 @@ if TYPE_CHECKING:
 ############
 # Fixtures #
 ############
-
-
-@pytest.fixture
-def app_config(mocker: MockerFixture) -> dict:
-    """Provide a minimal app config for command tests."""
-    return {
-        "app": AppMetadata(
-            name="sdkcraft",
-            summary="Test app",
-            ProjectClass=Project,
-        ),
-        "services": mocker.MagicMock(),
-    }
 
 
 @pytest.fixture

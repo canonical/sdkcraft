@@ -24,7 +24,9 @@ from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
 import craft_store
+import pydantic
 import yaml
+from craft_application.errors import CraftValidationError
 from craft_cli import emit
 from craft_store import errors as store_errors
 from craft_store import models
@@ -45,8 +47,8 @@ from sdkcraft.models.store import SdkListReleasesModel
 from sdkcraft.store import constants
 
 _HOSTNAME: str = platform.node() or "UNKNOWN"
-_POLL_DELAY = 1  # seconds between status checks
-_POLL_TIMEOUT = 300  # 5 minutes max polling time
+_POLL_DELAY = 1.0  # seconds between status checks
+_POLL_TIMEOUT = 300.0  # 5 minutes max polling time
 
 
 def get_store_url() -> str:
@@ -147,10 +149,10 @@ class StoreClient(craft_store.StoreClient):
         status_url = self._base_url + response.status_url
 
         # Poll with timeout
-        start_time = time.time()
+        start_time = time.monotonic()
         while True:
             # Check timeout
-            if time.time() - start_time > _POLL_TIMEOUT:
+            if time.monotonic() - start_time > _POLL_TIMEOUT:
                 raise SdkcraftError(
                     f"Revision polling timed out after {_POLL_TIMEOUT} seconds. "
                     "The revision may still be processing."
@@ -366,6 +368,8 @@ class StoreClientCLI:
             raise SdkcraftError(
                 f"Failed to extract metadata from SDK file: {error.stderr}"
             ) from error
+        except pydantic.ValidationError as error:
+            raise CraftValidationError.from_pydantic(error) from error
         except (yaml.YAMLError, ValueError) as error:
             raise SdkcraftError(f"Failed to parse SDK metadata: {error}") from error
         except Exception as error:

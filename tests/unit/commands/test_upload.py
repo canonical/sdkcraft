@@ -17,44 +17,22 @@
 from __future__ import annotations
 
 from argparse import Namespace
-from pathlib import Path  # noqa: TC003 (used at runtime in fixture)
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
-from craft_application import AppMetadata
-from sdkcraft.commands.upload import UploadCommand
+from sdkcraft.commands.upload import StoreUploadCommand
 from sdkcraft.errors import SdkcraftError
-from sdkcraft.models import Project
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from pytest_mock import MockerFixture, MockType
 
 
 ############
 # Fixtures #
 ############
-
-
-@pytest.fixture
-def app_config(mocker: MockerFixture) -> dict:
-    """Provide a minimal app config for command tests."""
-    return {
-        "app": AppMetadata(
-            name="sdkcraft",
-            summary="Test app",
-            ProjectClass=Project,
-        ),
-        "services": mocker.MagicMock(),
-    }
-
-
-@pytest.fixture
-def fake_sdk_file(tmp_path: Path) -> Path:
-    """Create a fake SDK file."""
-    sdk_file = tmp_path / "test-toolkit_amd64_ubuntu@24.04.sdk"
-    sdk_file.write_text("name: test-toolkit\nbase: ubuntu@24.04\n")
-    return sdk_file
 
 
 @pytest.fixture
@@ -76,7 +54,7 @@ def fake_store_client(mocker: MockerFixture) -> MockType:
 def test_upload_file_not_found(
     app_config: dict, fake_store_client: MockType, tmp_path: Path
 ):
-    cmd = UploadCommand(app_config)
+    cmd = StoreUploadCommand(app_config)
     non_existent = tmp_path / "doesnotexist.sdk"
 
     with pytest.raises(SdkcraftError, match="SDK file not found"):
@@ -88,7 +66,7 @@ def test_upload_file_not_found(
 def test_upload_invalid_extension(
     app_config: dict, fake_store_client: MockType, tmp_path: Path
 ):
-    cmd = UploadCommand(app_config)
+    cmd = StoreUploadCommand(app_config)
     wrong_file = tmp_path / "test.txt"
     wrong_file.write_text("content")
 
@@ -103,7 +81,7 @@ def test_upload_success_without_release(
     fake_store_client: MockType,
     fake_sdk_file: Path,
 ):
-    cmd = UploadCommand(app_config)
+    cmd = StoreUploadCommand(app_config)
     cmd.run(Namespace(sdk_file=fake_sdk_file, release=None))
 
     fake_store_client.return_value.upload.assert_called_once_with(
@@ -116,7 +94,7 @@ def test_upload_success_with_release(
     fake_store_client: MockType,
     fake_sdk_file: Path,
 ):
-    cmd = UploadCommand(app_config)
+    cmd = StoreUploadCommand(app_config)
     cmd.run(Namespace(sdk_file=fake_sdk_file, release="edge,2/beta"))
 
     # Verify StoreClientCLI was instantiated
@@ -133,7 +111,7 @@ def test_upload_with_empty_release_channels(
     fake_store_client: MockType,
     fake_sdk_file: Path,
 ):
-    cmd = UploadCommand(app_config)
+    cmd = StoreUploadCommand(app_config)
     cmd.run(Namespace(sdk_file=fake_sdk_file, release="  ,  , "))
 
     # Empty channels should result in empty list
@@ -147,7 +125,7 @@ def test_upload_parses_multiple_channels_with_whitespace(
     fake_store_client: MockType,
     fake_sdk_file: Path,
 ):
-    cmd = UploadCommand(app_config)
+    cmd = StoreUploadCommand(app_config)
     cmd.run(Namespace(sdk_file=fake_sdk_file, release=" stable , edge,  4/beta"))
 
     # Verify channels are correctly parsed and trimmed

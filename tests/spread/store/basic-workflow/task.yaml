@@ -1,0 +1,31 @@
+summary: Test the store workflow to register, upload, and release an SDK
+
+environment:
+  SDKCRAFT_STORE_CREDENTIALS: "$(HOST: echo ${SDKCRAFT_STORE_CREDENTIALS_STAGING})"
+
+prepare: |
+  if [[ -z "$SDKCRAFT_STORE_CREDENTIALS" ]]; then
+    echo "No credentials set in env SDKCRAFT_STORE_CREDENTIALS"
+    exit 1
+  fi
+
+restore: |
+  run_sdkcraft clean || true
+  rm -f ./*.sdk
+
+execute: |
+  #shellcheck source=tests/spread/tools/retry.sh
+  . "$TOOLS_DIR/retry.sh"
+
+  run_sdkcraft whoami
+
+  # Test register and unregister with no uploads.
+  run_sdkcraft register test-sdk-register || true
+  # TODO: uncomment the line below once the unregister command is implemented.
+  # run_sdkcraft unregister test-sdk-register
+
+  # Test register, upload, and release.
+  run_sdkcraft pack
+  run_sdkcraft register test-sdk-name || true
+  sdk_file=$(ls ./*.sdk)
+  run_sdkcraft upload "${sdk_file}" --release edge

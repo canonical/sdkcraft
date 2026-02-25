@@ -5,6 +5,7 @@ environment:
   PROJECT_PATH: /sdkcraft
   PATH: /snap/bin:$PROJECT_PATH/tests/tools:$PATH
   CRAFT_DEBUG: 1 # Show exception tracebacks.
+  TOOLS_DIR: /sdkcraft/tests/tools
 
 include:
   - tests/
@@ -18,9 +19,6 @@ backends:
           workers: 2
       - ubuntu-24.04:
           workers: 2
-debug: |
-  journalctl -xe
-  journalctl -u snapd.service
 prepare: |
   set -e
 
@@ -69,3 +67,5 @@ prepare: |
 suites:
   tests/spread/:
     summary: tests for sdkcraft core functionality
+  tests/spread/store/:
+    summary: tests for SDK Store functionality

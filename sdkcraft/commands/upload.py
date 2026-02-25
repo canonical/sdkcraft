@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from argparse import ArgumentParser, Namespace
 
 
-class UploadCommand(AppCommand):
+class StoreUploadCommand(AppCommand):
     """Command to upload an SDK artifact to the store."""
 
     name = "upload"

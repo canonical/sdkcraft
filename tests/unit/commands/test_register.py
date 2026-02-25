@@ -17,34 +17,20 @@
 from __future__ import annotations
 
 from argparse import Namespace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
 
 import pytest
-from craft_application import AppMetadata
-from sdkcraft.commands.register import RegisterCommand
-from sdkcraft.models import Project
+from sdkcraft.commands.register import StoreRegisterCommand
 
 if TYPE_CHECKING:
+    from craft_cli.pytest_plugin import RecordingEmitter
     from pytest_mock import MockerFixture, MockType
 
 
 ############
 # Fixtures #
 ############
-
-
-@pytest.fixture
-def app_config(mocker: MockerFixture) -> dict:
-    """Provide a minimal app config for command tests."""
-    return {
-        "app": AppMetadata(
-            name="sdkcraft",
-            summary="Test app",
-            ProjectClass=Project,
-        ),
-        "services": mocker.MagicMock(),
-    }
 
 
 @pytest.fixture
@@ -58,44 +44,34 @@ def fake_store_client(mocker: MockerFixture) -> MockType:
     )
 
 
-@pytest.fixture
-def fake_emit(mocker: MockerFixture) -> MockType:
-    """Mock emit module."""
-    return mocker.patch("sdkcraft.commands.register.emit")
-
-
 ####################
 # Register Command #
 ####################
 
 
 def test_register_success(
-    app_config: dict,
+    app_config: dict[str, Any],
     fake_store_client: MockType,
-    fake_emit: MockType,
+    emitter: RecordingEmitter,
 ):
     """Test successful SDK registration."""
-    cmd = RegisterCommand(app_config)
+    cmd = StoreRegisterCommand(app_config)
     cmd.run(Namespace(sdk_name="my-awesome-sdk"))
 
     fake_store_client.return_value.register_name.assert_called_once_with(
         "my-awesome-sdk"
     )
-    fake_emit.message.assert_called_once_with(
-        "Successfully registered SDK name: my-awesome-sdk"
-    )
+    emitter.assert_message("Successfully registered SDK name: my-awesome-sdk")
 
 
 def test_register_with_special_characters(
     app_config: dict,
     fake_store_client: MockType,
-    fake_emit: MockType,
+    emitter: RecordingEmitter,
 ):
     """Test registration with SDK name containing special characters."""
-    cmd = RegisterCommand(app_config)
+    cmd = StoreRegisterCommand(app_config)
     cmd.run(Namespace(sdk_name="my-sdk-2024"))
 
     fake_store_client.return_value.register_name.assert_called_once_with("my-sdk-2024")
-    fake_emit.message.assert_called_once_with(
-        "Successfully registered SDK name: my-sdk-2024"
-    )
+    emitter.assert_message("Successfully registered SDK name: my-sdk-2024")

@@ -27,20 +27,13 @@ from sdkcraft.store.client import StoreClient, StoreClientCLI
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from craft_cli.pytest_plugin import RecordingEmitter
     from pytest_mock import MockerFixture, MockType
 
 
 ############
 # Fixtures #
 ############
-
-
-@pytest.fixture
-def fake_sdk_file(tmp_path: Path) -> Path:
-    """Create a fake SDK file."""
-    sdk_file = tmp_path / "test-toolkit_amd64_ubuntu@24.04.sdk"
-    sdk_file.write_text("name: test-toolkit\nbase: ubuntu@24.04\n")
-    return sdk_file
 
 
 @pytest.fixture
@@ -75,21 +68,12 @@ sdkcraft_started_at: '2026-01-01T00:00:00'
     )
 
 
-@pytest.fixture
-def fake_emit(mocker: MockerFixture) -> MockType:
-    """Mock emit module."""
-    return mocker.patch("sdkcraft.store.client.emit")
-
-
 ######################
 # StoreClient Tests  #
 ######################
 
 
-def test_ensure_registered_already_registered(
-    mocker: MockerFixture,
-):
-    """Test ensuring SDK is registered when already registered."""
+def test_ensure_registered_already_registered(mocker: MockerFixture):
     # Create a mock registered name matching the test SDK
     registered_name = MagicMock()
     registered_name.name = "test-toolkit"
@@ -110,10 +94,7 @@ def test_ensure_registered_already_registered(
     mock_register.assert_not_called()
 
 
-def test_ensure_registered_new_sdk(
-    mocker: MockerFixture,
-):
-    """Test ensuring SDK is registered when not registered."""
+def test_ensure_registered_new_sdk(mocker: MockerFixture):
     # Mock list_registered_names to return empty (SDK not registered)
     mock_list = mocker.patch.object(
         StoreClient, "list_registered_names", return_value=[]
@@ -128,10 +109,7 @@ def test_ensure_registered_new_sdk(
     mock_register.assert_called_once_with("new-sdk")
 
 
-def test_notify_and_poll_revision_success(
-    mocker: MockerFixture,
-):
-    """Test successful revision notification and polling."""
+def test_notify_and_poll_revision_success(mocker: MockerFixture):
     # Mock notify_revision response
     notify_response = MagicMock()
     notify_response.status_url = (
@@ -166,10 +144,7 @@ def test_notify_and_poll_revision_success(
     )
 
 
-def test_notify_and_poll_revision_rejected(
-    mocker: MockerFixture,
-):
-    """Test handling of rejected revision."""
+def test_notify_and_poll_revision_rejected(mocker: MockerFixture):
     notify_response = MagicMock()
     notify_response.status_url = (
         "/v1/sdk/test-sdk/revisions/review?upload-id=test-upload-id-123"
@@ -200,10 +175,7 @@ def test_notify_and_poll_revision_rejected(
         client.notify_and_poll_revision("test-sdk", "test-upload-id-123")
 
 
-def test_notify_and_poll_revision_timeout(
-    mocker: MockerFixture,
-):
-    """Test polling timeout."""
+def test_notify_and_poll_revision_timeout(mocker: MockerFixture):
     # Mock notify_revision response
     notify_response = MagicMock()
     notify_response.status_url = (
@@ -227,7 +199,7 @@ def test_notify_and_poll_revision_timeout(
 
     # Mock time to immediately trigger timeout
     fake_time = mocker.patch("sdkcraft.store.client.time")
-    fake_time.time.side_effect = [0, 301]  # Start at 0, then exceed timeout
+    fake_time.monotonic.side_effect = [0, 301]  # Start at 0, then exceed timeout
 
     client = StoreClient()
 
@@ -243,10 +215,9 @@ def test_notify_and_poll_revision_timeout(
 def test_cli_upload_success_without_release(
     fake_store_client: MockType,
     fake_subprocess: MockType,
-    fake_emit: MockType,
+    emitter: RecordingEmitter,
     fake_sdk_file: Path,
 ):
-    """Test CLI upload without release."""
     client = StoreClientCLI()
     revision = client.upload(sdk_file=fake_sdk_file, release_channels=None)
 
@@ -272,16 +243,15 @@ def test_cli_upload_success_without_release(
     )
     fake_store_client.return_value.release.assert_not_called()
 
-    fake_emit.message.assert_called_with("Successfully uploaded revision 42")
+    emitter.assert_message("Successfully uploaded revision 42")
 
 
 def test_cli_upload_success_with_release(
     fake_store_client: MockType,
     fake_subprocess: MockType,
-    fake_emit: MockType,
+    emitter: RecordingEmitter,
     fake_sdk_file: Path,
 ):
-    """Test CLI upload with release to channels."""
     client = StoreClientCLI()
     revision = client.upload(sdk_file=fake_sdk_file, release_channels=["edge", "beta"])
 
@@ -313,6 +283,6 @@ def test_cli_upload_success_with_release(
         ],
     )
 
-    fake_emit.message.assert_called_with(
+    emitter.assert_message(
         "Successfully uploaded and released revision 42 to edge, beta"
     )
