@@ -17,15 +17,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, cast, override
 
 from craft_application import AppMetadata, ServiceFactory, services
 from craft_application.errors import ProjectFileMissingError
 
-from sdkcraft.models import MarkedLoader, MarkedProject
+from sdkcraft.models import MarkedLoader, MarkedProject, Project
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from craft_platforms import BuildInfo
 
 
 class ProjectService(services.ProjectService):
@@ -67,6 +69,15 @@ class ProjectService(services.ProjectService):
                 pass
 
             raise
+
+    def get_with_base(self, build_info: BuildInfo) -> Project:
+        """Get the project data specialized for the given platform."""
+        project = cast(Project, self.get())
+        # Multi-base projects specify the base (not build-base) for each platform.
+        if not project.base and not project.build_base:
+            project = project.model_copy(update={"base": str(build_info.build_base)})
+
+        return project
 
     def get_marked(self) -> MarkedProject:
         """Get the project data structure with associated line numbers."""

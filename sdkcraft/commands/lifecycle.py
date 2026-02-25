@@ -16,26 +16,20 @@
 
 from __future__ import annotations
 
-import errno
 import os
-import shutil
-import subprocess
 import textwrap
-from contextlib import ExitStack, suppress
-from hashlib import file_digest, sha3_384
 from pathlib import Path
-from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any, cast, override
 
 from craft_application.commands import lifecycle
 from craft_application.errors import CraftValidationError
 from craft_application.util import is_managed_mode
-from craft_cli import CraftError, emit
+from craft_cli import CraftError
 from pydantic import TypeAdapter, ValidationError
 
-from sdkcraft.env import user_data_path
 from sdkcraft.errors import SdkcraftFilenameError
 from sdkcraft.models.constraints import ProjectName
+from sdkcraft.services import TryService
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser, Namespace
@@ -140,52 +134,8 @@ class TryCommand(PackCommand):
         if not artifacts:
             return
 
-        try_area = user_data_path() / "workshop" / "try"
-        try_area.mkdir(parents=True, exist_ok=True)
-
-        with ExitStack() as stack:
-            target = Path(stack.enter_context(TemporaryDirectory(dir=try_area)))
-
-            for artifact in artifacts.values():
-                emit.progress(f"Copying {artifact.name}...")
-                artifact_path = target / artifact.name
-                shutil.copy2(artifact, artifact_path)
-
-                with artifact_path.open("rb") as f:
-                    sha3_digest = file_digest(f, sha3_384).hexdigest()
-                sha3_path = artifact_path.with_name(artifact.name + ".sha3-384")
-                sha3_path.write_text(sha3_digest + "\n")
-
-                meta_path = artifact_path.with_name(artifact.name + ".yaml")
-                with meta_path.open("w") as meta:
-                    subprocess.run(
-                        [
-                            "tar",
-                            "--extract",
-                            "--to-stdout",
-                            "--force-local",
-                            f"--file={artifact_path}",
-                            "meta/sdk.yaml",
-                        ],
-                        check=True,
-                        stdout=meta,
-                        stderr=subprocess.PIPE,
-                        text=True,
-                    )
-
-            _rename(target, try_area / name)
-            stack.pop_all()
-
-        platforms = ", ".join(artifacts.keys())
-        try_name = f"try-{name}"
-        command = "workshop refresh"
-
-        emit.progress(
-            f"Copied {name} SDK ({platforms}) to the try area.", permanent=True
-        )
-        emit.message(
-            f"To use it, add {try_name!r} to the SDK list in a workshop and run {command!r}."
-        )
+        try_service = cast(TryService, self._services.get("try"))
+        try_service.copy(name, artifacts)
 
 
 def _sdks_by_name(sdks: Iterable[Path]) -> dict[str, dict[str, Path]]:
@@ -223,21 +173,6 @@ def _artifact(package: PackageService, build_info: BuildInfo) -> Path:
     return pack_state.artifact
 
 
-def _rename(source: Path, target: Path) -> None:
-    try:
-        source.rename(target)
-    except OSError as e:
-        if e.errno != errno.ENOTEMPTY:
-            raise
-    else:
-        return
-
-    # Poor approximation of `atomicswap.swap`.
-    with TemporaryDirectory(dir=target.parent) as cleanup:
-        target.replace(cleanup)
-        source.rename(target)
-
-
 class CleanCommand(lifecycle.CleanCommand):
     """Command to remove part assets."""
 
@@ -259,13 +194,5 @@ class CleanCommand(lifecycle.CleanCommand):
         super()._run(parsed_args, **kwargs)
 
         if not parsed_args.parts:
-            _remove_try_sdk(self._project.name)
-
-
-def _remove_try_sdk(name: str) -> None:
-    try_area = user_data_path() / "workshop" / "try"
-    with (
-        suppress(FileNotFoundError),
-        TemporaryDirectory(dir=try_area) as cleanup,
-    ):
-        (try_area / name).replace(cleanup)
+            try_service = cast(TryService, self._services.get("try"))
+            try_service.remove(self._project.name)

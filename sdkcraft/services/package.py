@@ -33,7 +33,6 @@ from sdkcraft.services.project import ProjectService
 
 if TYPE_CHECKING:
     from craft_application import AppMetadata
-    from craft_application.models import Project
 
 
 class PackageService(services.PackageService):
@@ -67,7 +66,9 @@ class PackageService(services.PackageService):
             summary = format_summary(issues, LinterStatus.ERRORS)
             raise LinterError(status, resolution=f"Fix {summary}.")
 
-        project, arch = self._project_and_arch()
+        build_info = self._build_info
+        project = project_service.get_with_base(build_info)
+        arch = str(build_info.build_for)
 
         components = [project.name, arch]
         if project.base:
@@ -103,7 +104,12 @@ class PackageService(services.PackageService):
     @override
     def metadata(self) -> models.Metadata:
         """Generate the sdk.yaml model for the output file."""
-        project, arch = self._project_and_arch()
+        project_service = cast(ProjectService, self._services.get("project"))
+
+        build_info = self._build_info
+        project = project_service.get_with_base(build_info)
+        arch = str(build_info.build_for)
+
         return models.Metadata(
             **project.model_dump(
                 include={
@@ -126,15 +132,6 @@ class PackageService(services.PackageService):
             architecture=arch,
             sdkcraft_started_at=datetime_as_utc_str(self._started_at),
         )
-
-    def _project_and_arch(self) -> tuple[Project, str]:
-        # Multi-base projects specify the base (not build-base) for each platform.
-        project = self._project
-        build_info = self._build_info
-        if not project.base and not project.build_base:
-            project = project.model_copy(update={"base": str(build_info.build_base)})
-
-        return project, str(build_info.build_for)
 
     @override
     def write_metadata(self, path: pathlib.Path) -> None:
