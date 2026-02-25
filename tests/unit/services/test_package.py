@@ -28,20 +28,19 @@ DEFAULT_METADATA = {
 }
 
 
+@pytest.mark.usefixtures("configure_project")
 def test_default_metadata(
-    fake_arch: DebianArchitecture,
-    package_service_with_configured_project: PackageService,
+    fake_arch: DebianArchitecture, package_service: PackageService
 ):
     default_metadata = DEFAULT_METADATA | {"architecture": str(fake_arch)}
-    assert (
-        package_service_with_configured_project.metadata.marshal() == default_metadata
-    )
+    assert package_service.metadata.marshal() == default_metadata
 
 
+@pytest.mark.usefixtures("configure_project", "fake_arch")
 @pytest.mark.parametrize(
     ("fake_arch_str", "project_data"),
     [
-        pytest.param(
+        (
             "s390x",
             {
                 "name": "build-base-metadata",
@@ -50,21 +49,14 @@ def test_default_metadata(
                 "description": "default project",
                 "build-base": "ubuntu@20.04",
                 "platforms": {
-                    "all": {
-                        "build-on": ["amd64", "s390x"],
-                        "build-for": "all",
-                    },
+                    "all": {"build-on": ["amd64", "s390x"], "build-for": "all"}
                 },
             },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        )
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
-def test_build_base_metadata(
-    fake_arch: DebianArchitecture,
-    package_service_with_configured_project: PackageService,
-):
-    _ = fake_arch
+def test_build_base_metadata(package_service: PackageService):
     metadata = {
         "name": "build-base-metadata",
         "version": "1.0",
@@ -73,13 +65,14 @@ def test_build_base_metadata(
         "architecture": "all",
         "sdkcraft-started-at": "1970-01-01T00:00:00Z",
     }
-    assert package_service_with_configured_project.metadata.marshal() == metadata
+    assert package_service.metadata.marshal() == metadata
 
 
+@pytest.mark.usefixtures("configure_project")
 @pytest.mark.parametrize(
     ("fake_arch_str", "project_data"),
     [
-        pytest.param(
+        (
             "s390x",
             {
                 "name": "multi-base-metadata",
@@ -93,13 +86,13 @@ def test_build_base_metadata(
                     "ubuntu@24.04:s390x": None,
                 },
             },
-            id=pytest.HIDDEN_PARAM,
-        ),
+        )
     ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
 )
 def test_multi_base_metadata(
     fake_arch: DebianArchitecture,
-    package_service_with_configured_project: PackageService,
+    package_service: PackageService,
 ):
     metadata = {
         "name": "multi-base-metadata",
@@ -110,13 +103,14 @@ def test_multi_base_metadata(
         "architecture": str(fake_arch),
         "sdkcraft-started-at": "1970-01-01T00:00:00Z",
     }
-    assert package_service_with_configured_project.metadata.marshal() == metadata
+    assert package_service.metadata.marshal() == metadata
 
 
+@pytest.mark.usefixtures("configure_project")
 def test_write_metadata(
     new_path: Path,
     fake_arch: DebianArchitecture,
-    package_service_with_configured_project: PackageService,
+    package_service: PackageService,
     tmp_path_factory: pytest.TempPathFactory,
 ):
     prime_dir = tmp_path_factory.mktemp("prime")
@@ -131,7 +125,7 @@ def test_write_metadata(
     (new_path / "hooks" / "link").symlink_to("/x/y/z")
     (new_path / "hooks" / "setup-base").write_text(". utils.sh\nmessage\n")
 
-    package_service_with_configured_project.write_metadata(prime_dir)
+    package_service.write_metadata(prime_dir)
 
     def contents(path: Path) -> Path | set[str] | str:
         if path.is_symlink():

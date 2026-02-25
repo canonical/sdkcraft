@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import logging
 
+import craft_parts.callbacks
 from craft_application.services import ServiceFactory
 
 from sdkcraft.application import APP_METADATA, Sdkcraft
@@ -51,6 +52,9 @@ def main() -> int:
     for lib_name in ("craft_providers", "craft_parts"):
         logger = logging.getLogger(lib_name)
         logger.setLevel(logging.DEBUG)
+
+    # Clear callbacks registered by some services. Mostly useful for tests.
+    craft_parts.callbacks.unregister_all()
 
     app = _create_app()
     return app.run()
