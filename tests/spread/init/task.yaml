@@ -11,8 +11,10 @@ execute: |
   cd my-sdk-name
 
   run_sdkcraft init
-  test -f sdkcraft.yaml
+
+  diff -u ../sources <(find . -type f -printf '%P\n' | sort)
 
   run_sdkcraft pack
-  test -f "my-sdk-name_${arch}_ubuntu@22.04.sdk"
+
+  diff -u ../packed <(tar -tf "my-sdk-name_${arch}_ubuntu@22.04.sdk" | sort)
   test ! -d parts -a ! -d stage -a ! -d prime
