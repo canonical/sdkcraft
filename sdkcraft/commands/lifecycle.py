@@ -42,6 +42,8 @@ if TYPE_CHECKING:
 class PackCommand(lifecycle.PackCommand):
     """Command to pack the final artifact."""
 
+    _show_lxd_arg = False
+
     @override
     def _is_already_packed(self) -> bool:
         if not super()._is_already_packed():
@@ -175,6 +177,8 @@ def _artifact(package: PackageService, build_info: BuildInfo) -> Path:
 
 class CleanCommand(lifecycle.CleanCommand):
     """Command to remove part assets."""
+
+    _show_lxd_arg = False
 
     @override
     def _run(
