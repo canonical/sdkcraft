@@ -17,4 +17,5 @@ execute: |
   run_sdkcraft pack
 
   diff -u ../packed <(tar -tf "my-sdk-name_${arch}_ubuntu@22.04.sdk" | sort)
+  diff -u ../packed <(tar -tf "my-sdk-name_${arch}_ubuntu@24.04.sdk" | sort)
   test ! -d parts -a ! -d stage -a ! -d prime
