@@ -20,6 +20,7 @@ from __future__ import annotations
 from craft_application import ServiceFactory
 
 from .buildplan import BuildPlanService
+from .init import InitService
 from .package import PackageService
 from .project import ProjectService
 from .provider import ProviderService
@@ -30,6 +31,7 @@ from .tryservice import TryService
 def register_sdkcraft_services() -> None:
     """Register SDKcraft-specific services."""
     ServiceFactory.register("build_plan", BuildPlanService)
+    ServiceFactory.register("init", InitService)
     ServiceFactory.register("package", PackageService)
     ServiceFactory.register("project", ProjectService)
     ServiceFactory.register("provider", ProviderService)
@@ -39,6 +41,7 @@ def register_sdkcraft_services() -> None:
 
 __all__ = [
     "BuildPlanService",
+    "InitService",
     "PackageService",
     "ProjectService",
     "ProviderService",
