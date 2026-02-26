@@ -57,10 +57,9 @@ jobs:
         with:
           name: snap
           path: tests
-      - name: Override LXD channel
-        run: |
-          cat <<EOF >>tests/spread/.env
-          LXD_CHANNEL='6/candidate'
-          EOF
       - name: Run spread
-        run: spread ${{matrix.os}}:tests/spread/
+        run: |
+          export LXD_CHANNEL='6/candidate'
+          spread "${MATRIX_OS}:tests/spread/"
+        env:
+          MATRIX_OS: ${{ matrix.os }}
