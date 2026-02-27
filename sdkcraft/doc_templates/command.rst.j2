@@ -1,0 +1,53 @@
+.. _ref_sdkcraft_{{ ref }}:
+
+
+.. meta::
+   :description: Reference documentation for the 'sdkcraft {{ command_name }}' command
+
+sdkcraft {{ command_name }}
+{{ '-' | repeat(heading_len + 9) }}
+
+.. @artefact sdkcraft {{ command_name }}
+
+{{ short }}
+
+.. rubric:: Usage
+
+.. code-block:: console
+
+   $ {{ synopsis }}
+
+.. rubric:: Description
+
+
+{{ long }}
+
+{% if flags %}
+
+.. rubric:: Flags
+
+{% for flag in flags %}
+
+{{ flag.name }}
+
+   {{ flag.usage | indent(3) }}
+{% if flag.default_value %}
+   Default: ``{{ flag.default_value }}``
+{% endif %}
+
+{% endfor %}
+{% endif %}
+{% if examples %}
+
+.. rubric:: Examples
+
+{% for example in examples %}
+
+{{ example.info }}:
+
+.. code-block:: console
+
+   $ {{ example.usage }}
+
+{% endfor %}
+{% endif %}

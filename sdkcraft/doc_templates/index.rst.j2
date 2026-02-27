@@ -1,0 +1,35 @@
+.. _ref_sdkcraft__cli:
+
+.. meta::
+   :description: Overview of the "sdkcraft" CLI utility, listing available
+                 commands and global options for managing SDKcraft projects.
+
+sdkcraft (CLI)
+==============
+
+.. @artefact sdkcraft (CLI)
+
+The :program:`sdkcraft` utility exposes the following commands,
+each with its own set of options,
+and also has a number of global flags:
+
+-h, --help
+
+   Print the help message for the command.
+
+
+{% for group_name, group_files in files | groupby('group_name') %}
+{% for file in group_files %}
+
+.. include:: {{ file.filename }}
+
+{% endfor %}
+{% endfor %}
+
+
+See also
+--------
+
+Explanation:
+
+- :ref:`exp_sdkcraft_cli`

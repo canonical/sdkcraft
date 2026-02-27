@@ -42,6 +42,13 @@ if TYPE_CHECKING:
 class PackCommand(lifecycle.PackCommand):
     """Command to pack the final artifact."""
 
+    hidden = False
+    examples: list[tuple[str, str]] = [
+        ("Pack the project", "sdkcraft pack"),
+        ("Pack to a specific output directory", "sdkcraft pack --output dist/"),
+    ]
+    related_commands: list[str] | None = None
+
     _show_lxd_arg = False
 
     @override
@@ -91,6 +98,11 @@ class TryCommand(PackCommand):
         Pack the SDK and copy it to the Workshop try area.
         """
     )
+    hidden = False
+    examples: list[tuple[str, str]] = [
+        ("Try the built artifact", "sdkcraft try"),
+    ]
+    related_commands: list[str] | None = None
 
     @override
     def _fill_parser(self, parser: ArgumentParser) -> None:
@@ -177,6 +189,14 @@ def _artifact(package: PackageService, build_info: BuildInfo) -> Path:
 
 class CleanCommand(lifecycle.CleanCommand):
     """Command to remove part assets."""
+
+    hidden = False
+    examples: list[tuple[str, str]] = [
+        ("Clean build artifacts", "sdkcraft clean"),
+        ("Clean specific parts", "sdkcraft clean my-part"),
+        ("Clean in destructive mode", "sdkcraft clean --destructive-mode"),
+    ]
+    related_commands: list[str] | None = None
 
     _show_lxd_arg = False
 
