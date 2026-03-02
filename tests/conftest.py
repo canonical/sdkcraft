@@ -56,6 +56,15 @@ def fake_arch(
 
 
 @pytest.fixture
+def fake_sdk_file(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Create a fake SDK file."""
+    tmp_dir = tmp_path_factory.mktemp("sdk_files")
+    sdk_file = tmp_dir / "test-toolkit_amd64_ubuntu@24.04.sdk"
+    sdk_file.write_text("name: test-toolkit\nbase: ubuntu@24.04\n")
+    return sdk_file
+
+
+@pytest.fixture
 def project_data(fake_arch: DebianArchitecture) -> dict[str, Any]:
     return {
         "name": "default",

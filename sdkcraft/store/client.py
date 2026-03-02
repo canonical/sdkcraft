@@ -18,16 +18,37 @@ from __future__ import annotations
 
 import os
 import platform
+import subprocess
+import time
 from datetime import timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import craft_store
+import pydantic
+import yaml
+from craft_application.errors import CraftValidationError
+from craft_cli import emit
+from craft_store import errors as store_errors
+from craft_store import models
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
+    from requests_toolbelt import (  # type: ignore[import-untyped]
+        MultipartEncoder,
+        MultipartEncoderMonitor,
+    )
 
 from sdkcraft._version import __version__
+from sdkcraft.errors import SdkcraftError
+from sdkcraft.models.metadata import Metadata
 from sdkcraft.models.store import SdkListReleasesModel
 from sdkcraft.store import constants
 
 _HOSTNAME: str = platform.node() or "UNKNOWN"
+_POLL_DELAY = 1.0  # seconds between status checks
+_POLL_TIMEOUT = 300.0  # 5 minutes max polling time
 
 
 def get_store_url() -> str:
@@ -45,50 +66,142 @@ def build_user_agent() -> str:
     return f"sdkcraft/{__version__}"
 
 
-def get_client(*, ephemeral: bool = False) -> craft_store.BaseClient:
-    """Store Client factory."""
-    store_url = get_store_url()
-    store_upload_url = get_store_upload_url()
-    user_agent = build_user_agent()
+class StoreClient(craft_store.StoreClient):
+    """SDK Store Client with SDK-specific API methods.
 
-    endpoints = craft_store.endpoints.Endpoints(
-        namespace="sdk",
-        whoami="/v1/tokens/whoami",
-        tokens="/v1/tokens",
-        tokens_exchange="/v1/tokens/exchange",
-        valid_package_types=["sdk"],
-        list_releases_model=SdkListReleasesModel,
-    )
-
-    # Use StoreClient for Candid authentication with Charmhub
-    client: craft_store.BaseClient = craft_store.StoreClient(
-        base_url=store_url,
-        storage_base_url=store_upload_url,
-        application_name="sdkcraft",
-        user_agent=user_agent,
-        endpoints=endpoints,
-        environment_auth=constants.ENVIRONMENT_STORE_CREDENTIALS,
-        ephemeral=ephemeral,
-        file_fallback=True,  # Enable file-based keyring for containers
-    )
-
-    return client
-
-
-class StoreClientCLI:
-    """A StoreClient wrapper with CLI-specific interaction methods.
-
-    This class wraps a StoreClient and delegates all StoreClient methods to it,
-    while providing additional CLI-specific functionality like enhanced login.
+    This class wraps craft_store.BaseClient and provides SDK-specific
+    API interaction methods without CLI dependencies.
     """
 
     def __init__(self, *, ephemeral: bool = False) -> None:
-        self.store_client = get_client(ephemeral=ephemeral)
-        self._base_url = get_store_url()
+        """Initialize the StoreClient."""
+        store_url = get_store_url()
+        store_upload_url = get_store_upload_url()
+        user_agent = build_user_agent()
 
-    def __getattr__(self, name: str) -> Any:  # noqa: ANN401
-        """Delegate all undefined attributes/methods to the wrapped store_client."""
-        return getattr(self.store_client, name)
+        self._base_url = store_url
+
+        endpoints = craft_store.endpoints.Endpoints(
+            namespace="sdk",
+            whoami="/v1/tokens/whoami",
+            tokens="/v1/tokens",
+            tokens_exchange="/v1/tokens/exchange",
+            valid_package_types=["sdk"],
+            list_releases_model=SdkListReleasesModel,
+        )
+
+        super().__init__(
+            base_url=store_url,
+            storage_base_url=store_upload_url,
+            application_name="sdkcraft",
+            user_agent=user_agent,
+            endpoints=endpoints,
+            environment_auth=constants.ENVIRONMENT_STORE_CREDENTIALS,
+            ephemeral=ephemeral,
+            file_fallback=True,  # Enable file-based keyring for containers
+        )
+
+    def ensure_registered(self, sdk_name: str) -> None:
+        """Ensure the SDK is registered in the store.
+
+        Args:
+            sdk_name: Name of the SDK to register
+
+        Raises:
+            SdkcraftError: If registration check or registration fails
+
+        """
+        try:
+            registered_names = self.list_registered_names()
+            is_registered = any(name.name == sdk_name for name in registered_names)
+
+            if not is_registered:
+                self.register_name(sdk_name)
+
+        except store_errors.StoreServerError as error:
+            raise SdkcraftError(f"Failed to check/register SDK: {error}") from error
+
+    def notify_and_poll_revision(self, sdk_name: str, upload_id: str) -> int:
+        """Notify the store of the revision and poll until approved.
+
+        Args:
+            sdk_name: Name of the SDK
+            upload_id: Upload ID from upload_file_with_progress
+
+        Returns:
+            The revision number
+
+        Raises:
+            SdkcraftError: If notification fails or polling times out or revision is rejected
+
+        """
+        try:
+            # Create revision request
+            revision_request = models.RevisionsRequestModel(upload_id=upload_id)
+            response = self.notify_revision(
+                name=sdk_name, revision_request=revision_request
+            )
+
+        except store_errors.StoreServerError as error:
+            raise SdkcraftError(f"Failed to notify revision: {error}") from error
+
+        # Construct full status URL
+        status_url = self._base_url + response.status_url
+
+        # Poll with timeout
+        start_time = time.monotonic()
+        while True:
+            # Check timeout
+            if time.monotonic() - start_time > _POLL_TIMEOUT:
+                raise SdkcraftError(
+                    f"Revision polling timed out after {_POLL_TIMEOUT} seconds. "
+                    "The revision may still be processing."
+                )
+
+            try:
+                poll_response = self.request("GET", status_url)  # pyright: ignore[reportUnknownMemberType]
+                response_data = poll_response.json()
+
+                (revision,) = response_data["revisions"]
+                status = revision["status"]
+
+                if status == "approved":
+                    return int(revision["revision"])
+                if status == "rejected":
+                    revision_error = revision["errors"][0]
+                    raise SdkcraftError(
+                        f"Revision rejected: {revision_error['code']}",
+                        details=revision_error["message"],
+                    )
+
+            except store_errors.StoreServerError as error:
+                raise SdkcraftError(
+                    f"Failed to check revision status: {error}"
+                ) from error
+
+            time.sleep(_POLL_DELAY)
+
+
+def get_client(*, ephemeral: bool = False) -> StoreClient:
+    """Store Client factory.
+
+    Returns:
+        StoreClient instance with SDK-specific API methods
+
+    """
+    return StoreClient(ephemeral=ephemeral)
+
+
+class StoreClientCLI:
+    """CLI-specific store client wrapper.
+
+    This class wraps StoreClient and provides CLI-specific functionality
+    like SDK metadata extraction and progress reporting.
+    """
+
+    def __init__(self, *, ephemeral: bool = False) -> None:
+        """Initialize the CLI store client."""
+        self.store_client = get_client(ephemeral=ephemeral)
 
     def login(
         self,
@@ -126,7 +239,6 @@ class StoreClientCLI:
 
         description = f"sdkcraft@{_HOSTNAME}"
 
-        # StoreClient uses Candid authentication with browser-based flow
         return self.store_client.login(  # pyright: ignore[reportUnknownMemberType]
             ttl=ttl,
             permissions=acls,
@@ -135,3 +247,130 @@ class StoreClientCLI:
             description=description,
             **kwargs,
         )
+
+    def upload(
+        self,
+        *,
+        sdk_file: Path,
+        release_channels: list[str] | None = None,
+    ) -> int:
+        """Upload an SDK file to the store and optionally release to channels.
+
+        This is a CLI-specific orchestration method that:
+        1. Extracts SDK name from the tarball
+        2. Ensures SDK is registered
+        3. Uploads with progress reporting
+        4. Polls for revision approval
+        5. Optionally releases to channels
+
+        Args:
+            sdk_file: Path to the .sdk file to upload
+            release_channels: Optional list of channels to release to after upload
+
+        Returns:
+            The revision number of the uploaded SDK
+
+        Raises:
+            SdkcraftError: If upload fails at any stage
+
+        """
+        # Extract SDK name from meta/sdk.yaml inside the tarball
+        sdk_name = self._extract_sdk_name(sdk_file)
+        emit.progress(f"Uploading SDK: {sdk_name}")
+
+        def create_progress_callback(
+            encoder: MultipartEncoder,
+        ) -> Callable[[MultipartEncoderMonitor], None]:
+            """Create a progress callback for the upload."""
+            progresser = emit.progress_bar(
+                "Uploading",
+                total=encoder.len,  # pyright: ignore[reportUnknownMemberType]
+                delta=False,
+            )
+
+            def progress_callback(monitor: MultipartEncoderMonitor) -> None:
+                """Report upload progress with absolute bytes read."""
+                progresser.advance(monitor.bytes_read)  # pyright: ignore[reportUnknownMemberType]
+
+            return progress_callback
+
+        upload_id = self.store_client.upload_file(  # pyright: ignore[reportUnknownMemberType]
+            filepath=sdk_file, monitor_callback=create_progress_callback
+        )
+        emit.progress(f"Upload complete. Upload ID: {upload_id}")
+
+        emit.progress("Notifying store of new revision...")
+        revision_number = self.store_client.notify_and_poll_revision(
+            sdk_name, upload_id
+        )
+        emit.progress(f"Revision {revision_number} approved")
+
+        if release_channels:
+            emit.progress(
+                f"Releasing revision {revision_number} to channels: {', '.join(release_channels)}"
+            )
+            release_requests = [
+                models.ReleaseRequestModel(channel=channel, revision=revision_number)
+                for channel in release_channels
+            ]
+            self.store_client.release(name=sdk_name, release_request=release_requests)
+            emit.progress(f"Successfully released to: {', '.join(release_channels)}")
+            emit.message(
+                f"Successfully uploaded and released revision {revision_number} to {', '.join(release_channels)}"
+            )
+        else:
+            emit.message(f"Successfully uploaded revision {revision_number}")
+
+        return revision_number
+
+    def _extract_sdk_name(self, sdk_file: Path) -> str:
+        """Extract SDK name from meta/sdk.yaml inside the .sdk tarball.
+
+        This is a CLI-specific method that uses subprocess to extract
+        and parse the SDK metadata file.
+
+        Args:
+            sdk_file: Path to the .sdk tarball
+
+        Returns:
+            The SDK name from the metadata
+
+        Raises:
+            SdkcraftError: If extraction or parsing fails
+
+        """
+        emit.progress("Extracting SDK metadata...")
+
+        try:
+            result = subprocess.run(
+                [
+                    "tar",
+                    "--extract",
+                    "--to-stdout",
+                    "--force-local",
+                    f"--file={sdk_file}",
+                    "meta/sdk.yaml",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            # Parse the YAML content using Metadata model
+            yaml_data = yaml.safe_load(result.stdout)
+            sdk_metadata = Metadata.model_validate(yaml_data)
+            sdk_name = sdk_metadata.name
+
+            emit.progress(f"Detected SDK name: {sdk_name}")
+            return str(sdk_name)
+
+        except subprocess.CalledProcessError as error:
+            raise SdkcraftError(
+                f"Failed to extract metadata from SDK file: {error.stderr}"
+            ) from error
+        except pydantic.ValidationError as error:
+            raise CraftValidationError.from_pydantic(error) from error
+        except (yaml.YAMLError, ValueError) as error:
+            raise SdkcraftError(f"Failed to parse SDK metadata: {error}") from error
+        except Exception as error:
+            raise SdkcraftError(f"Failed to read SDK metadata: {error}") from error

@@ -14,11 +14,12 @@
 
 """SDKcraft Store."""
 
-from .client import StoreClientCLI, get_client
+from .client import StoreClient, StoreClientCLI, get_client
 from .constants import ENVIRONMENT_STORE_CREDENTIALS
 
 __all__ = [
     "ENVIRONMENT_STORE_CREDENTIALS",
+    "StoreClient",
     "StoreClientCLI",
     "get_client",
 ]

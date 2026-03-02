@@ -68,6 +68,8 @@ jobs:
           name: snap
           path: tests
       - name: Run spread
+        env:
+          SDKCRAFT_STORE_CREDENTIALS_STAGING: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS_STAGING }}
         run: spread ${{matrix.os}}:tests/spread/
   publish:
     needs: [build-snap, snap-tests]
