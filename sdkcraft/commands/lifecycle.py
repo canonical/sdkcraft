@@ -25,11 +25,12 @@ from craft_application.commands import lifecycle
 from craft_application.errors import CraftValidationError
 from craft_application.util import is_managed_mode
 from craft_cli import CraftError
+from craft_platforms import DebianArchitecture
 from pydantic import TypeAdapter, ValidationError
 
 from sdkcraft.errors import SdkcraftFilenameError
 from sdkcraft.models.constraints import ProjectName
-from sdkcraft.services import TryService
+from sdkcraft.services import ProjectService, TestingService, TryService
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser, Namespace
@@ -86,6 +87,111 @@ def _walk_mtimes(path: Path) -> Iterator[int]:
             elif entry.is_dir():
                 yield time
                 yield from _walk_mtimes(path / entry.name)
+
+
+class TestCommand(PackCommand):
+    """Run SDK tests using spread."""
+
+    name = "test"
+    help_msg = "Run SDK tests"
+    overview = textwrap.dedent(
+        """
+        Tests are defined and run using spread (https://github.com/canonical/spread).
+
+        Compared to running spread manually, `sdkcraft test` also:
+        - Packs SDKs for all platforms matching the current architecture.
+        - Copies the packed SDKs into the test environment using `sdkcraft try`.
+        - Installs Workshop in the test environment.
+        - Skips spread variants for bases that weren't packed.
+        """
+    )
+    common = True
+    _allow_build_for = False
+
+    @override
+    def _fill_parser(self, parser: ArgumentParser) -> None:
+        # Skip the parser additions that `pack` adds.
+        super(lifecycle.PackCommand, self)._fill_parser(parser)
+
+        parser.add_argument(
+            "--list",
+            action="store_true",
+            help="Just show list of jobs that would run.",
+        )
+
+        parser.add_argument(
+            "test_expressions",
+            nargs="*",
+            type=str,
+            default=(),
+            help="Optional spread test expressions. If not provided, all tests are run.",
+        )
+
+    @override
+    def _run(
+        self,
+        parsed_args: Namespace,
+        step_name: str | None = None,
+        **kwargs: Any,
+    ) -> None:
+        dirs = self._services.get("lifecycle").project_info.dirs
+        parsed_args.output = dirs.project_dir
+
+        testing_service = cast(TestingService, self._services.get("testing"))
+        testing_service.sanity_check(dirs.project_dir)
+
+        # Don't enter a shell during the packing step, but save those values
+        # for the testing service.
+        shell, shell_after = parsed_args.shell, parsed_args.shell_after
+        parsed_args.shell, parsed_args.shell_after = (False, False)
+
+        build_planner = self.services.get("build_plan")
+        if not is_managed_mode():
+            build_for = DebianArchitecture.from_host()
+            build_planner.set_build_fors(build_for)
+
+        if parsed_args.list:
+            self._check_supported_base(parsed_args)
+
+            config = self.services.get("config")
+            platform = parsed_args.platform or config.get("platform")
+            if platform:
+                build_planner.set_platforms(platform)
+        else:
+            super()._run(parsed_args, step_name, **kwargs)
+            if is_managed_mode():
+                # If we're in managed mode, we just need to pack.
+                return
+
+        build_plan = self._services.get("build_plan").plan()
+        project_service = cast(ProjectService, self._services.get("project"))
+        bases = [
+            project_service.get_with_base(build_info).base for build_info in build_plan
+        ]
+
+        if parsed_args.list:
+            testing_service.list_tests(
+                dirs.project_dir,
+                test_expressions=parsed_args.test_expressions,
+                bases=bases,
+            )
+            return
+
+        package = self._services.get("package")
+        artifacts = {
+            build_info.platform: _artifact(package, build_info)
+            for build_info in build_plan
+        }
+
+        testing_service.sdkcraft_test(
+            dirs.project_dir,
+            artifacts,
+            test_expressions=parsed_args.test_expressions,
+            bases=bases,
+            shell=shell,
+            shell_after=shell_after,
+            debug=parsed_args.debug,
+        )
 
 
 class TryCommand(PackCommand):
@@ -149,7 +255,7 @@ class TryCommand(PackCommand):
             return
 
         try_service = cast(TryService, self._services.get("try"))
-        try_service.copy(name, artifacts)
+        try_service.copy(name, artifacts, progress=True)
 
 
 def _sdks_by_name(sdks: Iterable[Path]) -> dict[str, dict[str, Path]]:
@@ -218,5 +324,9 @@ class CleanCommand(lifecycle.CleanCommand):
         super()._run(parsed_args, **kwargs)
 
         if not parsed_args.parts:
+            dirs = self._services.get("lifecycle").project_info.dirs
+            testing_service = cast(TestingService, self._services.get("testing"))
+            testing_service.clean(dirs.project_dir)
+
             try_service = cast(TryService, self._services.get("try"))
             try_service.remove(self._project.name)

@@ -32,6 +32,7 @@ from sdkcraft.commands import (
     StoreRegisterCommand,
     StoreUploadCommand,
     StoreWhoamiCommand,
+    TestCommand,
     TryCommand,
 )
 from sdkcraft.services import register_sdkcraft_services
@@ -42,7 +43,9 @@ def _create_app() -> Sdkcraft:
     factory = ServiceFactory(APP_METADATA)
     app = Sdkcraft(APP_METADATA, factory)
 
-    app.add_command_group("Lifecycle", [CleanCommand, PackCommand, TryCommand])
+    app.add_command_group(
+        "Lifecycle", [CleanCommand, PackCommand, TestCommand, TryCommand]
+    )
     app.add_command_group("Store Account", [StoreLoginCommand, StoreWhoamiCommand])
     app.add_command_group("Store", [StoreRegisterCommand, StoreUploadCommand])
     app.add_command_group("Other", [InitCommand, GenerateDocsCommand])

@@ -17,6 +17,7 @@
 
 from __future__ import annotations
 
+from os import EX_NOINPUT
 from typing import TYPE_CHECKING, cast, override
 
 from craft_application import AppMetadata, ServiceFactory, services
@@ -68,7 +69,13 @@ class ProjectService(services.ProjectService):
             except FileNotFoundError:
                 pass
 
-            raise
+            raise ProjectFileMissingError(
+                f"Project file {self.project_file_name!r} not found in {str(self._project_dir)!r}.",
+                resolution="Run 'sdkcraft init' to generate a sample project.",
+                reportable=False,
+                logpath_report=False,
+                retcode=EX_NOINPUT,
+            )
 
     def get_with_base(self, build_info: BuildInfo) -> Project:
         """Get the project data specialized for the given platform."""
