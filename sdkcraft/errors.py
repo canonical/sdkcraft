@@ -39,13 +39,6 @@ class SdkcraftInitError(SdkcraftError):
         super().__init__(f"{yaml_path} already exists!")
 
 
-class SdkcraftFilenameError(SdkcraftError):
-    """Error when parsing a packed SDK filename."""
-
-    def __init__(self, sdk_filename: str) -> None:
-        super().__init__(f"Invalid SDK filename {sdk_filename!r}.")
-
-
 class RepeatedPlatformError(CraftPlatformsError):
     """Error when multiple platforms have the same build-for base and architecture."""
 

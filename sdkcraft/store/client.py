@@ -275,7 +275,7 @@ class StoreClientCLI:
 
         """
         # Extract SDK name from meta/sdk.yaml inside the tarball
-        sdk_name = self._extract_sdk_name(sdk_file)
+        sdk_name = extract_sdk_metadata(sdk_file).name
         emit.progress(f"Uploading SDK: {sdk_name}")
 
         def create_progress_callback(
@@ -323,54 +323,55 @@ class StoreClientCLI:
 
         return revision_number
 
-    def _extract_sdk_name(self, sdk_file: Path) -> str:
-        """Extract SDK name from meta/sdk.yaml inside the .sdk tarball.
 
-        This is a CLI-specific method that uses subprocess to extract
-        and parse the SDK metadata file.
+def extract_sdk_metadata(sdk_file: Path) -> Metadata:
+    """Extract SDK metadata from meta/sdk.yaml inside the .sdk tarball.
 
-        Args:
-            sdk_file: Path to the .sdk tarball
+    This is a CLI-specific method that uses subprocess to extract
+    and parse the SDK metadata file.
 
-        Returns:
-            The SDK name from the metadata
+    Args:
+        sdk_file: Path to the .sdk tarball
 
-        Raises:
-            SdkcraftError: If extraction or parsing fails
+    Returns:
+        The metadata from meta/sdk.yaml
 
-        """
-        emit.progress("Extracting SDK metadata...")
+    Raises:
+        SdkcraftError: If extraction or parsing fails
 
-        try:
-            result = subprocess.run(
-                [
-                    "tar",
-                    "--extract",
-                    "--to-stdout",
-                    "--force-local",
-                    f"--file={sdk_file}",
-                    "meta/sdk.yaml",
-                ],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
+    """
+    emit.progress("Extracting SDK metadata...")
 
-            # Parse the YAML content using Metadata model
-            yaml_data = yaml.safe_load(result.stdout)
-            sdk_metadata = Metadata.model_validate(yaml_data)
-            sdk_name = sdk_metadata.name
+    try:
+        result = subprocess.run(
+            [
+                "tar",
+                "--extract",
+                "--to-stdout",
+                "--force-local",
+                f"--file={sdk_file}",
+                "meta/sdk.yaml",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
 
-            emit.progress(f"Detected SDK name: {sdk_name}")
-            return str(sdk_name)
-
-        except subprocess.CalledProcessError as error:
-            raise SdkcraftError(
-                f"Failed to extract metadata from SDK file: {error.stderr}"
-            ) from error
-        except pydantic.ValidationError as error:
-            raise CraftValidationError.from_pydantic(error) from error
-        except (yaml.YAMLError, ValueError) as error:
-            raise SdkcraftError(f"Failed to parse SDK metadata: {error}") from error
-        except Exception as error:
-            raise SdkcraftError(f"Failed to read SDK metadata: {error}") from error
+        # Parse the YAML content using Metadata model
+        yaml_data = yaml.safe_load(result.stdout)
+        sdk_metadata = Metadata.model_validate(yaml_data)
+    except subprocess.CalledProcessError as error:
+        raise SdkcraftError(
+            f"Failed to extract metadata from SDK file: {error.stderr}"
+        ) from error
+    except pydantic.ValidationError as error:
+        raise CraftValidationError.from_pydantic(
+            error, file_name="meta/sdk.yaml"
+        ) from error
+    except (yaml.YAMLError, ValueError) as error:
+        raise SdkcraftError(f"Failed to parse SDK metadata: {error}") from error
+    except Exception as error:
+        raise SdkcraftError(f"Failed to read SDK metadata: {error}") from error
+    else:
+        emit.progress(f"Detected SDK name: {sdk_metadata.name}")
+        return sdk_metadata
