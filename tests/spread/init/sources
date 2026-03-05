@@ -1,0 +1,6 @@
+hooks/setup-base
+hooks/setup-project
+sdkcraft.yaml
+tests/main/launch/task.yaml
+tests/main/launch/workshop.yaml.in
+tests/spread.yaml

@@ -17,84 +17,22 @@
 from __future__ import annotations
 
 import textwrap
-from pathlib import Path
-from typing import TYPE_CHECKING, override
 
-from craft_application.commands import AppCommand
-from craft_cli import emit
-
-from sdkcraft.errors import SdkcraftInitError
-
-if TYPE_CHECKING:
-    from argparse import Namespace
+from craft_application.commands import init
 
 
-def init(sdkcraft_yaml_content: str) -> None:
-    """Initialize an SDKcraft project.
-
-    :param sdkcraft_yaml_content: Content of the sdkcraft.yaml file
-    :raises SdkcraftInitError: raises initialization error in case of conflicts
-    with existing sdkcraft.yaml files
-    """
-    sdkcraft_yaml_path = Path("sdkcraft.yaml")
-    dot_sdkcraft_yaml_path = Path(".sdkcraft.yaml")
-    sdk_yaml_path = sdkcraft_yaml_path.with_name("sdk.yaml")
-    dot_sdk_yaml_path = sdk_yaml_path.with_name(".sdk.yaml")
-
-    if sdkcraft_yaml_path.is_file():
-        raise SdkcraftInitError(sdkcraft_yaml_path)
-    if dot_sdkcraft_yaml_path.is_file():
-        raise SdkcraftInitError(dot_sdkcraft_yaml_path)
-    if sdk_yaml_path.is_file():
-        raise SdkcraftInitError(sdk_yaml_path)
-    if dot_sdk_yaml_path.is_file():
-        raise SdkcraftInitError(dot_sdk_yaml_path)
-
-    sdkcraft_yaml_path.parent.mkdir(exist_ok=True)
-
-    sdkcraft_yaml_path.write_text(sdkcraft_yaml_content)
-
-    emit.progress(f"Created {sdkcraft_yaml_path}.")
-
-
-class InitCommand(AppCommand):
+class InitCommand(init.InitCommand):
     """Initialize an SDKcraft project."""
 
     name = "init"
     help_msg = "Initialize an SDKcraft project"
     overview = textwrap.dedent(
         """
-        Initialize an SDKcraft project by creating a minimalist,
-        yet functional, 'sdkcraft.yaml' file in the current directory.
+        Initialize an SDKcraft project by creating an 'sdkcraft.yaml' file
+        together with hooks and tests.
         """
     )
-    hidden = False
     examples: list[tuple[str, str]] = [
         ("Initialize a new project", "sdkcraft init"),
     ]
     related_commands: list[str] | None = None
-
-    _INIT_TEMPLATE_YAML = textwrap.dedent(
-        """\
-            name: my-sdk-name   # the name of your SDK
-            base: ubuntu@22.04  # the base environment for this SDK
-            version: '0.1'      # just for humans. Semantic versioning is recommended
-            summary: Single-line elevator pitch for your amazing SDK    # 79 char long summary
-            description: |
-              This is my my-sdk-name's description. You have a paragraph or two to tell the
-              most important story about it. Keep it under 100 words though,
-              we live in tweetspace.
-            license: GPL-3.0    # your SDK's SPDX license
-            platforms:          # The platforms this SDK should be built on and run on
-              amd64:
-
-            parts:
-              my-part:
-                plugin: nil
-            """
-    )
-
-    @override
-    def run(self, parsed_args: Namespace) -> None:
-        """Run the command."""
-        init(self._INIT_TEMPLATE_YAML)

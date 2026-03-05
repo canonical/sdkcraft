@@ -2,6 +2,7 @@ project: sdkcraft
 
 path: /sdkcraft
 environment:
+  LXD_CHANNEL: $(HOST:printf %s "${LXD_CHANNEL:-6/stable}")
   PROJECT_PATH: /sdkcraft
   PATH: /snap/bin:$PROJECT_PATH/tests/tools:$PATH
   CRAFT_DEBUG: 1 # Show exception tracebacks.
@@ -21,12 +22,6 @@ backends:
           workers: 2
 prepare: |
   set -e
-
-  # Allow CI jobs to override environment.
-  LXD_CHANNEL='6/stable'
-  if [ -f /sdkcraft/tests/spread/.env ]; then
-      . /sdkcraft/tests/spread/.env
-  fi
 
   mkdir -p /etc/systemd/system/snapd.service.d
   cat <<EOF >/etc/systemd/system/snapd.service.d/override.conf

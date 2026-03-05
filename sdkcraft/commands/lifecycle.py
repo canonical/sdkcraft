@@ -22,15 +22,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast, override
 
 from craft_application.commands import lifecycle
-from craft_application.errors import CraftValidationError
 from craft_application.util import is_managed_mode
 from craft_cli import CraftError
 from craft_platforms import DebianArchitecture
-from pydantic import TypeAdapter, ValidationError
 
-from sdkcraft.errors import SdkcraftFilenameError
-from sdkcraft.models.constraints import ProjectName
 from sdkcraft.services import ProjectService, TestingService, TryService
+from sdkcraft.store.client import extract_sdk_metadata
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser, Namespace
@@ -262,23 +259,14 @@ def _sdks_by_name(sdks: Iterable[Path]) -> dict[str, dict[str, Path]]:
     by_name: dict[str, dict[str, Path]] = {}
 
     for sdk in sdks:
-        parts = sdk.stem.split("_", 2)
-        if len(parts) <= 1:
-            raise SdkcraftFilenameError(sdk.name)
+        metadata = extract_sdk_metadata(sdk)
 
-        name, *rest = parts
-        try:
-            TypeAdapter(ProjectName).validate_python(name)
-        except ValidationError as e:
-            raise CraftValidationError.from_pydantic(e, file_name="filename") from None
-
-        if len(rest) == 1:
-            (platform,) = rest
+        if metadata.base:
+            platform = f"{metadata.base}:{metadata.architecture}"
         else:
-            arch, base = rest
-            platform = f"{base}:{arch}"
+            platform = metadata.architecture
 
-        by_name.setdefault(name, {})[platform] = sdk
+        by_name.setdefault(metadata.name, {})[platform] = sdk
 
     return by_name
 

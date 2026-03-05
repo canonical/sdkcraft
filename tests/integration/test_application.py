@@ -13,6 +13,7 @@ import pytest
 import sdkcraft.cli
 import yaml
 from craft_platforms import DebianArchitecture
+from sdkcraft.models.metadata import Metadata
 
 if TYPE_CHECKING:
     from pytest_mock import MockType
@@ -478,20 +479,40 @@ def test_try_files(
     data_home = tmp_path_factory.mktemp("share")
 
     (new_path / "meta").mkdir()
-    (new_path / "meta" / "sdk.yaml").write_text("fake: yaml")
 
-    filenames = (
-        "my-project_all.sdk",
-        "multi_ppc64el_ubuntu@22.04.sdk",
-        "multi_ppc64el_ubuntu@24.04.sdk",
+    metadata = Metadata(
+        name="name",
+        version="1.0",
+        summary="",
+        description="",
+        architecture="",
+        sdkcraft_started_at="",
     )
+    sdks = {
+        "my-project_all.sdk": {
+            "name": "my-project",
+            "architecture": "all",
+            "base": None,
+        },
+        "multi_ppc64el_ubuntu@22.04.sdk": {
+            "name": "multi",
+            "architecture": "ppc64el",
+            "base": "ubuntu@22.04",
+        },
+        "multi_ppc64el_ubuntu@24.04.sdk": {
+            "name": "multi",
+            "architecture": "ppc64el",
+            "base": "ubuntu@24.04",
+        },
+    }
 
-    for filename in filenames:
+    for filename, update in sdks.items():
+        metadata.model_copy(update=update).to_yaml_file(new_path / "meta" / "sdk.yaml")
         with tarfile.open(filename, "w") as tf:
             tf.add("meta")
 
     monkeypatch.setattr(
-        "sys.argv", ["sdkcraft", "try", "--destructive-mode", *filenames]
+        "sys.argv", ["sdkcraft", "try", "--destructive-mode", *sdks.keys()]
     )
     monkeypatch.setattr("sdkcraft.env.user_data_path", lambda: data_home)
 
@@ -524,7 +545,9 @@ def test_try_files(
     assert return_code != 0
 
     invalid_name = "inval!d-N@me_all.sdk"
+    update = {"name": "inval!d-N@me", "architecture": "all", "base": None}
     with tarfile.open(invalid_name, "w") as tf:
+        metadata.model_copy(update=update).to_yaml_file(new_path / "meta" / "sdk.yaml")
         tf.add("meta")
 
     monkeypatch.setattr(
