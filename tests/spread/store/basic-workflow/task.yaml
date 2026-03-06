@@ -29,3 +29,13 @@ execute: |
   run_sdkcraft register test-sdk-name || true
   sdk_file=$(ls ./*.sdk)
   run_sdkcraft upload "${sdk_file}" --release edge
+
+  # Test standalone release command: re-release the same revision to candidate.
+  sdk_name="test-sdk-name"
+  # clean to rebuild and get a new binary, otherwise, the store will refuse the upload.
+  run_sdkcraft clean
+  run_sdkcraft pack
+  revision=$(run_sdkcraft upload "${sdk_file}" 2>&1 | grep -oP 'revision \K[0-9]+' | tail -1)
+  run_sdkcraft release "${sdk_name}" "${revision}" candidate
+  # Verify the channel map table is printed (header must appear).
+  run_sdkcraft release "${sdk_name}" "${revision}" stable | grep -q "CHANNEL"
