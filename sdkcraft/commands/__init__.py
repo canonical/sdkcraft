@@ -5,6 +5,7 @@ from .gendocs import GenerateDocsCommand
 from .init import InitCommand
 from .lifecycle import CleanCommand, PackCommand, TestCommand, TryCommand
 from .register import StoreRegisterCommand
+from .release import StoreReleaseCommand
 from .upload import StoreUploadCommand
 
 __all__ = [
@@ -14,6 +15,7 @@ __all__ = [
     "PackCommand",
     "StoreLoginCommand",
     "StoreRegisterCommand",
+    "StoreReleaseCommand",
     "StoreUploadCommand",
     "StoreWhoamiCommand",
     "TestCommand",

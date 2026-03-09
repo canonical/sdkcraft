@@ -133,6 +133,35 @@ def _is_clean_abspath(path: str) -> str:
 type CleanAbsPath = Annotated[str, AfterValidator(_is_clean_abspath)]
 
 
+_CHANNEL_VALID_RISKS = frozenset({"stable", "candidate", "beta", "edge"})
+
+
+def _check_channel_risk(channel: str) -> str:
+    """Validate that *channel* contains a recognized risk level.
+
+    A channel has the form `[<track>/]<risk>[/<branch>]`.
+    """
+    parts = channel.split("/")
+    if len(parts) == 1:
+        risk = parts[0]
+    elif len(parts) < 3:  # noqa: PLR2004
+        # Either <track>/<risk> or <risk>/<branch>
+        risk = parts[0] if parts[0] in _CHANNEL_VALID_RISKS else parts[1]
+    else:
+        # <track>/<risk>/<branch>
+        risk = parts[1]
+
+    if risk not in _CHANNEL_VALID_RISKS:
+        raise ValueError(
+            f"Invalid channel {channel!r}: risk must be one of "
+            f"{', '.join(sorted(_CHANNEL_VALID_RISKS))}."
+        )
+    return channel
+
+
+type ChannelName = Annotated[str, AfterValidator(_check_channel_risk)]
+
+
 def _str_as_int(value: Any) -> Any:  # noqa: ANN401
     if not isinstance(value, str):
         return value

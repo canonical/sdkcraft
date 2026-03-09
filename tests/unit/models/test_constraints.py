@@ -21,6 +21,7 @@ import pytest
 from pydantic import TypeAdapter, ValidationError
 from sdkcraft.models.constraints import (
     PROJECT_NAME_REGEX,
+    ChannelName,
     CleanAbsPath,
     Endpoint,
     FileMode,
@@ -228,3 +229,34 @@ def test_endpoint_valid(value: str):
 def test_endpoint_invalid(value: str):
     with pytest.raises(ValidationError):
         endpoint_adapter.validate_python(value)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "stable",
+        "candidate",
+        "beta",
+        "edge",
+        "latest/stable",
+        "latest/edge",
+        "1.0/candidate",
+        "stable/my-branch",
+        "latest/beta/my-branch",
+    ],
+)
+def test_channel_name_valid(value: str):
+    assert TypeAdapter(ChannelName).validate_python(value) == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "invalid",
+        "latest/invalid",
+        "latest/invalid/branch",
+    ],
+)
+def test_channel_name_invalid(value: str):
+    with pytest.raises(ValidationError):
+        TypeAdapter(ChannelName).validate_python(value)

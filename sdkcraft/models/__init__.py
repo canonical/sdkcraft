@@ -15,7 +15,7 @@
 #  with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Data models for SDKcraft."""
 
-from .constraints import Endpoint, ProjectName
+from .constraints import ChannelName, Endpoint, ProjectName
 from .linter import LinterIssue, LinterResult
 from .located import Location
 from .marked import MarkedLoader
@@ -40,6 +40,7 @@ from .project import (
 
 __all__ = [
     "CameraPlug",
+    "ChannelName",
     "DesktopPlug",
     "Endpoint",
     "GPUPlug",
