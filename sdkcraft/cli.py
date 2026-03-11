@@ -28,6 +28,7 @@ from sdkcraft.commands import (
     GenerateDocsCommand,
     InitCommand,
     PackCommand,
+    StoreCreateTrackCommand,
     StoreLoginCommand,
     StoreRegisterCommand,
     StoreReleaseCommand,
@@ -49,7 +50,13 @@ def _create_app() -> Sdkcraft:
     )
     app.add_command_group("Store Account", [StoreLoginCommand, StoreWhoamiCommand])
     app.add_command_group(
-        "Store", [StoreRegisterCommand, StoreReleaseCommand, StoreUploadCommand]
+        "Store",
+        [
+            StoreCreateTrackCommand,
+            StoreRegisterCommand,
+            StoreReleaseCommand,
+            StoreUploadCommand,
+        ],
     )
     app.add_command_group("Other", [InitCommand, GenerateDocsCommand])
 

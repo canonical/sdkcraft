@@ -133,6 +133,32 @@ def _is_clean_abspath(path: str) -> str:
 type CleanAbsPath = Annotated[str, AfterValidator(_is_clean_abspath)]
 
 
+# Retrieved from https://api.staging.charmhub.io/docs/default.html#create_tracks
+# (mirrored by craft_store.publisher._publishergw.TRACK_NAME_REGEX)
+TRACK_NAME_REGEX = r"^[a-zA-Z0-9](?:[_.-]?[a-zA-Z0-9])*$"
+TRACK_NAME_COMPILED_REGEX = re.compile(TRACK_NAME_REGEX)
+TRACK_NAME_MAX_LENGTH = 28
+
+
+def _check_track_name(name: str) -> str:
+    """Validate that *name* is a valid store track name."""
+    if len(name) > TRACK_NAME_MAX_LENGTH:
+        raise ValueError(
+            f"Invalid track name {name!r}: must be at most "
+            f"{TRACK_NAME_MAX_LENGTH} characters."
+        )
+    if not TRACK_NAME_COMPILED_REGEX.match(name):
+        raise ValueError(
+            f"Invalid track name {name!r}: must start and end with an "
+            "alphanumeric character and contain only alphanumeric "
+            "characters, hyphens, dots, or underscores."
+        )
+    return name
+
+
+type TrackName = Annotated[str, AfterValidator(_check_track_name)]
+
+
 _CHANNEL_VALID_RISKS = frozenset({"stable", "candidate", "beta", "edge"})
 
 
@@ -140,15 +166,22 @@ def _check_channel_risk(channel: str) -> str:
     """Validate that *channel* contains a recognized risk level.
 
     A channel has the form `[<track>/]<risk>[/<branch>]`.
+    If a track is present, it is validated against the track name rules.
     """
     parts = channel.split("/")
+    track: str | None = None
     if len(parts) == 1:
         risk = parts[0]
     elif len(parts) < 3:  # noqa: PLR2004
         # Either <track>/<risk> or <risk>/<branch>
-        risk = parts[0] if parts[0] in _CHANNEL_VALID_RISKS else parts[1]
+        if parts[0] in _CHANNEL_VALID_RISKS:
+            risk = parts[0]
+        else:
+            track = parts[0]
+            risk = parts[1]
     else:
         # <track>/<risk>/<branch>
+        track = parts[0]
         risk = parts[1]
 
     if risk not in _CHANNEL_VALID_RISKS:
@@ -156,6 +189,10 @@ def _check_channel_risk(channel: str) -> str:
             f"Invalid channel {channel!r}: risk must be one of "
             f"{', '.join(sorted(_CHANNEL_VALID_RISKS))}."
         )
+
+    if track is not None:
+        _check_track_name(track)
+
     return channel
 
 

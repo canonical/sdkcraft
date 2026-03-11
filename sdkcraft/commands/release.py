@@ -75,9 +75,9 @@ class StoreReleaseCommand(AppCommand):
     overview = textwrap.dedent(
         """
         Release <sdk> at <revision> to the selected store <channels>.
-        <channels> is a comma-separated list of valid channels in the store.
+        <channels> is a comma-separated list of valid channels on the store.
 
-        The <revision> must exist in the store; to see available revisions,
+        The <revision> must exist on the store; to see available revisions,
         run `sdkcraft revisions <sdk>`.
 
         The channel map is displayed after the operation.
