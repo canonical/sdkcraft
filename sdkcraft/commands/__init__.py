@@ -1,6 +1,7 @@
 """SDKcraft commands."""
 
 from .account import StoreLoginCommand, StoreWhoamiCommand
+from .create_track import StoreCreateTrackCommand
 from .gendocs import GenerateDocsCommand
 from .init import InitCommand
 from .lifecycle import CleanCommand, PackCommand, TestCommand, TryCommand
@@ -13,6 +14,7 @@ __all__ = [
     "GenerateDocsCommand",
     "InitCommand",
     "PackCommand",
+    "StoreCreateTrackCommand",
     "StoreLoginCommand",
     "StoreRegisterCommand",
     "StoreReleaseCommand",

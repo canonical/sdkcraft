@@ -21,6 +21,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from craft_store import models
+from craft_store.errors import StoreServerError
 from sdkcraft.errors import SdkcraftError
 from sdkcraft.store.client import StoreClient, StoreClientCLI
 
@@ -286,3 +287,40 @@ def test_cli_upload_success_with_release(
     emitter.assert_message(
         "Successfully uploaded and released revision 42 to edge, beta"
     )
+
+
+############################
+# StoreClient.create_tracks #
+############################
+
+
+def test_create_tracks_success(mocker: MockerFixture):
+    response = MagicMock()
+    response.json.return_value = {"num-tracks-created": 2}
+
+    mock_request = mocker.patch.object(StoreClient, "request", return_value=response)
+
+    client = StoreClient()
+    num_created = client.create_tracks("my-sdk", ["1.26", "1.25"])
+
+    assert num_created == 2
+    mock_request.assert_called_once_with(
+        "POST",
+        "https://api.staging.charmhub.io/v1/sdk/my-sdk/tracks",
+        json=[{"name": "1.26"}, {"name": "1.25"}],
+    )
+
+
+def test_create_tracks_server_error(mocker: MockerFixture):
+    mocker.patch.object(
+        StoreClient,
+        "request",
+        side_effect=StoreServerError(
+            MagicMock(status_code=500, headers={}, content=b"")
+        ),
+    )
+
+    client = StoreClient()
+
+    with pytest.raises(SdkcraftError, match="Failed to create tracks"):
+        client.create_tracks("my-sdk", ["1.26"])

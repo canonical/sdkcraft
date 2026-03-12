@@ -29,13 +29,13 @@ if TYPE_CHECKING:
 
 
 class StoreRegisterCommand(AppCommand):
-    """Command to register an SDK name in the store."""
+    """Command to register an SDK name on the store."""
 
     name = "register"
-    help_msg = "Register an SDK name in the store"
+    help_msg = "Register an SDK name on the store"
     overview = textwrap.dedent(
         """
-        Register an SDK name in the SDK Store.
+        Register an SDK name on the SDK Store.
 
         This reserves the SDK name for your account, allowing you to upload
         revisions under that name. SDK names must be registered before uploading.

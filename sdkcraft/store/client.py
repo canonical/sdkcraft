@@ -102,7 +102,7 @@ class StoreClient(craft_store.StoreClient):
         )
 
     def ensure_registered(self, sdk_name: str) -> None:
-        """Ensure the SDK is registered in the store.
+        """Ensure the SDK is registered on the store.
 
         Args:
             sdk_name: Name of the SDK to register
@@ -180,6 +180,35 @@ class StoreClient(craft_store.StoreClient):
                 ) from error
 
             time.sleep(_POLL_DELAY)
+
+    def create_tracks(self, sdk_name: str, track_names: list[str]) -> int:
+        """Create one or more tracks for an SDK on the store.
+
+        Args:
+            sdk_name: Name of the SDK to create tracks for
+            track_names: List of track names to create
+
+        Returns:
+            The number of tracks created
+
+        Raises:
+            SdkcraftError: If the store request fails
+
+        """
+        tracks_payload = [{"name": name} for name in track_names]
+        url = f"{self._base_url}/v1/{self._endpoints.namespace}/{sdk_name}/tracks"
+
+        try:
+            response = self.request("POST", url, json=tracks_payload)  # pyright: ignore[reportUnknownMemberType]
+        except store_errors.StoreServerError as error:
+            raise SdkcraftError(f"Failed to create tracks: {error}") from error
+
+        response_data = response.json()
+        if "num-tracks-created" not in response_data:
+            raise SdkcraftError(
+                "Unexpected store response: missing 'num-tracks-created' field"
+            )
+        return int(response_data["num-tracks-created"])
 
 
 def get_client(*, ephemeral: bool = False) -> StoreClient:
