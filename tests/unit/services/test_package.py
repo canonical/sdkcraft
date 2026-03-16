@@ -24,7 +24,7 @@ DEFAULT_METADATA = {
     "source-code": "https://github.com/canonical/sdks",
     "license": "MIT",
     "plugs": {"mount": {"interface": "mount", "workshop-target": "/path"}},
-    "sdkcraft-started-at": "1970-01-01T00:00:00Z",
+    "sdkcraft-started-at": "1970-01-01T00:00:00+00:00",
 }
 
 
@@ -63,7 +63,7 @@ def test_build_base_metadata(package_service: PackageService):
         "summary": "default project",
         "description": "default project",
         "architecture": "all",
-        "sdkcraft-started-at": "1970-01-01T00:00:00Z",
+        "sdkcraft-started-at": "1970-01-01T00:00:00+00:00",
     }
     assert package_service.metadata.marshal() == metadata
 
@@ -101,7 +101,7 @@ def test_multi_base_metadata(
         "description": "default project",
         "base": "ubuntu@24.04",
         "architecture": str(fake_arch),
-        "sdkcraft-started-at": "1970-01-01T00:00:00Z",
+        "sdkcraft-started-at": "1970-01-01T00:00:00+00:00",
     }
     assert package_service.metadata.marshal() == metadata
 
@@ -155,11 +155,11 @@ def test_write_metadata(
     [
         (
             datetime.fromtimestamp(0, UTC),
-            "1970-01-01T00:00:00Z",
+            "1970-01-01T00:00:00+00:00",
         ),
         (
             datetime(2006, 1, 2, 15, 4, 5, 8, timezone(timedelta(hours=-7))),
-            "2006-01-02T22:04:05.000008Z",
+            "2006-01-02T22:04:05.000008+00:00",
         ),
     ],
 )
