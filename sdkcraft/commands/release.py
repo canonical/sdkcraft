@@ -82,12 +82,12 @@ class StoreReleaseCommand(AppCommand):
 
         The channel map is displayed after the operation.
 
-        The format for a channel is [<track>/]<risk>[/<branch>] where
+        The format for a channel is [<track>/]<risk>[/<branch>], where:
 
-            - <track> is used to have long-term release channels.
-            - <risk> can only be `stable`, `candidate`, `beta`, or `edge`.
-            - <branch> is optional and dynamically creates a channel with
-              a one-month expiration.
+        - <track> is used to have long-term release channels.
+        - <risk> can only be `stable`, `candidate`, `beta`, or `edge`.
+        - <branch> is optional and dynamically creates a channel with
+          a one-month expiration.
         """
     )
 

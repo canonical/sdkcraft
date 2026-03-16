@@ -30,9 +30,9 @@ sdkcraft {{ command_name }}
 
 {{ flag.name }}
 
-   {{ flag.usage | indent(3) }}
+{{ flag.usage | indent(3) }}
 {% if flag.default_value %}
-   Default: ``{{ flag.default_value }}``
+   Default: :samp:`{{ flag.default_value }}`
 {% endif %}
 
 {% endfor %}
