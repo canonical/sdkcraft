@@ -33,7 +33,7 @@ from .project import (
     Project,
     Slot,
     Slots,
-    SSHPlug,
+    SSHAgentPlug,
     TunnelPlug,
     TunnelSlot,
 )
@@ -59,7 +59,7 @@ __all__ = [
     "ProjectName",
     "Slot",
     "Slots",
-    "SSHPlug",
+    "SSHAgentPlug",
     "TunnelPlug",
     "TunnelSlot",
 ]

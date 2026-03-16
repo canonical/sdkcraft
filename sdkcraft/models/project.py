@@ -109,15 +109,15 @@ class MountSlot(models.CraftBaseModel):
     workshop_source: CleanAbsPath
 
 
-class SSHPlug(models.CraftBaseModel):
-    """SDKcraft project SSH plug definition."""
+class SSHAgentPlug(models.CraftBaseModel):
+    """SDKcraft project SSH agent plug definition."""
 
-    interface: Literal["ssh"]
+    interface: Literal["ssh-agent"]
 
     def validate_policy(self, name: str) -> None:
         """Check plug name."""
-        if name != "ssh":
-            raise ValueError("ssh interface plugs must be named 'ssh'")
+        if name != "ssh-agent":
+            raise ValueError("ssh-agent interface plugs must be named 'ssh-agent'")
 
 
 class TunnelPlug(models.CraftBaseModel):
@@ -135,7 +135,7 @@ class TunnelSlot(models.CraftBaseModel):
 
 
 type Plug = Annotated[
-    CameraPlug | DesktopPlug | GPUPlug | MountPlug | SSHPlug | TunnelPlug,
+    CameraPlug | DesktopPlug | GPUPlug | MountPlug | SSHAgentPlug | TunnelPlug,
     Discriminator("interface"),
 ]
 type Slot = Annotated[MountSlot | TunnelSlot, Discriminator("interface")]

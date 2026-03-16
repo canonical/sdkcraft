@@ -32,7 +32,7 @@ from sdkcraft.models.project import (
     Part,
     Plugs,
     Project,
-    SSHPlug,
+    SSHAgentPlug,
 )
 
 
@@ -167,14 +167,14 @@ def test_implicit_interfaces():
         camera:
         desktop: desktop
         gpu:
-        ssh: 'ssh'
+        ssh-agent: 'ssh-agent'
     """)
 
     expected = {
         "camera": CameraPlug(interface="camera"),
         "desktop": DesktopPlug(interface="desktop"),
         "gpu": GPUPlug(interface="gpu"),
-        "ssh": SSHPlug(interface="ssh"),
+        "ssh-agent": SSHAgentPlug(interface="ssh-agent"),
     }
 
     assert plugs_adapter.validate_python(plugs) == expected
@@ -183,9 +183,9 @@ def test_implicit_interfaces():
 def test_interface_policies():
     with pytest.raises(
         ValidationError,
-        match="ssh interface plugs must be named 'ssh'",
+        match="ssh-agent interface plugs must be named 'ssh-agent'",
     ):
-        plugs_adapter.validate_python({"foo": {"interface": "ssh"}})
+        plugs_adapter.validate_python({"foo": {"interface": "ssh-agent"}})
 
 
 part_adapter: TypeAdapter[Part] = TypeAdapter(Part)
