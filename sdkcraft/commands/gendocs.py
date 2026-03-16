@@ -105,7 +105,7 @@ def _load_templates() -> TemplateInfo:
     command_template = (templates_dir / "command.rst.j2").read_text(encoding="utf-8")
     index_template = (templates_dir / "index.rst.j2").read_text(encoding="utf-8")
     return TemplateInfo(
-        index_file_name="sdkcraft.rst",
+        index_file_name="index.rst",
         index_template=index_template,
         command_template=command_template,
     )
