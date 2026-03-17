@@ -91,6 +91,11 @@ class TestCommand(PackCommand):
 
     name = "test"
     help_msg = "Run SDK tests"
+    examples: list[tuple[str, str]] = [
+        ("Test the project", "sdkcraft test"),
+        ("List the jobs that would run", "sdkcraft test --list"),
+        ("Run a specific test suite", "sdkcraft test my-suite/"),
+    ]
     overview = textwrap.dedent(
         """
         Tests are defined and run using spread (https://github.com/canonical/spread).
