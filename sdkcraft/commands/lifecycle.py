@@ -94,7 +94,7 @@ class TestCommand(PackCommand):
     examples: list[tuple[str, str]] = [
         ("Test the project", "sdkcraft test"),
         ("List the jobs that would run", "sdkcraft test --list"),
-        ("Run a specific test suite", "sdkcraft test tests/my-suite/"),
+        ("Run a specific test suite", "sdkcraft test my-suite/"),
     ]
     overview = textwrap.dedent(
         """
