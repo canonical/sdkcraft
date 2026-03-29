@@ -3,7 +3,11 @@ on: [workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+      fail-fast: false
+    runs-on: ${{ matrix.arch == 'arm64' && 'self-hosted-linux-arm64-noble-xlarge' || 'self-hosted-linux-amd64-noble-xlarge' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -17,11 +21,32 @@ jobs:
           snap: ${{ steps.snapcraft.outputs.snap }}
           release: stable
 
+      - name: Upload snap artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snap-${{ matrix.arch }}
+          path: ${{ steps.snapcraft.outputs.snap }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download amd64 snap
+        uses: actions/download-artifact@v4
+        with:
+          name: snap-amd64
+          path: snaps/
+
+      - name: Download arm64 snap
+        uses: actions/download-artifact@v4
+        with:
+          name: snap-arm64
+          path: snaps/
+
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            ${{ steps.snapcraft.outputs.snap }}
+          files: snaps/*.snap
 
   generate-docs:
     runs-on: ubuntu-latest
