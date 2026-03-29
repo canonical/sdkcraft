@@ -58,8 +58,9 @@ jobs:
           name: snap
           path: tests
       - name: Run spread
+        env:
+          SDKCRAFT_STORE_CREDENTIALS_STAGING: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS_STAGING }}
+          MATRIX_OS: ${{ matrix.os }}
         run: |
           export LXD_CHANNEL='6/candidate'
           spread "${MATRIX_OS}:tests/spread/"
-        env:
-          MATRIX_OS: ${{ matrix.os }}
