@@ -26,9 +26,10 @@ from craft_application.errors import ProjectFileMissingError
 from sdkcraft.models import MarkedLoader, MarkedProject, Project
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from pathlib import Path
 
-    from craft_platforms import BuildInfo
+    from craft_platforms import BuildInfo, PlatformDict
 
 
 class ProjectService(services.ProjectService):
@@ -77,6 +78,16 @@ class ProjectService(services.ProjectService):
                 retcode=EX_NOINPUT,
             )
 
+    @override
+    def _validate_multi_base(self, platforms: dict[str, PlatformDict]) -> None:
+        for platform in platforms.values():
+            platform["build-on"] = [
+                b.rpartition(":")[2] for b in _vectorize(platform["build-on"])
+            ]
+            platform["build-for"] = [
+                b.rpartition(":")[2] for b in _vectorize(platform["build-for"])
+            ]
+
     def get_with_base(self, build_info: BuildInfo) -> Project:
         """Get the project data specialized for the given platform."""
         project = cast(Project, self.get())
@@ -95,3 +106,9 @@ class ProjectService(services.ProjectService):
         return MarkedProject.unmarshal(
             marked | {"path": path.relative_to(self._project_dir), "abspath": path}
         )
+
+
+def _vectorize(items: Sequence[str] | str) -> Sequence[str]:
+    if isinstance(items, str):
+        return [items]
+    return items
