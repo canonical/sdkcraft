@@ -62,5 +62,7 @@ prepare: |
 suites:
   tests/spread/:
     summary: tests for sdkcraft core functionality
+    kill-timeout: 30m
   tests/spread/store/:
     summary: tests for SDK Store functionality
+    kill-timeout: 30m
