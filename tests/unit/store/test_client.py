@@ -51,7 +51,7 @@ def fake_hostname(mocker: MockerFixture) -> MockType:
 
 
 def test_get_store_url_default():
-    assert client.get_store_url() == "https://api.staging.charmhub.io"
+    assert client.get_store_url() == "https://api.charmhub.io"
 
 
 def test_get_store_url_from_env(monkeypatch: pytest.MonkeyPatch):

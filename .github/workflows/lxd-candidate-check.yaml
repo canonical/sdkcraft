@@ -59,7 +59,7 @@ jobs:
           path: tests
       - name: Run spread
         env:
-          SDKCRAFT_STORE_CREDENTIALS_STAGING: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS_STAGING }}
+          SDKCRAFT_STORE_CREDENTIALS_PROD: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS_PROD }}
           MATRIX_OS: ${{ matrix.os }}
         run: |
           export LXD_CHANNEL='6/candidate'

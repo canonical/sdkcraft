@@ -1,7 +1,7 @@
 summary: Test the store workflow to register, upload, and release an SDK
 
 environment:
-  SDKCRAFT_STORE_CREDENTIALS: "$(HOST: echo ${SDKCRAFT_STORE_CREDENTIALS_STAGING})"
+  SDKCRAFT_STORE_CREDENTIALS: "$(HOST: echo ${SDKCRAFT_STORE_CREDENTIALS_PROD})"
 
 prepare: |
   if [[ -z "$SDKCRAFT_STORE_CREDENTIALS" ]]; then

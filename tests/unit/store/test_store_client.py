@@ -141,7 +141,7 @@ def test_notify_and_poll_revision_success(mocker: MockerFixture):
     mock_notify.assert_called_once()
     mock_request.assert_called_with(
         "GET",
-        "https://api.staging.charmhub.io/v1/sdk/test-sdk/revisions/review?upload-id=test-upload-id-123",
+        "https://api.charmhub.io/v1/sdk/test-sdk/revisions/review?upload-id=test-upload-id-123",
     )
 
 
@@ -306,7 +306,7 @@ def test_create_tracks_success(mocker: MockerFixture):
     assert num_created == 2
     mock_request.assert_called_once_with(
         "POST",
-        "https://api.staging.charmhub.io/v1/sdk/my-sdk/tracks",
+        "https://api.charmhub.io/v1/sdk/my-sdk/tracks",
         json=[{"name": "1.26"}, {"name": "1.25"}],
     )
 
