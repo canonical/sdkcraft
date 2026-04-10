@@ -60,9 +60,7 @@ def test_get_store_url_from_env(monkeypatch: pytest.MonkeyPatch):
 
 
 def test_get_store_upload_url_default():
-    assert (
-        client.get_store_upload_url() == "https://storage.staging.snapcraftcontent.com"
-    )
+    assert client.get_store_upload_url() == "https://storage.snapcraftcontent.com"
 
 
 def test_get_store_upload_url_from_env(monkeypatch: pytest.MonkeyPatch):

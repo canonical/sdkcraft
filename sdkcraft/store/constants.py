@@ -19,4 +19,4 @@ ENVIRONMENT_STORE_CREDENTIALS = "SDKCRAFT_STORE_CREDENTIALS"
 
 # SDK Store URLs
 SDK_STORE_URL = "https://api.charmhub.io"
-SDK_STORE_UPLOAD_URL = "https://storage.staging.snapcraftcontent.com"
+SDK_STORE_UPLOAD_URL = "https://storage.snapcraftcontent.com"
