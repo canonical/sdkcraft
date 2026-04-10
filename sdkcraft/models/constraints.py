@@ -133,7 +133,7 @@ def _is_clean_abspath(path: str) -> str:
 type CleanAbsPath = Annotated[str, AfterValidator(_is_clean_abspath)]
 
 
-# Retrieved from https://api.staging.charmhub.io/docs/default.html#create_tracks
+# Retrieved from https://api.charmhub.io/docs/default.html#create_tracks
 # (mirrored by craft_store.publisher._publishergw.TRACK_NAME_REGEX)
 TRACK_NAME_REGEX = r"^[a-zA-Z0-9](?:[_.-]?[a-zA-Z0-9])*$"
 TRACK_NAME_COMPILED_REGEX = re.compile(TRACK_NAME_REGEX)
