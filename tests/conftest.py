@@ -79,6 +79,7 @@ def project_data(fake_arch: DebianArchitecture) -> dict[str, Any]:
         "contact": "requests@canonical.com",
         "issues": "https://github.com/canonical/sdks/issues",
         "source-code": "https://github.com/canonical/sdks",
+        "website": "https://github.com/canonical/default-sdk",
         "license": "MIT",
         "plugs": {"mount": {"interface": "mount", "workshop-target": "/path"}},
     }

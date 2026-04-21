@@ -48,6 +48,7 @@ class Metadata(BaseMetadata):
     contact: str | UniqueStrList | None = None
     issues: str | UniqueStrList | None = None
     source_code: AnyUrl | None = None
+    website: AnyUrl | None = None
     license: str | None = None
 
     plugs: Plugs = {}

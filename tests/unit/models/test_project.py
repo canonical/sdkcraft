@@ -52,6 +52,7 @@ def test_project_create_valid(project_data: dict[str, Any]):
     assert project.contact == "requests@canonical.com"
     assert project.issues == "https://github.com/canonical/sdks/issues"
     assert project.source_code == AnyUrl("https://github.com/canonical/sdks")
+    assert project.website == AnyUrl("https://github.com/canonical/default-sdk")
     assert project.license == "MIT"
     assert project.adopt_info is None
     assert project.plugs == {
