@@ -122,6 +122,7 @@ class PackageService(services.PackageService):
                     "contact",
                     "issues",
                     "source_code",
+                    "website",
                     "license",
                     "plugs",
                     "slots",
