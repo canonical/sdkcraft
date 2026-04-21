@@ -18,11 +18,13 @@
 from __future__ import annotations
 
 import codecs
-import re
+import os
 import subprocess
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-SPECIAL_CHARACTERS = re.compile(r"['\\]")
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 def user_data_path() -> Path:
@@ -37,11 +39,33 @@ def user_data_path() -> Path:
 
 
 def systemctl_user_environment() -> dict[str, str]:
-    """Collect environment variables from systemd user session."""
+    """Lookup systemd environment for the current real user."""
+    env: Mapping[str, str] = os.environ
+    sudo_uid = env.get("SUDO_UID")
+    euid = os.geteuid()
+    if euid != 0:
+        uid = euid
+    elif sudo_uid is not None:
+        try:
+            uid = int(sudo_uid)
+        except ValueError:
+            uid = os.getuid()
+    else:
+        uid = os.getuid()
+
+    if uid == 0:
+        args = []
+    elif uid == euid:
+        args = ["--user"]
+        env = {"XDG_RUNTIME_DIR": f"/run/user/{uid}", **env}
+    else:
+        args = [f"--machine={uid}@.host", "--user"]
+
     result = subprocess.run(
-        ["systemctl", "--user", "show-environment"],
+        ["systemctl", *args, "show-environment"],
         capture_output=True,
         check=True,
+        env=env,
         text=True,
     )
 

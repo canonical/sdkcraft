@@ -17,10 +17,17 @@
 
 from __future__ import annotations
 
+from subprocess import CompletedProcess
+from typing import TYPE_CHECKING
 from unicodedata import category
 
 import pytest
-from sdkcraft.env import parse_systemctl_environment
+from sdkcraft.env import parse_systemctl_environment, systemctl_user_environment
+
+if TYPE_CHECKING:
+    from collections.abc import MutableMapping
+
+    from pytest_mock import MockerFixture, MockType
 
 SYSTEMCTL_ESCAPES = {
     "\a": r"\a",
@@ -90,3 +97,143 @@ def test_parse_systemctl_environment_invalid_escape():
         ValueError, match='invalid environment entry "K=\\$\'1\\\\\\\\"'
     ):
         parse_systemctl_environment("K=$'1\\\n")
+
+
+@pytest.fixture
+def environ() -> dict[str, str]:
+    return {}
+
+
+@pytest.fixture
+def uid() -> int:
+    return 0
+
+
+@pytest.fixture
+def euid() -> int:
+    return 0
+
+
+@pytest.fixture
+def fake_environ(
+    mocker: MockerFixture, environ: dict[str, str]
+) -> MutableMapping[str, str]:
+    return mocker.patch.dict("os.environ", values=environ, clear=True)
+
+
+@pytest.fixture
+def fake_uid(mocker: MockerFixture, uid: int) -> MockType:
+    return mocker.patch("os.getuid", return_value=uid)
+
+
+@pytest.fixture
+def fake_euid(mocker: MockerFixture, euid: int) -> MockType:
+    return mocker.patch("os.geteuid", return_value=euid)
+
+
+@pytest.fixture
+def fake_run(mocker: MockerFixture) -> MockType:
+    return mocker.patch(
+        "sdkcraft.env.subprocess.run",
+        return_value=CompletedProcess[str]([], 0, "K=V\n"),
+    )
+
+
+@pytest.mark.usefixtures("fake_uid", "fake_euid")
+def test_systemctl_system_environment(
+    fake_run: MockType, fake_environ: MutableMapping[str, str]
+):
+    result = systemctl_user_environment()
+    assert result == {"K": "V"}
+
+    fake_run.assert_called_once_with(
+        ["systemctl", "show-environment"],
+        capture_output=True,
+        check=True,
+        env=fake_environ,
+        text=True,
+    )
+
+
+@pytest.mark.parametrize(
+    ("uid", "euid"),
+    [(1000, 1000)],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
+)
+@pytest.mark.usefixtures("fake_uid", "fake_euid")
+def test_systemctl_user_environment(
+    fake_run: MockType, fake_environ: MutableMapping[str, str]
+):
+    result = systemctl_user_environment()
+    assert result == {"K": "V"}
+
+    fake_run.assert_called_once_with(
+        ["systemctl", "--user", "show-environment"],
+        capture_output=True,
+        check=True,
+        env={**fake_environ, "XDG_RUNTIME_DIR": "/run/user/1000"},
+        text=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "environ",
+    [{"SUDO_UID": "1001"}],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
+)
+@pytest.mark.usefixtures("fake_uid", "fake_euid")
+def test_systemctl_sudo_environment(
+    fake_run: MockType, fake_environ: MutableMapping[str, str]
+):
+    result = systemctl_user_environment()
+    assert result == {"K": "V"}
+
+    fake_run.assert_called_once_with(
+        ["systemctl", "--machine=1001@.host", "--user", "show-environment"],
+        capture_output=True,
+        check=True,
+        env=fake_environ,
+        text=True,
+    )
+
+
+@pytest.mark.parametrize(
+    ("environ", "uid", "euid"),
+    [({"SUDO_UID": "0", "XDG_RUNTIME_DIR": "/custom"}, 1002, 1002)],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
+)
+@pytest.mark.usefixtures("fake_uid", "fake_euid")
+def test_systemctl_sudo_as_user_environment(
+    fake_run: MockType, fake_environ: MutableMapping[str, str]
+):
+    result = systemctl_user_environment()
+    assert result == {"K": "V"}
+
+    fake_run.assert_called_once_with(
+        ["systemctl", "--user", "show-environment"],
+        capture_output=True,
+        check=True,
+        env=fake_environ,
+        text=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "environ",
+    [{"SUDO_UID": "!@#$%"}],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
+)
+@pytest.mark.usefixtures("fake_uid", "fake_euid")
+def test_systemctl_broken_sudo_environment(
+    fake_run: MockType, fake_environ: MutableMapping[str, str]
+):
+    result = systemctl_user_environment()
+    assert result == {"K": "V"}
+
+    fake_run.assert_called_once_with(
+        ["systemctl", "show-environment"],
+        capture_output=True,
+        check=True,
+        env=fake_environ,
+        text=True,
+    )
