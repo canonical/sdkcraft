@@ -162,8 +162,7 @@ def datetime_as_utc_str(dt: datetime) -> str:
     if dt.tzinfo is None:
         raise NotImplementedError("timezone required")
 
-    # Append Z because Go does not recognize +00:00 as UTC.
-    return dt.astimezone(UTC).replace(tzinfo=None).isoformat() + "Z"
+    return dt.astimezone(UTC).isoformat()
 
 
 def copytree(source: os.PathLike[str], target: pathlib.Path) -> None:
