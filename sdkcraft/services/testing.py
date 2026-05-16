@@ -55,7 +55,7 @@ else
 fi
 lxd waitready --timeout=180
 
-sudo snap install --classic --dangerous ./workshop_*.snap
+sudo snap install --classic workshop
 
 rm -rf ~/.local/share/workshop/try
 install --directory --mode=700 ~/.local
@@ -89,15 +89,7 @@ class TestingService(services.TestingService):
 
     def sanity_check(self, project_path: Path) -> None:
         """Detect errors without waiting for long operations."""
-        _, _, spread_path = _read_spread_yaml(project_path)
-        if next(spread_path.glob("workshop_*.snap"), None) is None:
-            raise CraftError(
-                f"Workshop snap not found in {str(spread_path)!r}.",
-                details="A local copy of the snap is required while Workshop remains private.",
-                reportable=False,
-                logpath_report=False,
-                retcode=EX_NOINPUT,
-            )
+        _read_spread_yaml(project_path)
 
     def sdkcraft_test(
         self,
