@@ -82,7 +82,7 @@ parts:
   spread:
     plugin: go
     source: https://github.com/jonathan-conder/spread.git
-    source-commit: 59b96df7eb19df72a448a917e72895f1668996aa
+    source-commit: 405611bac095a977da8178d08504b70ddd01735f
     build-snaps:
       - go/latest/stable
     build-attributes:
