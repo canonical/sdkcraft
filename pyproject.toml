@@ -171,8 +171,6 @@ quote-style = "double"
 # Follow ST063 - Maintaining and updating linting specifications for updating these.
 # Handy link: https://docs.astral.sh/ruff/rules/
 select = [ # Base linting rule selections.
-    # See the internal document for discussion:
-    # https://docs.google.com/document/d/1i1n8pDmFmWi4wTDpk-JfnWCVUThPJiggyPi2DYwBBu4/edit
     # All sections here are stable in ruff and shouldn't randomly introduce
     # failures with ruff updates.
     "F",     # The rules built into Flake8
