@@ -26,7 +26,7 @@ from typing import Annotated, Any, Literal, Protocol, runtime_checkable
 
 from craft_application import models
 from craft_application.models import project
-from pydantic import AfterValidator, BeforeValidator, Discriminator, Field
+from pydantic import AfterValidator, AnyUrl, BeforeValidator, Discriminator, Field
 
 from sdkcraft.models.constraints import (
     FILE_MODE_MASK,
@@ -218,6 +218,7 @@ class Project(models.Project):
     """SDKcraft project definition."""
 
     name: ProjectName
+    website: AnyUrl | None = None
 
     plugs: Plugs = {}
     slots: Slots = {}
