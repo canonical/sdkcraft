@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 APP_METADATA = AppMetadata(
     name="sdkcraft",
     summary="Design and build SDKs with SDKcraft",
-    docs_url="https://canonical-workshop.readthedocs-hosted.com/{version}",
+    docs_url="https://ubuntu.com/workshop/docs/",
     source_ignore_patterns=["*.sdk"],
     ProjectClass=Project,
     supports_multi_base=True,
