@@ -35,11 +35,18 @@ Build and package your SDK:
 
    sdkcraft pack
 
-Test your SDK in a clean environment:
+Pack the SDK and stage it in the Workshop try area for manual try-out:
 
 .. code-block:: console
 
    sdkcraft try
+
+Run the SDK's spread suite (scaffolded by ``sdkcraft init``) against the
+freshly packed artifact in a clean LXD container:
+
+.. code-block:: console
+
+   sdkcraft test
 
 Clean build artifacts:
 
@@ -47,11 +54,21 @@ Clean build artifacts:
 
    sdkcraft clean
 
-Publish your SDK to the SDK Store:
+Publishing flows through the SDK Store.
+Authenticate once, reserve the SDK name,
+then upload a revision and release it to a channel:
 
 .. code-block:: console
 
-   sdkcraft.publish ./my-sdk.sdk latest/edge
+   sdkcraft login
+   sdkcraft register <NAME>
+   sdkcraft upload <NAME>_<ARCH>_<BASE>.sdk --release latest/edge
+
+Promote an existing revision between channels with ``sdkcraft release``:
+
+.. code-block:: console
+
+   sdkcraft release <NAME> <REVISION> latest/stable
 
 
 Installation
@@ -71,7 +88,7 @@ Prerequisites
 ~~~~~~~~~~~~~
 
 SDKcraft requires
-`LXD 6.3+ <https://canonical.com/lxd>`_
+`LXD 6.6 or later <https://canonical.com/lxd>`_
 for low-level operation.
 
 If the ``snap install`` command reports an issue with LXD,
