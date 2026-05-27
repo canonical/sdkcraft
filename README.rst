@@ -112,6 +112,9 @@ and
 `Publish an SDK <https://documentation.ubuntu.com/canonical-workshop/latest/how-to/develop-sdks/publish-an-sdk/>`__
 how-to guides.
 
+For reference examples of SDK implementation, see the
+`reference SDKs repository <https://github.com/canonical/reference-sdks>`__.
+
 To know more about `Workshop <https://github.com/canonical/workshop/>`_ in general,
 jump straight to the
 `documentation home page <https://documentation.ubuntu.com/canonical-workshop/latest/>`_.
