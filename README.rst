@@ -104,12 +104,12 @@ Documentation
 -------------
 
 Refer to `Part 4 of the tutorial
-<https://documentation.ubuntu.com/canonical-workshop/latest//tutorial/part-4-craft-sdks/>`_
+<https://ubuntu.com/workshop/docs/tutorial/part-4-craft-sdks/>`_
 in our docs for a detailed introduction to SDKcraft;
 for more detailed guidance,
-see the `Build an SDK <https://documentation.ubuntu.com/canonical-workshop/latest/how-to/develop-sdks/build-an-sdk/>`__
+see the `Build an SDK <https://ubuntu.com/workshop/docs/how-to/develop-sdks/build-an-sdk/>`__
 and
-`Publish an SDK <https://documentation.ubuntu.com/canonical-workshop/latest/how-to/develop-sdks/publish-an-sdk/>`__
+`Publish an SDK <https://ubuntu.com/workshop/docs/how-to/develop-sdks/publish-an-sdk/>`__
 how-to guides.
 
 For reference examples of SDK implementation, see the
@@ -117,7 +117,7 @@ For reference examples of SDK implementation, see the
 
 To know more about `Workshop <https://github.com/canonical/workshop/>`_ in general,
 jump straight to the
-`documentation home page <https://documentation.ubuntu.com/canonical-workshop/latest/>`_.
+`documentation home page <https://ubuntu.com/workshop/docs/>`_.
 
 Generate the project schema JSON:
 
@@ -134,7 +134,7 @@ Community and Support
 
 Use the following resources for communication, support, and feedback:
 
-- `Code of conduct <https://ubuntu.com/community/ethos/code-of-conduct>`__
+- `Code of conduct <https://ubuntu.com/community/docs/ethos/code-of-conduct>`__
 
 - `Discourse <https://discourse.ubuntu.com/>`__
 
@@ -145,4 +145,4 @@ Contributions
 -------------
 
 To join the development effort, see `How to contribute
-<https://documentation.ubuntu.com/canonical-workshop/latest/contributing/>`_.
+<https://ubuntu.com/workshop/docs/contributing/>`_.
