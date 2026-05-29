@@ -14,7 +14,7 @@ apps:
   sdkcraft:
     command: bin/sdkcraft
     environment:
-      PATH: ${SNAP}/bin:${SNAP}/usr/bin:${PATH}
+      PATH: ${SNAP}/bin:${PATH}:${SNAP}/usr/bin
   publish:
     environment:
       PATH: ${SNAP}/bin:${PATH}
