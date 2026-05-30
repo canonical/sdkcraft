@@ -26,7 +26,7 @@ jobs:
         id: snapcraft
 
       - name: Upload snap artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: snap-amd64
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -46,7 +46,7 @@ jobs:
         id: snapcraft
 
       - name: Upload snap artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: snap-arm64
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -83,7 +83,7 @@ jobs:
           go install ./...
           popd
       - name: Download snap artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: snap-amd64
           path: tests
@@ -103,7 +103,7 @@ jobs:
             snap: ${{ needs.build-snap-arm64.outputs.snap }}
     steps:
       - name: Download snap artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: snap-${{ matrix.architecture }}
       - uses: canonical/action-publish@v1
