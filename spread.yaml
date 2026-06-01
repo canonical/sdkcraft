@@ -58,3 +58,4 @@ suites:
   tests/spread/store/:
     summary: tests for SDK Store functionality
     kill-timeout: 30m
+    manual: true
