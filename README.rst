@@ -68,6 +68,7 @@ Promote an existing revision between channels with ``sdkcraft release``:
 
 .. code-block:: console
 
+   sdkcraft revisions <NAME>
    sdkcraft release <NAME> <REVISION> latest/stable
 
 
