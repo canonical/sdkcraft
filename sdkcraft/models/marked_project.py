@@ -47,7 +47,9 @@ class MountPlug(MarkedModel):
 class OtherPlug(MarkedModel):
     """Marked project generic plug definition."""
 
-    interface: Literal["camera", "desktop", "gpu", "ssh-agent", "tunnel"]
+    interface: Literal[
+        "camera", "custom-device", "desktop", "gpu", "ssh-agent", "tunnel"
+    ]
 
 
 type Plug = Annotated[MountPlug | OtherPlug, Discriminator("interface")]

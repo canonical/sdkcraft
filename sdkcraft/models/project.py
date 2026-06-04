@@ -55,6 +55,24 @@ class CameraPlug(models.CraftBaseModel):
             raise ValueError("camera interface plugs must be named 'camera'")
 
 
+class CustomDevicePlug(models.CraftBaseModel):
+    """SDKcraft project custom-device plug definition."""
+
+    interface: Literal["custom-device"]
+    subsystem: Annotated[
+        str,
+        Field(
+            min_length=1,
+            title="Subsystem",
+            description="Device subsystem.",
+            examples=[
+                "accel",
+                "usb",
+            ],
+        ),
+    ]
+
+
 class DesktopPlug(models.CraftBaseModel):
     """SDKcraft project desktop plug definition."""
 
@@ -135,7 +153,13 @@ class TunnelSlot(models.CraftBaseModel):
 
 
 type Plug = Annotated[
-    CameraPlug | DesktopPlug | GPUPlug | MountPlug | SSHAgentPlug | TunnelPlug,
+    CameraPlug
+    | CustomDevicePlug
+    | DesktopPlug
+    | GPUPlug
+    | MountPlug
+    | SSHAgentPlug
+    | TunnelPlug,
     Discriminator("interface"),
 ]
 type Slot = Annotated[MountSlot | TunnelSlot, Discriminator("interface")]
