@@ -23,6 +23,7 @@ import pytest
 from craft_store import models
 from craft_store.errors import StoreServerError
 from sdkcraft.errors import SdkcraftError
+from sdkcraft.models.store import SdkRevisionModel
 from sdkcraft.store.client import StoreClient, StoreClientCLI
 
 if TYPE_CHECKING:
@@ -206,6 +207,47 @@ def test_notify_and_poll_revision_timeout(mocker: MockerFixture):
 
     with pytest.raises(SdkcraftError, match="Revision polling timed out"):
         client.notify_and_poll_revision("test-sdk", "test-upload-id-123")
+
+
+def test_list_sdk_revisions(mocker: MockerFixture):
+    request_response = MagicMock()
+    request_response.json.return_value = {
+        "revisions": [
+            {
+                "bases": [
+                    {
+                        "architecture": "amd64",
+                        "channel": "all",
+                        "name": "all",
+                    }
+                ],
+                "created-at": "2026-01-19T06:17:14Z",
+                "created-by": "CqyWllG7eo6hDoj2sMRtj6dFUtiU7DEK",
+                "revision": 8,
+                "sha3-384": "3ffbfe6ca0f4822f42ba57947b7a5e095b3df9e21e5ddd6b433ef7e0e08396c4c2bc5c75f21326d93d8efcdb26bf352c",
+                "size": 59422629,
+                "status": "released",
+                "version": "1.24.6",
+            }
+        ]
+    }
+    mock_request = mocker.patch.object(
+        StoreClient,
+        "request",
+        return_value=request_response,
+    )
+
+    client = StoreClient()
+    revisions = client.list_sdk_revisions("test-sdk")
+
+    assert revisions == [
+        SdkRevisionModel.unmarshal(revision)
+        for revision in request_response.json.return_value["revisions"]
+    ]
+    mock_request.assert_called_once_with(
+        "GET",
+        "https://api.charmhub.io/v1/sdk/test-sdk/revisions",
+    )
 
 
 #########################

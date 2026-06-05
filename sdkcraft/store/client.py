@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 from sdkcraft._version import __version__
 from sdkcraft.errors import SdkcraftError
 from sdkcraft.models.metadata import Metadata
-from sdkcraft.models.store import SdkListReleasesModel
+from sdkcraft.models.store import SdkListReleasesModel, SdkRevisionModel
 from sdkcraft.store import constants
 
 _HOSTNAME: str = platform.node() or "UNKNOWN"
@@ -209,6 +209,20 @@ class StoreClient(craft_store.StoreClient):
                 "Unexpected store response: missing 'num-tracks-created' field"
             )
         return int(response_data["num-tracks-created"])
+
+    def list_sdk_revisions(self, sdk_name: str) -> list[SdkRevisionModel]:
+        """List all SDK revisions uploaded to the store."""
+        endpoint = self._endpoints.get_revisions_endpoint(sdk_name)
+        response = self.request("GET", self._base_url + endpoint)  # pyright: ignore[reportUnknownMemberType]
+        response_data = response.json()
+
+        if "revisions" not in response_data:
+            raise SdkcraftError("Unexpected store response: missing 'revisions' field")
+
+        return [
+            SdkRevisionModel.unmarshal(revision)
+            for revision in response_data["revisions"]
+        ]
 
 
 def get_client(*, ephemeral: bool = False) -> StoreClient:

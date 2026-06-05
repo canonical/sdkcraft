@@ -32,6 +32,7 @@ from sdkcraft.commands import (
     StoreLoginCommand,
     StoreRegisterCommand,
     StoreReleaseCommand,
+    StoreRevisionsCommand,
     StoreUploadCommand,
     StoreWhoamiCommand,
     TestCommand,
@@ -55,6 +56,7 @@ def _create_app() -> Sdkcraft:
             StoreCreateTrackCommand,
             StoreRegisterCommand,
             StoreReleaseCommand,
+            StoreRevisionsCommand,
             StoreUploadCommand,
         ],
     )

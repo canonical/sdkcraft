@@ -26,34 +26,13 @@ from craft_store import models
 from pydantic import TypeAdapter, ValidationError
 
 from sdkcraft import store
+from sdkcraft.commands._formatters import format_channel_map
 from sdkcraft.errors import SdkcraftError
 from sdkcraft.models.constraints import ChannelName
-from sdkcraft.models.store import SdkChannelMapModel, SdkListReleasesModel
+from sdkcraft.models.store import SdkListReleasesModel
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser, Namespace
-
-
-def _format_channel_map(channel_map: list[SdkChannelMapModel]) -> list[str]:
-    """Render channel map entries as a plain aligned table."""
-    col_channel = "CHANNEL"
-    col_revision = "REVISION"
-
-    rows = [(entry.channel, str(entry.revision)) for entry in channel_map]
-
-    w_channel = (
-        max(len(col_channel), *(len(r[0]) for r in rows)) if rows else len(col_channel)
-    )
-    w_revision = (
-        max(len(col_revision), *(len(r[1]) for r in rows))
-        if rows
-        else len(col_revision)
-    )
-
-    lines = [f"{col_channel:<{w_channel}}  {col_revision:<{w_revision}}"]
-    for ch, rev in rows:
-        lines.append(f"{ch:<{w_channel}}  {rev:<{w_revision}}")
-    return lines
 
 
 class StoreReleaseCommand(AppCommand):
@@ -139,5 +118,5 @@ class StoreReleaseCommand(AppCommand):
         client.release(name=sdk_name, release_request=release_request)
 
         result = cast(SdkListReleasesModel, client.get_list_releases(name=sdk_name))
-        for line in _format_channel_map(result.channel_map):
+        for line in format_channel_map(result.channel_map):
             emit.message(line)
