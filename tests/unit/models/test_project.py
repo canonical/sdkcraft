@@ -25,6 +25,7 @@ from craft_application import models
 from pydantic import AnyUrl, TypeAdapter, ValidationError
 from sdkcraft.models.project import (
     CameraPlug,
+    CustomDevicePlug,
     DesktopPlug,
     GPUPlug,
     MountPlug,
@@ -59,6 +60,28 @@ def test_project_create_valid(project_data: dict[str, Any]):
     assert project.slots == {}
     assert project.parts == {"default-part": {"plugin": "nil"}}
     assert project.package_repositories is None
+
+
+@pytest.mark.parametrize("subsystem", ["accel", "usb"])
+def test_custom_device_plug_subsystem(subsystem: str):
+    plug = {"interface": "custom-device", "subsystem": subsystem}
+
+    result = CustomDevicePlug.unmarshal(plug)
+    assert result.subsystem == subsystem
+
+
+def test_custom_device_plug_empty_subsystem():
+    plug = {"interface": "custom-device", "subsystem": ""}
+
+    with pytest.raises(ValidationError):
+        CustomDevicePlug.unmarshal(plug)
+
+
+def test_custom_device_plug_no_subsystem():
+    plug = {"interface": "custom-device"}
+
+    with pytest.raises(ValidationError):
+        CustomDevicePlug.unmarshal(plug)
 
 
 @pytest.mark.parametrize("path", ["$SDK", "$SDK/subdir"])
