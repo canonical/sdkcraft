@@ -22,6 +22,7 @@ DEFAULT_METADATA = {
     "contact": "requests@canonical.com",
     "issues": "https://github.com/canonical/sdks/issues",
     "source-code": "https://github.com/canonical/sdks",
+    "website": "https://github.com/canonical/default-sdk",
     "license": "MIT",
     "plugs": {"mount": {"interface": "mount", "workshop-target": "/path"}},
     "sdkcraft-started-at": "1970-01-01T00:00:00+00:00",
