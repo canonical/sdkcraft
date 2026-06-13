@@ -29,6 +29,6 @@ repos:
         additional_dependencies:
           - prettier@3.6.0 # renovate: datasource=npm
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.10.6"
+    rev: "0.11.21"
     hooks:
       - id: uv-lock
