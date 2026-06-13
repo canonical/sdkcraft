@@ -22,7 +22,7 @@ jobs:
           release: stable
 
       - name: Upload snap artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: snap-${{ matrix.arch }}
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -32,19 +32,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download amd64 snap
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: snap-amd64
           path: snaps/
 
       - name: Download arm64 snap
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: snap-arm64
           path: snaps/
 
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: snaps/*.snap
 
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.2.0
 
       - name: Generate CLI reference docs
         run: uv run sdkcraft generate-docs docs/
