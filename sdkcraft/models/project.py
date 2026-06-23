@@ -31,6 +31,7 @@ from pydantic import AfterValidator, AnyUrl, BeforeValidator, Discriminator, Fie
 from sdkcraft.models.constraints import (
     FILE_MODE_MASK,
     CleanAbsPath,
+    DeviceID,
     Endpoint,
     FileMode,
     PlugName,
@@ -55,22 +56,51 @@ class CameraPlug(models.CraftBaseModel):
             raise ValueError("camera interface plugs must be named 'camera'")
 
 
-class CustomDevicePlug(models.CraftBaseModel):
+class CustomDevicePlugModel(models.CraftBaseModel):
     """SDKcraft project custom-device plug definition."""
 
     interface: Literal["custom-device"]
     subsystem: Annotated[
         str,
         Field(
-            min_length=1,
             title="Subsystem",
             description="Device subsystem.",
-            examples=[
-                "accel",
-                "usb",
-            ],
+            examples=["accel", "usb"],
         ),
-    ]
+    ] = ""
+    vendorid: Annotated[
+        DeviceID,
+        Field(
+            title="Vendor ID",
+            description="Restrict the exposed devices to those with this vendor ID.",
+            examples=["0403"],
+        ),
+    ] = ""
+    productid: Annotated[
+        DeviceID,
+        Field(
+            title="Product ID",
+            description="Restrict the exposed devices to those with this product ID.",
+            examples=["6001"],
+        ),
+    ] = ""
+
+
+def _check_device_filter(plug: CustomDevicePlugModel) -> CustomDevicePlug:
+    if not {"subsystem", "vendorid", "productid"} & plug.model_fields_set:
+        raise ValueError(
+            "custom-device plug must contain 'subsystem', 'vendorid', or 'productid'"
+        )
+
+    if "productid" in plug.model_fields_set and "vendorid" not in plug.model_fields_set:
+        raise ValueError("custom-device plug contains 'productid' without 'vendorid'")
+
+    return plug
+
+
+type CustomDevicePlug = Annotated[
+    CustomDevicePlugModel, AfterValidator(_check_device_filter)
+]
 
 
 class DesktopPlug(models.CraftBaseModel):

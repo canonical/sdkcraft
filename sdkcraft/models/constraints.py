@@ -76,7 +76,7 @@ type PlugName = Annotated[
     str,
     Field(
         strict=True,
-        pattern=PLUG_NAME_COMPILED_REGEX,
+        pattern=PLUG_NAME_REGEX,
         description=PLUG_NAME_DESCRIPTION.format("plug"),
         title="Plug Name",
         examples=[
@@ -95,7 +95,7 @@ type SlotName = Annotated[
     str,
     Field(
         strict=True,
-        pattern=PLUG_NAME_COMPILED_REGEX,
+        pattern=PLUG_NAME_REGEX,
         description=PLUG_NAME_DESCRIPTION.format("slot"),
         title="Slot Name",
         examples=[
@@ -109,6 +109,29 @@ type SlotName = Annotated[
             PLUG_NAME_COMPILED_REGEX, MESSAGE_INVALID_PLUG_NAME.format("slot")
         )
     ),
+]
+
+
+DEVICE_ID_REGEX = r"^(?:0x)?[a-fA-F0-9]+$"
+DEVICE_ID_COMPILED_REGEX = re.compile(DEVICE_ID_REGEX)
+MESSAGE_INVALID_DEVICE_ID = "invalid device ID: must be a hexadecimal number."
+
+
+def _check_device_id(device_id: str) -> str:
+    if int(device_id, base=16) >= (1 << 16):
+        raise ValueError("invalid device ID: maximum is 0xffff")
+    return device_id
+
+
+type DeviceID = Annotated[
+    str,
+    Field(strict=True, pattern=DEVICE_ID_REGEX),
+    BeforeValidator(
+        constraints.get_validator_by_regex(
+            DEVICE_ID_COMPILED_REGEX, MESSAGE_INVALID_DEVICE_ID
+        )
+    ),
+    AfterValidator(_check_device_id),
 ]
 
 

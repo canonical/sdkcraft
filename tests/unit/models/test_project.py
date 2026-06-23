@@ -63,26 +63,54 @@ def test_project_create_valid(project_data: dict[str, Any]):
     assert project.package_repositories is None
 
 
+custom_device_adapter: TypeAdapter[CustomDevicePlug] = TypeAdapter(CustomDevicePlug)
+
+
+def test_custom_device_plug_all_filters():
+    plug = {
+        "interface": "custom-device",
+        "subsystem": "tty",
+        "productid": "6001",
+        "vendorid": "0403",
+    }
+
+    result = custom_device_adapter.validate_python(plug)
+    assert result.subsystem == "tty"
+    assert result.productid == "6001"
+    assert result.vendorid == "0403"
+
+
 @pytest.mark.parametrize("subsystem", ["accel", "usb"])
 def test_custom_device_plug_subsystem(subsystem: str):
     plug = {"interface": "custom-device", "subsystem": subsystem}
 
-    result = CustomDevicePlug.unmarshal(plug)
+    result = custom_device_adapter.validate_python(plug)
     assert result.subsystem == subsystem
+    assert result.vendorid == ""
+    assert result.productid == ""
 
 
-def test_custom_device_plug_empty_subsystem():
-    plug = {"interface": "custom-device", "subsystem": ""}
+def test_custom_device_plug_vendorid():
+    plug = {"interface": "custom-device", "vendorid": "0403"}
+
+    result = custom_device_adapter.validate_python(plug)
+    assert result.subsystem == ""
+    assert result.vendorid == "0403"
+    assert result.productid == ""
+
+
+def test_custom_device_plug_productid():
+    plug = {"interface": "custom-device", "productid": "6001"}
 
     with pytest.raises(ValidationError):
-        CustomDevicePlug.unmarshal(plug)
+        custom_device_adapter.validate_python(plug)
 
 
-def test_custom_device_plug_no_subsystem():
+def test_custom_device_plug_no_filter():
     plug = {"interface": "custom-device"}
 
     with pytest.raises(ValidationError):
-        CustomDevicePlug.unmarshal(plug)
+        custom_device_adapter.validate_python(plug)
 
 
 @pytest.mark.parametrize("path", ["$SDK", "$SDK/subdir"])
