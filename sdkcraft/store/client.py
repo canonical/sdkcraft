@@ -24,12 +24,14 @@ from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
 import craft_store
+import keyring
 import pydantic
 import yaml
 from craft_application.errors import CraftValidationError
 from craft_cli import emit
 from craft_store import errors as store_errors
 from craft_store import models
+from craft_store.auth import FileKeyring
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -100,6 +102,20 @@ class StoreClient(craft_store.StoreClient):
             ephemeral=ephemeral,
             file_fallback=True,  # Enable file-based keyring for containers
         )
+
+    def get_credentials_storage_info(self) -> str:
+        """Return a human-readable description of where credentials are stored."""
+        if os.getenv(constants.ENVIRONMENT_STORE_CREDENTIALS):
+            return f"environment variable {constants.ENVIRONMENT_STORE_CREDENTIALS!r}"
+
+        keyring_backend = keyring.get_keyring()
+        if isinstance(keyring_backend, FileKeyring):
+            return f"file: {keyring_backend.credentials_file}"
+
+        provider = keyring_backend.name
+        service = self._auth.application_name
+        key = self._auth.host
+        return f"system keyring ({provider}), service={service!r}, key={key!r}"
 
     def ensure_registered(self, sdk_name: str) -> None:
         """Ensure the SDK is registered on the store.
