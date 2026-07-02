@@ -16,14 +16,20 @@
 
 from __future__ import annotations
 
+import base64
 from typing import TYPE_CHECKING
 from unittest.mock import call
 
+import keyring
+import keyring.backends.fail
 import pytest
 from craft_store import endpoints
+from craft_store.auth import FileKeyring, MemoryKeyring
 from sdkcraft.store import client
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from pytest_mock import MockerFixture, MockType
 
 ############
@@ -310,3 +316,65 @@ def test_login_returns_credentials(fake_client: MockType):
     result = client.StoreClientCLI().login()
 
     assert result == "test-credentials"
+
+
+######################################
+# Credentials Storage Info Tests     #
+######################################
+
+
+def test_credentials_storage_info_env_var(
+    mocker: MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    """Reports the env var name when credentials come from the environment."""
+    monkeypatch.setenv(
+        "SDKCRAFT_STORE_CREDENTIALS", base64.b64encode(b"test-creds").decode()
+    )
+    mocker.patch("keyring.set_keyring")
+    mocker.patch("keyring.get_keyring", return_value=MemoryKeyring())
+    store_client = client.StoreClient()
+
+    assert store_client.get_credentials_storage_info() == (
+        "environment variable 'SDKCRAFT_STORE_CREDENTIALS'"
+    )
+
+
+def test_credentials_storage_info_file_keyring(
+    mocker: MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+):
+    """Reports the file path when the FileKeyring backend is in use."""
+    monkeypatch.delenv("SDKCRAFT_STORE_CREDENTIALS", raising=False)
+    mocker.patch(
+        "craft_store.auth.BaseDirectory.save_data_path", return_value=str(tmp_path)
+    )
+    mocker.patch("keyring.set_keyring")
+    file_keyring = FileKeyring("sdkcraft")
+    mocker.patch(
+        "keyring.get_keyring",
+        side_effect=[keyring.backends.fail.Keyring(), file_keyring, file_keyring],
+    )
+    store_client = client.StoreClient()
+
+    assert store_client.get_credentials_storage_info() == (
+        f"file: {tmp_path / 'credentials.json'}"
+    )
+
+
+def test_credentials_storage_info_system_keyring(
+    mocker: MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    """Reports provider name, service and key for system keyring backends."""
+    monkeypatch.delenv("SDKCRAFT_STORE_CREDENTIALS", raising=False)
+    mock_keyring = mocker.MagicMock()
+    mock_keyring.name = "SecretService Keyring"
+    mocker.patch("keyring.get_keyring", return_value=mock_keyring)
+    store_client = client.StoreClient()
+
+    assert store_client.get_credentials_storage_info() == (
+        "system keyring (SecretService Keyring), "
+        "service='sdkcraft', key='api.charmhub.io'"
+    )

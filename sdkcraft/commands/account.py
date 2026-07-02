@@ -98,6 +98,9 @@ class StoreWhoamiCommand(AppCommand):
                 emit.message(f"channels: {', '.join(channels)}")
             else:
                 emit.message("channels: no restrictions")
+
+            storage_info = client.get_credentials_storage_info()
+            emit.message(f"token: {storage_info}")
         except Exception as error:
             emit.message(f"Not authenticated or authentication failed: {error}")
             raise
