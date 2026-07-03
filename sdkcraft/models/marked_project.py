@@ -48,7 +48,13 @@ class OtherPlug(MarkedModel):
     """Marked project generic plug definition."""
 
     interface: Literal[
-        "camera", "custom-device", "desktop", "gpu", "ssh-agent", "tunnel"
+        "camera",
+        "custom-device",
+        "desktop",
+        "gpu",
+        "ssh-agent",
+        "tunnel",
+        "virtualization",
     ]
 
 

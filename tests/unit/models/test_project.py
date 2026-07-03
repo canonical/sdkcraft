@@ -34,6 +34,7 @@ from sdkcraft.models.project import (
     Plugs,
     Project,
     SSHAgentPlug,
+    VirtualizationPlug,
 )
 
 
@@ -220,6 +221,7 @@ def test_implicit_interfaces():
         desktop: desktop
         gpu:
         ssh-agent: 'ssh-agent'
+        virtualization:
     """)
 
     expected = {
@@ -227,6 +229,7 @@ def test_implicit_interfaces():
         "desktop": DesktopPlug(interface="desktop"),
         "gpu": GPUPlug(interface="gpu"),
         "ssh-agent": SSHAgentPlug(interface="ssh-agent"),
+        "virtualization": VirtualizationPlug(interface="virtualization"),
     }
 
     assert plugs_adapter.validate_python(plugs) == expected
@@ -238,6 +241,14 @@ def test_interface_policies():
         match="ssh-agent interface plugs must be named 'ssh-agent'",
     ):
         plugs_adapter.validate_python({"foo": {"interface": "ssh-agent"}})
+
+
+def test_virtualization_plug_policy():
+    with pytest.raises(
+        ValidationError,
+        match="virtualization interface plugs must be named 'virtualization'",
+    ):
+        plugs_adapter.validate_python({"foo": {"interface": "virtualization"}})
 
 
 part_adapter: TypeAdapter[Part] = TypeAdapter(Part)
