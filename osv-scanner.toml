@@ -1,0 +1,7 @@
+[[IgnoredVulns]]
+id = "GHSA-pj65-3pf6-c5q4"
+reason = "No fix available for python-apt"
+
+[[IgnoredVulns]]
+id = "GHSA-rp8m-h266-53jh"
+reason = "No fix available for python-apt"
