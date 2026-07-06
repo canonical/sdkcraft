@@ -48,7 +48,7 @@ jobs:
           path: snaps/
 
       - name: Release
-        run: gh release create "${GITHUB_REF_NAME}" snaps/*.snap --generate-notes
+        run: gh release create "${GITHUB_REF_NAME}" snaps/*.snap --generate-notes --repo "${{ github.repository }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
