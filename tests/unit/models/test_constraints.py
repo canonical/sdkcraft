@@ -23,6 +23,7 @@ from sdkcraft.models.constraints import (
     PROJECT_NAME_REGEX,
     ChannelName,
     CleanAbsPath,
+    DeviceID,
     Endpoint,
     FileMode,
     PlugName,
@@ -100,6 +101,22 @@ def test_plug_name_invalid():
 
     with pytest.raises(ValidationError):
         plug_name_adapter.validate_python("a--b--c")
+
+
+device_id_adapter: TypeAdapter[DeviceID] = TypeAdapter(DeviceID)
+
+
+@pytest.mark.parametrize(
+    "value", ["6001", "0x6001", "403", "0000", "00ffff", "FFEE", "d", "0xA"]
+)
+def test_device_id_valid(value: str):
+    assert device_id_adapter.validate_python(value) == value
+
+
+@pytest.mark.parametrize("value", ["", "60011", "ABCG", "z001", "60_1", " abcd "])
+def test_device_id_invalid(value: str):
+    with pytest.raises(ValidationError):
+        device_id_adapter.validate_python(value)
 
 
 clean_abs_path_adapter: TypeAdapter[CleanAbsPath] = TypeAdapter(CleanAbsPath)
