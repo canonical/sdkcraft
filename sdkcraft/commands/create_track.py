@@ -48,7 +48,7 @@ class StoreCreateTrackCommand(AppCommand):
     examples: list[tuple[str, str]] = [
         (
             'Create two tracks for the "go" SDK',
-            "sdkcraft create-track go --track 1.26 --track 1.25",
+            "sdkcraft create-track --track 1.26 --track 1.25 go",
         ),
     ]
 
