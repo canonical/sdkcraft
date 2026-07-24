@@ -20,3 +20,6 @@ ENVIRONMENT_STORE_CREDENTIALS = "SDKCRAFT_STORE_CREDENTIALS"
 # SDK Store URLs
 SDK_STORE_URL = "https://api.charmhub.io"
 SDK_STORE_UPLOAD_URL = "https://storage.snapcraftcontent.com"
+
+# Ubuntu One SSO login URL used to discharge login macaroons
+UBUNTU_ONE_SSO_URL = "https://login.ubuntu.com"

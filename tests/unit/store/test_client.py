@@ -18,12 +18,11 @@ from __future__ import annotations
 
 import base64
 from typing import TYPE_CHECKING
-from unittest.mock import call
+from unittest.mock import ANY
 
 import keyring
 import keyring.backends.fail
 import pytest
-from craft_store import endpoints
 from craft_store.auth import FileKeyring, MemoryKeyring
 from sdkcraft.store import client
 
@@ -39,16 +38,10 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def fake_client(mocker: MockerFixture) -> MockType:
-    """Forces get_client to return a fake craft_store.StoreClient"""
-    store_client = mocker.patch("craft_store.StoreClient", autospec=True)
+    """Forces get_client to return a fake craft_store.UbuntuOneStoreClient"""
+    store_client = mocker.patch("craft_store.UbuntuOneStoreClient", autospec=True)
     mocker.patch("sdkcraft.store.client.get_client", return_value=store_client)
     return store_client
-
-
-@pytest.fixture
-def fake_hostname(mocker: MockerFixture) -> MockType:
-    """Mock _HOSTNAME constant to return a fixed hostname."""
-    return mocker.patch.object(client, "_HOSTNAME", "fake-host")
 
 
 #####################
@@ -89,233 +82,107 @@ def test_build_user_agent_format():
 ###############
 
 
-@pytest.mark.usefixtures("fake_hostname")
-def test_login_default(fake_client: MockType):
-    client.StoreClientCLI().login()
+@pytest.fixture
+def fake_u1_login(mocker: MockerFixture) -> MockType:
+    """Mock UbuntuOneLogin.login_with and Auth so login() is hermetic."""
+    root = mocker.MagicMock()
+    root.serialize.return_value = "root-serialized"
+    discharge = mocker.MagicMock()
+    discharge.serialize.return_value = "discharge-serialized"
 
-    assert fake_client.login.mock_calls == [
-        call(
-            ttl=31536000,
-            permissions=[
-                "account-register-package",
-                "account-view-packages",
-                "package-manage",
-                "package-manage-acl",
-                "package-manage-metadata",
-                "package-manage-releases",
-                "package-manage-revisions",
-                "package-view",
-                "package-view-acl",
-                "package-view-metadata",
-                "package-view-metrics",
-                "package-view-releases",
-                "package-view-revisions",
-            ],
-            channels=None,
-            packages=[],
-            description="sdkcraft@fake-host",
-        )
+    login_with = mocker.patch.object(
+        client.UbuntuOneLogin, "login_with", return_value=(root, discharge)
+    )
+
+    fake_auth = mocker.MagicMock()
+    fake_auth.encode_credentials.return_value = "encoded-credentials"
+    mocker.patch.object(client, "Auth", return_value=fake_auth)
+
+    return login_with
+
+
+def _default_acls() -> list[str]:
+    return [
+        "account-register-package",
+        "account-view-packages",
+        "package-manage",
+        "package-manage-acl",
+        "package-manage-metadata",
+        "package-manage-releases",
+        "package-manage-revisions",
+        "package-view",
+        "package-view-acl",
+        "package-view-metadata",
+        "package-view-metrics",
+        "package-view-releases",
+        "package-view-revisions",
     ]
 
 
-@pytest.mark.usefixtures("fake_hostname")
-def test_login_with_params(fake_client: MockType):
+def test_login_default(fake_u1_login: MockType):
+    client.StoreClientCLI().login(email="user@example.com", password="hunter2")  # noqa: S106
+
+    fake_u1_login.assert_called_once_with(
+        email="user@example.com",
+        password="hunter2",  # noqa: S106
+        otp=None,
+        base_url="https://api.charmhub.io",
+        login_url="https://login.ubuntu.com",
+        application_name="sdkcraft",
+        store_auth=ANY,
+        permissions=_default_acls(),
+        packages=None,
+        channels=None,
+        ttl=31536000,
+    )
+
+
+def test_login_with_params(fake_u1_login: MockType):
     client.StoreClientCLI().login(
+        email="user@example.com",
+        password="hunter2",  # noqa: S106
+        otp="123456",
         ttl=20,
         acls=["package-view", "package-manage"],
         packages=["fake-sdk", "fake-other-sdk"],
         channels=["stable/fake", "edge/fake"],
     )
 
-    assert fake_client.login.mock_calls == [
-        call(
-            ttl=20,
-            permissions=[
-                "package-view",
-                "package-manage",
-            ],
-            channels=["stable/fake", "edge/fake"],
-            packages=[
-                endpoints.Package(package_name="fake-sdk", package_type="sdk"),
-                endpoints.Package(package_name="fake-other-sdk", package_type="sdk"),
-            ],
-            description="sdkcraft@fake-host",
-        )
-    ]
+    fake_u1_login.assert_called_once_with(
+        email="user@example.com",
+        password="hunter2",  # noqa: S106
+        otp="123456",
+        base_url="https://api.charmhub.io",
+        login_url="https://login.ubuntu.com",
+        application_name="sdkcraft",
+        store_auth=ANY,
+        permissions=["package-view", "package-manage"],
+        packages=[
+            {"type": "sdk", "name": "fake-sdk"},
+            {"type": "sdk", "name": "fake-other-sdk"},
+        ],
+        channels=["stable/fake", "edge/fake"],
+        ttl=20,
+    )
 
 
-@pytest.mark.usefixtures("fake_hostname")
-def test_login_with_custom_ttl(fake_client: MockType):
-    client.StoreClientCLI().login(ttl=7200)
+def test_login_with_none_packages(fake_u1_login: MockType):
+    client.StoreClientCLI().login(
+        email="user@example.com",
+        password="hunter2",  # noqa: S106
+        packages=None,
+    )
 
-    assert fake_client.login.mock_calls == [
-        call(
-            ttl=7200,
-            permissions=[
-                "account-register-package",
-                "account-view-packages",
-                "package-manage",
-                "package-manage-acl",
-                "package-manage-metadata",
-                "package-manage-releases",
-                "package-manage-revisions",
-                "package-view",
-                "package-view-acl",
-                "package-view-metadata",
-                "package-view-metrics",
-                "package-view-releases",
-                "package-view-revisions",
-            ],
-            channels=None,
-            packages=[],
-            description="sdkcraft@fake-host",
-        )
-    ]
+    assert fake_u1_login.call_args.kwargs["packages"] is None
 
 
-@pytest.mark.usefixtures("fake_hostname")
-def test_login_with_custom_acls(fake_client: MockType):
-    custom_acls = ["package-view", "package-manage"]
-    client.StoreClientCLI().login(acls=custom_acls)
+def test_login_returns_credentials(fake_u1_login: MockType):
+    result = client.StoreClientCLI().login(
+        email="user@example.com",
+        password="hunter2",  # noqa: S106
+    )
 
-    assert fake_client.login.mock_calls == [
-        call(
-            ttl=31536000,
-            permissions=custom_acls,
-            channels=None,
-            packages=[],
-            description="sdkcraft@fake-host",
-        )
-    ]
-
-
-@pytest.mark.usefixtures("fake_hostname")
-def test_login_with_channels(fake_client: MockType):
-    channels = ["stable", "edge"]
-    client.StoreClientCLI().login(channels=channels)
-
-    assert fake_client.login.mock_calls == [
-        call(
-            ttl=31536000,
-            permissions=[
-                "account-register-package",
-                "account-view-packages",
-                "package-manage",
-                "package-manage-acl",
-                "package-manage-metadata",
-                "package-manage-releases",
-                "package-manage-revisions",
-                "package-view",
-                "package-view-acl",
-                "package-view-metadata",
-                "package-view-metrics",
-                "package-view-releases",
-                "package-view-revisions",
-            ],
-            channels=channels,
-            packages=[],
-            description="sdkcraft@fake-host",
-        )
-    ]
-
-
-@pytest.mark.usefixtures("fake_hostname")
-def test_login_with_packages(fake_client: MockType):
-    client.StoreClientCLI().login(packages=["my-sdk", "other-sdk"])
-
-    assert fake_client.login.mock_calls == [
-        call(
-            ttl=31536000,
-            permissions=[
-                "account-register-package",
-                "account-view-packages",
-                "package-manage",
-                "package-manage-acl",
-                "package-manage-metadata",
-                "package-manage-releases",
-                "package-manage-revisions",
-                "package-view",
-                "package-view-acl",
-                "package-view-metadata",
-                "package-view-metrics",
-                "package-view-releases",
-                "package-view-revisions",
-            ],
-            channels=None,
-            packages=[
-                endpoints.Package(package_name="my-sdk", package_type="sdk"),
-                endpoints.Package(package_name="other-sdk", package_type="sdk"),
-            ],
-            description="sdkcraft@fake-host",
-        )
-    ]
-
-
-@pytest.mark.usefixtures("fake_hostname")
-def test_login_with_empty_packages(fake_client: MockType):
-    client.StoreClientCLI().login(packages=[])
-
-    assert fake_client.login.mock_calls == [
-        call(
-            ttl=31536000,
-            permissions=[
-                "account-register-package",
-                "account-view-packages",
-                "package-manage",
-                "package-manage-acl",
-                "package-manage-metadata",
-                "package-manage-releases",
-                "package-manage-revisions",
-                "package-view",
-                "package-view-acl",
-                "package-view-metadata",
-                "package-view-metrics",
-                "package-view-releases",
-                "package-view-revisions",
-            ],
-            channels=None,
-            packages=[],
-            description="sdkcraft@fake-host",
-        )
-    ]
-
-
-@pytest.mark.usefixtures("fake_hostname")
-def test_login_with_none_packages(fake_client: MockType):
-    client.StoreClientCLI().login(packages=None)
-
-    assert fake_client.login.mock_calls == [
-        call(
-            ttl=31536000,
-            permissions=[
-                "account-register-package",
-                "account-view-packages",
-                "package-manage",
-                "package-manage-acl",
-                "package-manage-metadata",
-                "package-manage-releases",
-                "package-manage-revisions",
-                "package-view",
-                "package-view-acl",
-                "package-view-metadata",
-                "package-view-metrics",
-                "package-view-releases",
-                "package-view-revisions",
-            ],
-            channels=None,
-            packages=[],
-            description="sdkcraft@fake-host",
-        )
-    ]
-
-
-@pytest.mark.usefixtures("fake_hostname")
-def test_login_returns_credentials(fake_client: MockType):
-    fake_client.login.return_value = "test-credentials"
-
-    result = client.StoreClientCLI().login()
-
-    assert result == "test-credentials"
+    assert result == "encoded-credentials"
 
 
 ######################################

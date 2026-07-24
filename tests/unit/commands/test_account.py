@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
 
 import pytest
+from craft_store.errors import UbuntuOneOtpRequiredError
 from sdkcraft.commands.account import StoreLoginCommand, StoreWhoamiCommand
 
 if TYPE_CHECKING:
@@ -39,6 +40,15 @@ def fake_store_login(mocker: MockerFixture) -> MockType:
         "sdkcraft.store.StoreClientCLI.login",
         autospec=True,
         return_value="secret-credentials",
+    )
+
+
+@pytest.fixture
+def fake_prompt(mocker: MockerFixture) -> MockType:
+    """Mock emit.prompt to return canned email/password answers."""
+    return mocker.patch(
+        "sdkcraft.commands.account.emit.prompt",
+        side_effect=["user@example.com", "hunter2"],
     )
 
 
@@ -65,13 +75,51 @@ def fake_whoami_client(mocker: MockerFixture) -> MockType:
 
 
 def test_login_calls_store_client(
-    app_config: dict[str, Any], fake_store_login: MockType, emitter: RecordingEmitter
+    app_config: dict[str, Any],
+    fake_store_login: MockType,
+    fake_prompt: MockType,
+    emitter: RecordingEmitter,
+    mocker: MockerFixture,
 ):
-    """Test run() calls login on store client."""
+    """Test run() prompts for email/password and logs in on the store client."""
     cmd = StoreLoginCommand(app_config)
     cmd.run(Namespace())
 
+    assert fake_prompt.call_args_list == [
+        mocker.call("Email address: "),
+        mocker.call("Password: ", hide=True),
+    ]
     fake_store_login.assert_called_once()
+    assert fake_store_login.call_args.kwargs == {
+        "email": "user@example.com",
+        "password": "hunter2",
+    }
+    emitter.assert_message("Login successful")
+
+
+def test_login_retries_with_otp_on_required_error(
+    app_config: dict[str, Any],
+    mocker: MockerFixture,
+    fake_prompt: MockType,
+    emitter: RecordingEmitter,
+):
+    """Test run() prompts for and retries with an OTP when the store requires one."""
+    fake_login = mocker.patch(
+        "sdkcraft.store.StoreClientCLI.login",
+        autospec=True,
+        side_effect=[UbuntuOneOtpRequiredError(), "secret-credentials"],
+    )
+    fake_prompt.side_effect = ["user@example.com", "hunter2", "123456"]
+
+    cmd = StoreLoginCommand(app_config)
+    cmd.run(Namespace())
+
+    assert fake_login.call_count == 2
+    assert fake_login.call_args.kwargs == {
+        "email": "user@example.com",
+        "password": "hunter2",
+        "otp": "123456",
+    }
     emitter.assert_message("Login successful")
 
 

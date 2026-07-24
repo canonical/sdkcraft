@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, override
 
 from craft_application.commands import AppCommand
 from craft_cli import emit
+from craft_store.errors import UbuntuOneOtpRequiredError
 
 from sdkcraft import store
 
@@ -37,6 +38,9 @@ class StoreLoginCommand(AppCommand):
         f"""
         Log in to the SDK Store.
 
+        Sdkcraft will prompt for your Ubuntu One email address and password
+        (and a one-time password, if two-factor authentication is enabled).
+
         The login command requires a working keyring on the system it is used on.
         As an alternative, export {store.constants.ENVIRONMENT_STORE_CREDENTIALS!r}
         with the exported credentials.
@@ -50,7 +54,14 @@ class StoreLoginCommand(AppCommand):
     @override
     def run(self, parsed_args: Namespace) -> None:
         """Run the command."""
-        store.StoreClientCLI().login()
+        email = emit.prompt("Email address: ")
+        password = emit.prompt("Password: ", hide=True)
+
+        try:
+            store.StoreClientCLI().login(email=email, password=password)
+        except UbuntuOneOtpRequiredError:
+            otp = emit.prompt("One-time password: ")
+            store.StoreClientCLI().login(email=email, password=password, otp=otp)
 
         emit.message("Login successful")
 
