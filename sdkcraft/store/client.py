@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
+    import requests  # type: ignore[import-untyped]
     from requests_toolbelt import (  # type: ignore[import-untyped]
         MultipartEncoder,
         MultipartEncoderMonitor,
@@ -117,6 +118,29 @@ class StoreClient(craft_store.UbuntuOneStoreClient):
         service = self._auth.application_name
         key = self._auth.host
         return f"system keyring ({provider}), service={service!r}, key={key!r}"
+
+    def request(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self,
+        method: str,
+        url: str,
+        params: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+        **kwargs: Any,
+    ) -> requests.Response:
+        """Perform an authenticated request, translating stale-credential errors.
+
+        Credentials stored by older sdkcraft versions (which used a different
+        login mechanism) can't be parsed by the current auth backend. Surface
+        that as an actionable error instead of an opaque parsing failure.
+        """
+        try:
+            return super().request(method, url, params, headers, **kwargs)  # pyright: ignore[reportUnknownMemberType]
+        except store_errors.CredentialsNotParseable as error:
+            raise SdkcraftError(
+                "Stored SDK Store credentials could not be read "
+                "(they may be from an older version of sdkcraft).",
+                resolution="Run 'sdkcraft logout' then 'sdkcraft login' to refresh your credentials.",
+            ) from error
 
     def ensure_registered(self, sdk_name: str) -> None:
         """Ensure the SDK is registered on the store.

@@ -20,11 +20,14 @@ import base64
 from typing import TYPE_CHECKING
 from unittest.mock import call
 
+import craft_store
 import keyring
 import keyring.backends.fail
 import pytest
 from craft_store import endpoints
 from craft_store.auth import FileKeyring, MemoryKeyring
+from craft_store.errors import CredentialsNotParseable
+from sdkcraft.errors import SdkcraftError
 from sdkcraft.store import client
 
 if TYPE_CHECKING:
@@ -378,3 +381,21 @@ def test_credentials_storage_info_system_keyring(
         "system keyring (SecretService Keyring), "
         "service='sdkcraft', key='api.charmhub.io'"
     )
+
+
+######################################
+# Stale Credentials Tests            #
+######################################
+
+
+def test_request_translates_stale_credentials_error(mocker: MockerFixture):
+    """Credentials left over from an older sdkcraft version raise a clear error."""
+    mocker.patch.object(
+        craft_store.UbuntuOneStoreClient,
+        "request",
+        side_effect=CredentialsNotParseable("Expected valid Ubuntu One credentials"),
+    )
+    store_client = client.StoreClient()
+
+    with pytest.raises(SdkcraftError, match="Stored SDK Store credentials"):
+        store_client.request("GET", "https://api.charmhub.io/v1/tokens/whoami")

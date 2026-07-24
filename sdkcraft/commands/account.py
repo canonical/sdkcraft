@@ -21,9 +21,14 @@ from typing import TYPE_CHECKING, override
 
 from craft_application.commands import AppCommand
 from craft_cli import emit
-from craft_store.errors import UbuntuOneOtpRequiredError
+from craft_store.errors import (
+    CredentialsAlreadyAvailable,
+    CredentialsUnavailable,
+    UbuntuOneOtpRequiredError,
+)
 
 from sdkcraft import store
+from sdkcraft.errors import SdkcraftError
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -58,12 +63,53 @@ class StoreLoginCommand(AppCommand):
         password = emit.prompt("Password: ", hide=True)
 
         try:
-            store.StoreClientCLI().login(email=email, password=password)
-        except UbuntuOneOtpRequiredError:
-            otp = emit.prompt("One-time password: ")
-            store.StoreClientCLI().login(email=email, password=password, otp=otp)
+            try:
+                store.StoreClientCLI().login(email=email, password=password)
+            except UbuntuOneOtpRequiredError:
+                otp = emit.prompt("One-time password: ")
+                store.StoreClientCLI().login(email=email, password=password, otp=otp)
+        except CredentialsAlreadyAvailable as error:
+            raise SdkcraftError(
+                "Cannot log in because credentials were already found on this system "
+                "(they may be from an older version of sdkcraft and no longer valid).",
+                resolution="Run 'sdkcraft logout' first, then try again.",
+            ) from error
 
         emit.message("Login successful")
+
+
+class StoreLogoutCommand(AppCommand):
+    """Command to clear SDK Store credentials."""
+
+    name = "logout"
+    help_msg = "Clear SDK Store credentials"
+    overview = textwrap.dedent(
+        """
+        Clear the locally stored SDK Store credentials.
+
+        This is required after upgrading from a version of sdkcraft that
+        used a different login mechanism, before running `sdkcraft login`
+        again.
+
+        See also `sdkcraft whoami` to verify that you are logged in,
+        and `sdkcraft login`.
+        """
+    )
+    examples: list[tuple[str, str]] = [
+        ("Log out", "sdkcraft logout"),
+    ]
+    related_commands: list[str] | None = None
+
+    @override
+    def run(self, parsed_args: Namespace) -> None:
+        """Run the command."""
+        try:
+            store.get_client().logout()
+        except CredentialsUnavailable:
+            emit.message("You are not logged in.")
+            return
+
+        emit.message("Credentials cleared.")
 
 
 class StoreWhoamiCommand(AppCommand):
