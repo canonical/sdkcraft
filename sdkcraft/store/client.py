@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
+    import requests  # type: ignore[import-untyped]
     from requests_toolbelt import (  # type: ignore[import-untyped]
         MultipartEncoder,
         MultipartEncoderMonitor,
@@ -68,14 +69,14 @@ def build_user_agent() -> str:
     return f"sdkcraft/{__version__}"
 
 
-class StoreClient(craft_store.StoreClient):
+class StoreClient(craft_store.UbuntuOneStoreClient):
     """SDK Store Client with SDK-specific API methods.
 
     This class wraps craft_store.BaseClient and provides SDK-specific
     API interaction methods without CLI dependencies.
     """
 
-    def __init__(self, *, ephemeral: bool = False) -> None:
+    def __init__(self, *, ephemeral: bool = False, use_environment_auth: bool = True) -> None:
         """Initialize the StoreClient."""
         store_url = get_store_url()
         store_upload_url = get_store_upload_url()
@@ -92,13 +93,18 @@ class StoreClient(craft_store.StoreClient):
             list_releases_model=SdkListReleasesModel,
         )
 
+        environment_auth = (
+            constants.ENVIRONMENT_STORE_CREDENTIALS if use_environment_auth else None
+        )
+
         super().__init__(
             base_url=store_url,
             storage_base_url=store_upload_url,
+            auth_url="https://login.ubuntu.com",
             application_name="sdkcraft",
             user_agent=user_agent,
             endpoints=endpoints,
-            environment_auth=constants.ENVIRONMENT_STORE_CREDENTIALS,
+            environment_auth=environment_auth,
             ephemeral=ephemeral,
             file_fallback=True,  # Enable file-based keyring for containers
         )
@@ -116,6 +122,29 @@ class StoreClient(craft_store.StoreClient):
         service = self._auth.application_name
         key = self._auth.host
         return f"system keyring ({provider}), service={service!r}, key={key!r}"
+
+    def request(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self,
+        method: str,
+        url: str,
+        params: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+        **kwargs: Any,
+    ) -> requests.Response:
+        """Perform an authenticated request, translating stale-credential errors.
+
+        Credentials stored by older sdkcraft versions (which used a different
+        login mechanism) can't be parsed by the current auth backend. Surface
+        that as an actionable error instead of an opaque parsing failure.
+        """
+        try:
+            return super().request(method, url, params, headers, **kwargs)  # pyright: ignore[reportUnknownMemberType]
+        except store_errors.CredentialsNotParseable as error:
+            raise SdkcraftError(
+                "Stored SDK Store credentials could not be read "
+                "(they may be from an older version of sdkcraft).",
+                resolution="Run 'sdkcraft logout' then 'sdkcraft login' to refresh your credentials.",
+            ) from error
 
     def ensure_registered(self, sdk_name: str) -> None:
         """Ensure the SDK is registered on the store.
@@ -241,14 +270,14 @@ class StoreClient(craft_store.StoreClient):
         ]
 
 
-def get_client(*, ephemeral: bool = False) -> StoreClient:
+def get_client(*, ephemeral: bool = False, use_environment_auth: bool = True) -> StoreClient:
     """Store Client factory.
 
     Returns:
         StoreClient instance with SDK-specific API methods
 
     """
-    return StoreClient(ephemeral=ephemeral)
+    return StoreClient(ephemeral=ephemeral, use_environment_auth=use_environment_auth)
 
 
 class StoreClientCLI:
@@ -258,9 +287,11 @@ class StoreClientCLI:
     like SDK metadata extraction and progress reporting.
     """
 
-    def __init__(self, *, ephemeral: bool = False) -> None:
+    def __init__(self, *, ephemeral: bool = False, use_environment_auth: bool = True) -> None:
         """Initialize the CLI store client."""
-        self.store_client = get_client(ephemeral=ephemeral)
+        self.store_client = get_client(
+            ephemeral=ephemeral, use_environment_auth=use_environment_auth
+        )
 
     def login(
         self,
