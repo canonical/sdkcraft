@@ -26,7 +26,7 @@ import keyring.backends.fail
 import pytest
 from craft_store import endpoints
 from craft_store.auth import FileKeyring, MemoryKeyring
-from craft_store.errors import CredentialsNotParseable
+from craft_store.errors import CredentialsAlreadyAvailable, CredentialsNotParseable
 from sdkcraft.errors import SdkcraftError
 from sdkcraft.store import client
 
@@ -399,3 +399,40 @@ def test_request_translates_stale_credentials_error(mocker: MockerFixture):
 
     with pytest.raises(SdkcraftError, match="Stored SDK Store credentials"):
         store_client.request("GET", "https://api.charmhub.io/v1/tokens/whoami")
+
+
+######################################
+# Environment Auth Opt-Out Tests     #
+######################################
+
+
+def test_use_environment_auth_false_ignores_env_var(monkeypatch: pytest.MonkeyPatch):
+    """A stale SDKCRAFT_STORE_CREDENTIALS must not block login/logout via ensure_no_credentials.
+
+    Regression test: login (including --export, which uses ephemeral=True) always passed
+    environment_auth to craft_store, so a leftover env var was loaded as "existing"
+    credentials before login even ran, tripping CredentialsAlreadyAvailable with no way
+    to recover (logout only clears the persistent keyring, not the env var).
+    """
+    monkeypatch.setenv(
+        "SDKCRAFT_STORE_CREDENTIALS",
+        base64.b64encode(b'{"t": "macaroon", "v": "stale"}').decode(),
+    )
+
+    store_client = client.StoreClient(ephemeral=True, use_environment_auth=False)
+
+    # Should not raise CredentialsAlreadyAvailable: the env var must be ignored entirely.
+    store_client._auth.ensure_no_credentials()
+
+
+def test_use_environment_auth_true_still_honors_env_var(monkeypatch: pytest.MonkeyPatch):
+    """Normal (non-login) command usage must still pick up SDKCRAFT_STORE_CREDENTIALS."""
+    monkeypatch.setenv(
+        "SDKCRAFT_STORE_CREDENTIALS",
+        base64.b64encode(b'{"t": "macaroon", "v": "stale"}').decode(),
+    )
+
+    store_client = client.StoreClient(ephemeral=True, use_environment_auth=True)
+
+    with pytest.raises(CredentialsAlreadyAvailable):
+        store_client._auth.ensure_no_credentials()

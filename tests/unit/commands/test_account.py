@@ -168,7 +168,7 @@ def test_login_export_writes_credentials_to_file(
     cmd = StoreLoginCommand(app_config)
     cmd.run(Namespace(export=export_file))
 
-    mock_cli_class.assert_called_once_with(ephemeral=True)
+    mock_cli_class.assert_called_once_with(ephemeral=True, use_environment_auth=False)
     mock_cli_class.return_value.login.assert_called_once_with(
         email="user@example.com", password="hunter2"
     )
@@ -190,7 +190,7 @@ def test_login_without_export_uses_persistent_client(
     cmd = StoreLoginCommand(app_config)
     cmd.run(Namespace(export=None))
 
-    mock_cli_class.assert_called_once_with(ephemeral=False)
+    mock_cli_class.assert_called_once_with(ephemeral=False, use_environment_auth=False)
 
 
 ##################
@@ -205,11 +205,14 @@ def test_logout_clears_credentials(
 ):
     """Test run() clears stored credentials."""
     mock_client = MagicMock()
-    mocker.patch("sdkcraft.commands.account.store.get_client", return_value=mock_client)
+    fake_get_client = mocker.patch(
+        "sdkcraft.commands.account.store.get_client", return_value=mock_client
+    )
 
     cmd = StoreLogoutCommand(app_config)
     cmd.run(Namespace())
 
+    fake_get_client.assert_called_once_with(use_environment_auth=False)
     mock_client.logout.assert_called_once()
     emitter.assert_message("Credentials cleared.")
 

@@ -83,14 +83,14 @@ class StoreLoginCommand(AppCommand):
 
         try:
             try:
-                credentials = store.StoreClientCLI(ephemeral=bool(export_path)).login(
-                    email=email, password=password
-                )
+                credentials = store.StoreClientCLI(
+                    ephemeral=bool(export_path), use_environment_auth=False
+                ).login(email=email, password=password)
             except UbuntuOneOtpRequiredError:
                 otp = emit.prompt("One-time password: ")
-                credentials = store.StoreClientCLI(ephemeral=bool(export_path)).login(
-                    email=email, password=password, otp=otp
-                )
+                credentials = store.StoreClientCLI(
+                    ephemeral=bool(export_path), use_environment_auth=False
+                ).login(email=email, password=password, otp=otp)
         except CredentialsAlreadyAvailable as error:
             raise SdkcraftError(
                 "Cannot log in because credentials were already found on this system "
@@ -131,7 +131,7 @@ class StoreLogoutCommand(AppCommand):
     def run(self, parsed_args: Namespace) -> None:
         """Run the command."""
         try:
-            store.get_client().logout()
+            store.get_client(use_environment_auth=False).logout()
         except CredentialsUnavailable:
             emit.message("You are not logged in.")
             return
