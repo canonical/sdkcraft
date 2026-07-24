@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import textwrap
+from pathlib import Path
 from typing import TYPE_CHECKING, override
 
 from craft_application.commands import AppCommand
@@ -31,7 +32,7 @@ from sdkcraft import store
 from sdkcraft.errors import SdkcraftError
 
 if TYPE_CHECKING:
-    from argparse import Namespace
+    from argparse import ArgumentParser, Namespace
 
 
 class StoreLoginCommand(AppCommand):
@@ -49,25 +50,47 @@ class StoreLoginCommand(AppCommand):
         The login command requires a working keyring on the system it is used on.
         As an alternative, export {store.constants.ENVIRONMENT_STORE_CREDENTIALS!r}
         with the exported credentials.
+
+        If `--export <file>` is used, the credentials are written to that file
+        instead of being stored in the local keyring, and nothing is persisted
+        locally. This is suitable for CI/CD environments:
+
+            export {store.constants.ENVIRONMENT_STORE_CREDENTIALS}=$(cat <file>)
         """
     )
     examples: list[tuple[str, str]] = [
         ("Log in interactively", "sdkcraft login"),
+        ("Export credentials for CI", "sdkcraft login --export credentials.txt"),
     ]
     related_commands: list[str] | None = None
 
     @override
+    def fill_parser(self, parser: ArgumentParser) -> None:
+        """Add own parameters to the general parser."""
+        parser.add_argument(
+            "--export",
+            type=Path,
+            help="Export the SDK Store credentials to a file instead of the local keyring",
+        )
+
+    @override
     def run(self, parsed_args: Namespace) -> None:
         """Run the command."""
+        export_path: Path | None = parsed_args.export
+
         email = emit.prompt("Email address: ")
         password = emit.prompt("Password: ", hide=True)
 
         try:
             try:
-                store.StoreClientCLI().login(email=email, password=password)
+                credentials = store.StoreClientCLI(ephemeral=bool(export_path)).login(
+                    email=email, password=password
+                )
             except UbuntuOneOtpRequiredError:
                 otp = emit.prompt("One-time password: ")
-                store.StoreClientCLI().login(email=email, password=password, otp=otp)
+                credentials = store.StoreClientCLI(ephemeral=bool(export_path)).login(
+                    email=email, password=password, otp=otp
+                )
         except CredentialsAlreadyAvailable as error:
             raise SdkcraftError(
                 "Cannot log in because credentials were already found on this system "
@@ -75,7 +98,11 @@ class StoreLoginCommand(AppCommand):
                 resolution="Run 'sdkcraft logout' first, then try again.",
             ) from error
 
-        emit.message("Login successful")
+        if export_path:
+            export_path.write_text(credentials)
+            emit.message(f"Login successful. Credentials exported to {str(export_path)!r}.")
+        else:
+            emit.message("Login successful")
 
 
 class StoreLogoutCommand(AppCommand):
