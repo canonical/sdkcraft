@@ -39,7 +39,7 @@ Every `.py` file starts with the GPL-3 header, followed by a module docstring:
 
 - CLI commands subclass `craft_application.commands.AppCommand` and are registered in `sdkcraft/cli.py`; user-facing output goes through `craft_cli.emit`.
 - Application errors raise `SdkcraftError` (`sdkcraft/errors.py`) or an appropriate craft error with an actionable message.
-- Data models use Pydantic v2. The `sdkcraft.yaml` schema lives in `sdkcraft/models/project.py`; constrained field types live in `sdkcraft/models/constraints.py`.
+- Data models use Pydantic v2. The `sdkcraft.yaml` project schema lives in `sdkcraft/models/project.py`, the generated `meta/sdk.yaml` metadata schema lives in `sdkcraft/models/metadata.py`, and constrained field types live in `sdkcraft/models/constraints.py`.
 - Services subclass craft-application services and are registered in `sdkcraft/services/__init__.py`.
 
 ## Testing

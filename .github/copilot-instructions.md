@@ -46,7 +46,8 @@ SDKcraft is a tool that packages and publishes SDKs for [Workshop](https://githu
 
 - `sdkcraft/_version.py` — written by setuptools_scm from annotated `X.Y.Z` git tags
 - CLI reference docs — regenerate with `uv run sdkcraft generate-docs docs/`
-- `schema-sdkcraft.json` — regenerate with `uv run python sdkcraft/models/project.py`
+- `schema-sdkcraft.json` — project schema; regenerate with `uv run python sdkcraft/models/project.py`
+- `schema-sdk.json` — packaged metadata schema; regenerate with `uv run python sdkcraft/models/metadata.py`
 
 ## Coding Guidelines
 
@@ -54,7 +55,7 @@ See [`.github/instructions/python.instructions.md`](instructions/python.instruct
 
 - **Strict tooling**: ruff (including docstring and type-annotation rules), plus mypy and pyright in strict mode over `sdkcraft/`
 - **License header**: every `.py` file starts with the GPL-3 Canonical copyright header
-- **Two YAML worlds**: `sdkcraft.yaml` is the SDK definition that the tool consumes (schema in `sdkcraft/models/project.py`); `snap/snapcraft.yaml` is how the tool itself is packaged — do not confuse them
+- **Similar YAML names**: `sdkcraft.yaml` is the canonical SDK project definition (SDKcraft also accepts `.sdkcraft.yaml`, `sdk.yaml`, and `.sdk.yaml`); generated SDK artifacts contain `meta/sdk.yaml`; `snap/snapcraft.yaml` packages SDKcraft itself
 
 ## Common Tasks
 
