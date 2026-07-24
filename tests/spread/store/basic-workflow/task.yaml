@@ -17,6 +17,11 @@ execute: |
   #shellcheck source=tests/spread/tools/retry.sh
   . "$TOOLS_DIR/retry.sh"
 
+  # Regression: logout must not be blocked by a stale/CI SDKCRAFT_STORE_CREDENTIALS
+  # env var. It only clears the local keyring, and whoami must still authenticate
+  # via the env var afterward.
+  run_sdkcraft logout | grep -q "You are not logged in."
+
   run_sdkcraft whoami
 
   # Test register and unregister with no uploads.

@@ -81,7 +81,9 @@ class StoreClient(craft_store.UbuntuOneStoreClient):
     API interaction methods without CLI dependencies.
     """
 
-    def __init__(self, *, ephemeral: bool = False) -> None:
+    def __init__(
+        self, *, ephemeral: bool = False, use_environment_auth: bool = True
+    ) -> None:
         """Initialize the StoreClient."""
         store_url = get_store_url()
         store_upload_url = get_store_upload_url()
@@ -98,6 +100,10 @@ class StoreClient(craft_store.UbuntuOneStoreClient):
             list_releases_model=SdkListReleasesModel,
         )
 
+        environment_auth = (
+            constants.ENVIRONMENT_STORE_CREDENTIALS if use_environment_auth else None
+        )
+
         super().__init__(
             base_url=store_url,
             storage_base_url=store_upload_url,
@@ -105,7 +111,7 @@ class StoreClient(craft_store.UbuntuOneStoreClient):
             application_name="sdkcraft",
             user_agent=user_agent,
             endpoints=endpoints,
-            environment_auth=constants.ENVIRONMENT_STORE_CREDENTIALS,
+            environment_auth=environment_auth,
             ephemeral=ephemeral,
             file_fallback=True,  # Enable file-based keyring for containers
         )
@@ -271,14 +277,16 @@ class StoreClient(craft_store.UbuntuOneStoreClient):
         ]
 
 
-def get_client(*, ephemeral: bool = False) -> StoreClient:
+def get_client(
+    *, ephemeral: bool = False, use_environment_auth: bool = True
+) -> StoreClient:
     """Store Client factory.
 
     Returns:
         StoreClient instance with SDK-specific API methods
 
     """
-    return StoreClient(ephemeral=ephemeral)
+    return StoreClient(ephemeral=ephemeral, use_environment_auth=use_environment_auth)
 
 
 class StoreClientCLI:
@@ -288,10 +296,14 @@ class StoreClientCLI:
     like SDK metadata extraction and progress reporting.
     """
 
-    def __init__(self, *, ephemeral: bool = False) -> None:
+    def __init__(
+        self, *, ephemeral: bool = False, use_environment_auth: bool = True
+    ) -> None:
         """Initialize the CLI store client."""
         self._ephemeral = ephemeral
-        self.store_client = get_client(ephemeral=ephemeral)
+        self.store_client = get_client(
+            ephemeral=ephemeral, use_environment_auth=use_environment_auth
+        )
 
     def login(
         self,

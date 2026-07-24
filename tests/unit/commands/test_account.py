@@ -147,7 +147,9 @@ def test_login_fails_with_stale_credentials(
     )
 
     cmd = StoreLoginCommand(app_config)
-    with pytest.raises(SdkcraftError, match="credentials were already found") as exc_info:
+    with pytest.raises(
+        SdkcraftError, match="credentials were already found"
+    ) as exc_info:
         cmd.run(Namespace(export=None))
 
     assert exc_info.value.resolution == "Run 'sdkcraft logout' first, then try again."
@@ -168,9 +170,10 @@ def test_login_export_writes_credentials_to_file(
     cmd = StoreLoginCommand(app_config)
     cmd.run(Namespace(export=export_file))
 
-    mock_cli_class.assert_called_once_with(ephemeral=True)
+    mock_cli_class.assert_called_once_with(ephemeral=True, use_environment_auth=False)
     mock_cli_class.return_value.login.assert_called_once_with(
-        email="user@example.com", password="hunter2"
+        email="user@example.com",
+        password="hunter2",  # noqa: S106
     )
     assert export_file.read_text() == "exported-credentials"
     emitter.assert_message(
@@ -190,7 +193,7 @@ def test_login_without_export_uses_persistent_client(
     cmd = StoreLoginCommand(app_config)
     cmd.run(Namespace(export=None))
 
-    mock_cli_class.assert_called_once_with(ephemeral=False)
+    mock_cli_class.assert_called_once_with(ephemeral=False, use_environment_auth=False)
 
 
 ##################
@@ -205,11 +208,14 @@ def test_logout_clears_credentials(
 ):
     """Test run() clears stored credentials."""
     mock_client = MagicMock()
-    mocker.patch("sdkcraft.commands.account.store.get_client", return_value=mock_client)
+    fake_get_client = mocker.patch(
+        "sdkcraft.commands.account.store.get_client", return_value=mock_client
+    )
 
     cmd = StoreLogoutCommand(app_config)
     cmd.run(Namespace())
 
+    fake_get_client.assert_called_once_with(use_environment_auth=False)
     mock_client.logout.assert_called_once()
     emitter.assert_message("Credentials cleared.")
 
@@ -221,7 +227,9 @@ def test_logout_when_not_logged_in(
 ):
     """Test run() reports cleanly when there are no credentials to clear."""
     mock_client = MagicMock()
-    mock_client.logout.side_effect = CredentialsUnavailable("sdkcraft", "api.charmhub.io")
+    mock_client.logout.side_effect = CredentialsUnavailable(
+        "sdkcraft", "api.charmhub.io"
+    )
     mocker.patch("sdkcraft.commands.account.store.get_client", return_value=mock_client)
 
     cmd = StoreLogoutCommand(app_config)
