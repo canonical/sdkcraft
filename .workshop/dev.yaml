@@ -3,7 +3,6 @@ base: ubuntu@24.04
 sdks:
   - name: uv
   - name: node
-  - name: vscode-remote
   - name: project-sdkcraft
 actions:
   format: uv run make format
