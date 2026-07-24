@@ -39,8 +39,8 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def fake_client(mocker: MockerFixture) -> MockType:
-    """Forces get_client to return a fake craft_store.StoreClient"""
-    store_client = mocker.patch("craft_store.StoreClient", autospec=True)
+    """Forces get_client to return a fake craft_store.UbuntuOneStoreClient"""
+    store_client = mocker.patch("craft_store.UbuntuOneStoreClient", autospec=True)
     mocker.patch("sdkcraft.store.client.get_client", return_value=store_client)
     return store_client
 

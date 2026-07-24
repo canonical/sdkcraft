@@ -68,7 +68,7 @@ def build_user_agent() -> str:
     return f"sdkcraft/{__version__}"
 
 
-class StoreClient(craft_store.StoreClient):
+class StoreClient(craft_store.UbuntuOneStoreClient):
     """SDK Store Client with SDK-specific API methods.
 
     This class wraps craft_store.BaseClient and provides SDK-specific
@@ -95,6 +95,7 @@ class StoreClient(craft_store.StoreClient):
         super().__init__(
             base_url=store_url,
             storage_base_url=store_upload_url,
+            auth_url="https://login.ubuntu.com",
             application_name="sdkcraft",
             user_agent=user_agent,
             endpoints=endpoints,
