@@ -34,6 +34,8 @@ from sdkcraft.commands.account import (
 from sdkcraft.errors import SdkcraftError
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from craft_cli.pytest_plugin import RecordingEmitter
     from pytest_mock import MockerFixture, MockType
 
@@ -92,7 +94,7 @@ def test_login_calls_store_client(
 ):
     """Test run() prompts for email/password and logs in on the store client."""
     cmd = StoreLoginCommand(app_config)
-    cmd.run(Namespace())
+    cmd.run(Namespace(export=None))
 
     assert fake_prompt.call_args_list == [
         mocker.call("Email address: "),
@@ -121,7 +123,7 @@ def test_login_retries_with_otp_on_required_error(
     fake_prompt.side_effect = ["user@example.com", "hunter2", "123456"]
 
     cmd = StoreLoginCommand(app_config)
-    cmd.run(Namespace())
+    cmd.run(Namespace(export=None))
 
     assert fake_login.call_count == 2
     assert fake_login.call_args.kwargs == {
@@ -146,9 +148,49 @@ def test_login_fails_with_stale_credentials(
 
     cmd = StoreLoginCommand(app_config)
     with pytest.raises(SdkcraftError, match="credentials were already found") as exc_info:
-        cmd.run(Namespace())
+        cmd.run(Namespace(export=None))
 
     assert exc_info.value.resolution == "Run 'sdkcraft logout' first, then try again."
+
+
+def test_login_export_writes_credentials_to_file(
+    app_config: dict[str, Any],
+    mocker: MockerFixture,
+    fake_prompt: MockType,
+    emitter: RecordingEmitter,
+    tmp_path: Path,
+):
+    """Test run() with --export uses an ephemeral client and writes creds to a file."""
+    mock_cli_class = mocker.patch("sdkcraft.commands.account.store.StoreClientCLI")
+    mock_cli_class.return_value.login.return_value = "exported-credentials"
+    export_file = tmp_path / "creds.txt"
+
+    cmd = StoreLoginCommand(app_config)
+    cmd.run(Namespace(export=export_file))
+
+    mock_cli_class.assert_called_once_with(ephemeral=True)
+    mock_cli_class.return_value.login.assert_called_once_with(
+        email="user@example.com", password="hunter2"
+    )
+    assert export_file.read_text() == "exported-credentials"
+    emitter.assert_message(
+        f"Login successful. Credentials exported to {str(export_file)!r}."
+    )
+
+
+def test_login_without_export_uses_persistent_client(
+    app_config: dict[str, Any],
+    mocker: MockerFixture,
+    fake_prompt: MockType,
+):
+    """Test run() without --export stores credentials in the local keyring."""
+    mock_cli_class = mocker.patch("sdkcraft.commands.account.store.StoreClientCLI")
+    mock_cli_class.return_value.login.return_value = "secret-credentials"
+
+    cmd = StoreLoginCommand(app_config)
+    cmd.run(Namespace(export=None))
+
+    mock_cli_class.assert_called_once_with(ephemeral=False)
 
 
 ##################
