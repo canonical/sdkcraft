@@ -44,7 +44,7 @@ class StoreLoginCommand(AppCommand):
         f"""
         Log in to the SDK Store.
 
-        Sdkcraft will prompt for your Ubuntu One email address and password
+        SDKcraft will prompt for your Ubuntu One email address and password
         (and a one-time password, if two-factor authentication is enabled).
 
         The login command requires a working keyring on the system it is used on.
@@ -55,7 +55,7 @@ class StoreLoginCommand(AppCommand):
         instead of being stored in the local keyring, and nothing is persisted
         locally. This is suitable for CI/CD environments:
 
-            export {store.constants.ENVIRONMENT_STORE_CREDENTIALS}=$(cat <file>)
+            export {store.constants.ENVIRONMENT_STORE_CREDENTIALS}=$(cat <FILE>)
         """
     )
     examples: list[tuple[str, str]] = [
@@ -121,7 +121,7 @@ class StoreLogoutCommand(AppCommand):
         again.
 
         See also `sdkcraft whoami` to verify that you are logged in,
-        and `sdkcraft login`.
+        and `sdkcraft login` for sign-in instructions.
         """
     )
     examples: list[tuple[str, str]] = [
