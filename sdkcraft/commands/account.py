@@ -161,32 +161,28 @@ class StoreWhoamiCommand(AppCommand):
         """Run the command."""
         client = store.get_client()
 
-        try:
-            data = client.whoami()
+        data = client.whoami()
 
-            account = data.get("account", {})
-            email = account.get("email", "Unknown")
-            username = account.get("username", "Unknown")
-            account_id = account.get("id", "Unknown")
+        account = data.get("account", {})
+        email = account.get("email", "Unknown")
+        username = account.get("username", "Unknown")
+        account_id = account.get("id", "Unknown")
 
-            emit.message(f"email: {email}")
-            emit.message(f"username: {username}")
-            emit.message(f"id: {account_id}")
+        emit.message(f"email: {email}")
+        emit.message(f"username: {username}")
+        emit.message(f"id: {account_id}")
 
-            permissions = data.get("permissions")
-            if permissions:
-                emit.message(f"permissions: {', '.join(permissions)}")
-            else:
-                emit.message("permissions: no restrictions")
+        permissions = data.get("permissions")
+        if permissions:
+            emit.message(f"permissions: {', '.join(permissions)}")
+        else:
+            emit.message("permissions: no restrictions")
 
-            channels = data.get("channels")
-            if channels:
-                emit.message(f"channels: {', '.join(channels)}")
-            else:
-                emit.message("channels: no restrictions")
+        channels = data.get("channels")
+        if channels:
+            emit.message(f"channels: {', '.join(channels)}")
+        else:
+            emit.message("channels: no restrictions")
 
-            storage_info = client.get_credentials_storage_info()
-            emit.message(f"token: {storage_info}")
-        except Exception as error:
-            emit.message(f"Not authenticated or authentication failed: {error}")
-            raise
+        storage_info = client.get_credentials_storage_info()
+        emit.message(f"token: {storage_info}")

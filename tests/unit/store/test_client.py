@@ -25,7 +25,11 @@ import keyring
 import keyring.backends.fail
 import pytest
 from craft_store.auth import FileKeyring, MemoryKeyring
-from craft_store.errors import CredentialsAlreadyAvailable, CredentialsNotParseable
+from craft_store.errors import (
+    CredentialsAlreadyAvailable,
+    CredentialsNotParseable,
+    CredentialsUnavailable,
+)
 from sdkcraft.errors import SdkcraftError
 from sdkcraft.store import client
 
@@ -341,6 +345,21 @@ def test_request_translates_stale_credentials_error(mocker: MockerFixture):
 
     with pytest.raises(SdkcraftError, match="Stored SDK Store credentials"):
         store_client.request("GET", "https://api.charmhub.io/v1/tokens/whoami")
+
+
+def test_request_translates_missing_credentials_error(mocker: MockerFixture):
+    """Running a store command without logging in points the user at login."""
+    mocker.patch.object(
+        craft_store.UbuntuOneStoreClient,
+        "request",
+        side_effect=CredentialsUnavailable("sdkcraft", "api.charmhub.io"),
+    )
+    store_client = client.StoreClient()
+
+    with pytest.raises(SdkcraftError, match="not logged in") as exc_info:
+        store_client.request("GET", "https://api.charmhub.io/v1/tokens/whoami")
+
+    assert exc_info.value.resolution == "Run 'sdkcraft login' to authenticate."
 
 
 ######################################

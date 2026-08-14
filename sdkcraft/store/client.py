@@ -205,6 +205,11 @@ class StoreClient(craft_store.UbuntuOneStoreClient):
         """
         try:
             return super().request(method, url, params, headers, **kwargs)  # pyright: ignore[reportUnknownMemberType]
+        except store_errors.CredentialsUnavailable as error:
+            raise SdkcraftError(
+                "You are not logged in to the SDK Store.",
+                resolution="Run 'sdkcraft login' to authenticate.",
+            ) from error
         except store_errors.CredentialsNotParseable as error:
             raise SdkcraftError(
                 "Stored SDK Store credentials could not be read "
