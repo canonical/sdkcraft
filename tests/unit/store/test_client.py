@@ -92,14 +92,7 @@ def test_build_user_agent_format():
 @pytest.fixture
 def fake_u1_login(mocker: MockerFixture) -> MockType:
     """Mock the login flow (SSO, exchange, and keyring) so login() is hermetic."""
-    root = mocker.MagicMock()
-    root.serialize.return_value = "root-serialized"
-    discharge = mocker.MagicMock()
-    discharge.serialize.return_value = "discharge-serialized"
-
-    login_with = mocker.patch.object(
-        client.UbuntuOneLogin, "login_with", return_value=(root, discharge)
-    )
+    login_with = mocker.patch.object(client.UbuntuOneLogin, "login_with")
 
     fake_auth = mocker.MagicMock()
     fake_auth.encode_credentials.return_value = "encoded-credentials"
@@ -107,7 +100,7 @@ def fake_u1_login(mocker: MockerFixture) -> MockType:
 
     # login() builds a StoreClient and exchanges the macaroons for a token.
     mocker.patch.object(client, "get_client")
-    mocker.patch.object(client, "_exchange_macaroons", return_value="store-token")
+    mocker.patch.object(client.craft_store, "UbuntuOneAuth")
 
     return login_with
 
@@ -263,70 +256,42 @@ def test_credentials_storage_info_system_keyring(
 ######################################
 
 
-def test_get_authorization_header_exchanges_and_caches(mocker: MockerFixture):
-    """The auth header comes from a cached USSO macaroon exchange."""
+def test_get_authorization_header_uses_stored_token(mocker: MockerFixture):
+    """The auth header is built from the stored, already-exchanged token."""
     store_client = client.StoreClient(ephemeral=True, use_environment_auth=False)
 
     mocker.patch.object(
-        store_client._auth, "get_credentials", return_value="stored-creds"
-    )
-    set_credentials = mocker.patch.object(store_client._auth, "set_credentials")
-    macaroons = mocker.MagicMock()
-    macaroons.root = "root-serialized"
-    macaroons.discharge = "discharge-serialized"
-    mocker.patch.object(
-        client.creds, "unmarshal_u1_credentials", return_value=macaroons
+        store_client._auth, "get_credentials", return_value="store-token"
     )
 
-    root_macaroon = mocker.MagicMock()
-    root_macaroon.prepare_for_request.return_value.serialize.return_value = (
-        "bound-discharge"
+    assert store_client._get_authorization_header() == "Macaroon store-token"
+
+
+def test_exchange_via_ubuntu_one_auth_on_login(mocker: MockerFixture):
+    """Login exchanges the freshly issued macaroons for a store token."""
+    mocker.patch.object(client.UbuntuOneLogin, "login_with")
+    mocker.patch.object(client, "get_client")
+
+    fake_auth = mocker.MagicMock()
+    fake_auth.get_credentials.return_value = "store-token"
+    fake_auth.encode_credentials.return_value = "encoded-credentials"
+    mocker.patch.object(client, "Auth", return_value=fake_auth)
+
+    u1_auth = mocker.patch.object(client.craft_store, "UbuntuOneAuth")
+
+    result = client.StoreClientCLI().login(
+        email="user@example.com",
+        password="hunter2",  # noqa: S106
     )
-    mocker.patch.object(client.Macaroon, "deserialize", return_value=root_macaroon)
 
-    response = mocker.MagicMock()
-    response.json.return_value = {"macaroon": "store-token"}
-    http_request = mocker.patch.object(
-        store_client.http_client, "request", return_value=response
+    u1_auth.assert_called_once_with(
+        auth=fake_auth,
+        api_base_url="https://api.charmhub.io",
+        client_description="sdkcraft",
     )
-
-    header = store_client._get_authorization_header()
-    cached_header = store_client._get_authorization_header()
-
-    assert header == "Macaroon store-token"
-    assert cached_header == "Macaroon store-token"
-    # The exchange must only happen once; the token is cached afterwards.
-    http_request.assert_called_once()
-    call_args = http_request.call_args
-    assert call_args.args[0] == "POST"
-    assert call_args.args[1].endswith("/v1/tokens/usso/exchange")
-    assert call_args.kwargs["headers"]["Authorization"] == (
-        "Macaroon root=root-serialized, discharge=bound-discharge"
-    )
-    assert call_args.kwargs["json"] == {"client-description": "sdkcraft"}
-    # The exchanged token is persisted so later invocations reuse it.
-    set_credentials.assert_called_once_with("store-token", force=True)
-
-
-def test_get_authorization_header_uses_cached_token(mocker: MockerFixture):
-    """Stored credentials that are already an exchanged token are used directly."""
-    store_client = client.StoreClient(ephemeral=True, use_environment_auth=False)
-
-    mocker.patch.object(
-        store_client._auth, "get_credentials", return_value="cached-store-token"
-    )
-    mocker.patch.object(
-        client.creds,
-        "unmarshal_u1_credentials",
-        side_effect=CredentialsNotParseable("not u1 macaroons"),
-    )
-    http_request = mocker.patch.object(store_client.http_client, "request")
-
-    header = store_client._get_authorization_header()
-
-    assert header == "Macaroon cached-store-token"
-    # No exchange is attempted for an already-exchanged token.
-    http_request.assert_not_called()
+    u1_auth.return_value.get_token_from_keyring.assert_called_once()
+    fake_auth.encode_credentials.assert_called_once_with("store-token")
+    assert result == "encoded-credentials"
 
 
 ######################################
