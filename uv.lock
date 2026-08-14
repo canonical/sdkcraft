@@ -1663,6 +1663,7 @@ dependencies = [
     { name = "craft-store" },
     { name = "gencodo-py" },
     { name = "pydantic" },
+    { name = "pymacaroons" },
     { name = "pyyaml" },
     { name = "rich" },
 ]
@@ -1710,6 +1711,7 @@ requires-dist = [
     { name = "craft-store", specifier = ">=3.4.0" },
     { name = "gencodo-py", specifier = ">=0.3.0" },
     { name = "pydantic", specifier = ">=2.11.7" },
+    { name = "pymacaroons", specifier = ">=0.13.0" },
     { name = "python-apt", marker = "sys_platform == 'linux' and extra == 'apt'", specifier = ">=2.4.0", index = "https://people.canonical.com/~lengau/python-apt-ubuntu-wheels/" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "rich", specifier = ">=14.2.0" },

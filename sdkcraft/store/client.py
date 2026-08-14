@@ -33,6 +33,7 @@ from craft_store import creds, models
 from craft_store import errors as store_errors
 from craft_store.auth import Auth, FileKeyring
 from craft_store.login import UbuntuOneLogin
+from pymacaroons import Macaroon  # type: ignore[import-untyped]
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -72,6 +73,30 @@ def get_store_login_url() -> str:
 def build_user_agent() -> str:
     """Build user agent string for SDKcraft."""
     return f"sdkcraft/{__version__}"
+
+
+def _exchange_macaroons(
+    http_client: craft_store.HTTPClient,
+    base_url: str,
+    root: str,
+    discharge: str,
+) -> str:
+    """Exchange Ubuntu One macaroons for a reusable charmhub store token.
+
+    Charmhub only grants a short window to exchange freshly issued macaroons,
+    so callers must exchange promptly (right after login).
+    """
+    root_macaroon = Macaroon.deserialize(root)
+    discharge_macaroon = Macaroon.deserialize(discharge)
+    bound_discharge = root_macaroon.prepare_for_request(discharge_macaroon).serialize()
+
+    response = http_client.request(
+        "POST",
+        f"{base_url}/v1/tokens/usso/exchange",
+        headers={"Authorization": f"Macaroon root={root}, discharge={bound_discharge}"},
+        json={"client-description": "sdkcraft"},
+    )
+    return str(response.json()["macaroon"])
 
 
 class StoreClient(craft_store.UbuntuOneStoreClient):
@@ -115,6 +140,40 @@ class StoreClient(craft_store.UbuntuOneStoreClient):
             ephemeral=ephemeral,
             file_fallback=True,  # Enable file-based keyring for containers
         )
+
+        # Cached store token from the Ubuntu One SSO macaroon exchange.
+        self._store_token: str | None = None
+
+    def _get_authorization_header(self) -> str:
+        """Return the auth header, exchanging U1 macaroons for a store token.
+
+        Charmhub authenticates requests with a store token obtained by
+        exchanging the stored root/discharge macaroons at
+        ``/v1/tokens/usso/exchange``; it does not accept the raw macaroons.
+        """
+        if self._store_token is None:
+            self._store_token = self._resolve_store_token()
+        return f"Macaroon {self._store_token}"
+
+    def _resolve_store_token(self) -> str:
+        """Return a charmhub store token, exchanging stored macaroons if needed.
+
+        Login exchanges macaroons up front and stores the resulting token, so
+        the common case here is a token that is returned as-is. Legacy stored
+        macaroons are still exchanged as a fallback.
+        """
+        stored = self._auth.get_credentials()
+        try:
+            macaroons = creds.unmarshal_u1_credentials(stored)
+        except store_errors.CredentialsNotParseable:
+            # Already an exchanged store token, not Ubuntu One macaroons.
+            return stored
+
+        token = _exchange_macaroons(
+            self.http_client, self._base_url, macaroons.root, macaroons.discharge
+        )
+        self._auth.set_credentials(token, force=True)
+        return token
 
     def get_credentials_storage_info(self) -> str:
         """Return a human-readable description of where credentials are stored."""
@@ -358,10 +417,16 @@ class StoreClientCLI:
             ttl=ttl,
         )
 
-        credentials = creds.marshal_u1_credentials(
-            creds.UbuntuOneMacaroons(r=root.serialize(), d=discharge.serialize())
+        # The exchange window is short, so swap the macaroons for a reusable
+        # store token now and persist that instead of the raw macaroons.
+        token = _exchange_macaroons(
+            self.store_client.http_client,
+            store_url,
+            root.serialize(),
+            discharge.serialize(),
         )
-        return store_auth.encode_credentials(credentials)
+        store_auth.set_credentials(token, force=True)
+        return store_auth.encode_credentials(token)
 
     def upload(
         self,
