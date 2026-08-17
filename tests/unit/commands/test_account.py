@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import stat
 from argparse import Namespace
 from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
@@ -176,9 +177,30 @@ def test_login_export_writes_credentials_to_file(
         password="hunter2",  # noqa: S106
     )
     assert export_file.read_text() == "exported-credentials"
+    assert stat.S_IMODE(export_file.stat().st_mode) == 0o600
     emitter.assert_message(
         f"Login successful. Credentials exported to {str(export_file)!r}."
     )
+
+
+def test_login_export_restricts_existing_credentials_file(
+    app_config: dict[str, Any],
+    mocker: MockerFixture,
+    fake_prompt: MockType,
+    tmp_path: Path,
+):
+    """Test run() with --export restricts a pre-existing credentials file."""
+    mock_cli_class = mocker.patch("sdkcraft.commands.account.store.StoreClientCLI")
+    mock_cli_class.return_value.login.return_value = "exported-credentials"
+    export_file = tmp_path / "creds.txt"
+    export_file.write_text("old-credentials")
+    export_file.chmod(0o644)
+
+    cmd = StoreLoginCommand(app_config)
+    cmd.run(Namespace(export=export_file))
+
+    assert export_file.read_text() == "exported-credentials"
+    assert stat.S_IMODE(export_file.stat().st_mode) == 0o600
 
 
 def test_login_without_export_uses_persistent_client(

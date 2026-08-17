@@ -20,7 +20,7 @@ import os
 import subprocess
 import time
 from datetime import timedelta
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 from urllib.parse import urlparse
 
 import craft_store
@@ -107,7 +107,7 @@ class StoreClient(craft_store.UbuntuOneStoreClient):
         super().__init__(
             base_url=store_url,
             storage_base_url=store_upload_url,
-            auth_url="https://login.ubuntu.com",
+            auth_url=get_store_login_url(),
             application_name="sdkcraft",
             user_agent=user_agent,
             endpoints=endpoints,
@@ -116,6 +116,7 @@ class StoreClient(craft_store.UbuntuOneStoreClient):
             file_fallback=True,  # Enable file-based keyring for containers
         )
 
+    @override
     def _get_authorization_header(self) -> str:
         """Return the auth header from the stored, already-exchanged store token.
 
@@ -138,7 +139,8 @@ class StoreClient(craft_store.UbuntuOneStoreClient):
         key = self._auth.host
         return f"system keyring ({provider}), service={service!r}, key={key!r}"
 
-    def request(  # pyright: ignore[reportIncompatibleMethodOverride]
+    @override
+    def request(
         self,
         method: str,
         url: str,

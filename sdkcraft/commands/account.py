@@ -84,12 +84,12 @@ class StoreLoginCommand(AppCommand):
         try:
             try:
                 credentials = store.StoreClientCLI(
-                    ephemeral=bool(export_path), use_environment_auth=False
+                    ephemeral=export_path is not None, use_environment_auth=False
                 ).login(email=email, password=password)
             except UbuntuOneOtpRequiredError:
                 otp = emit.prompt("One-time password: ")
                 credentials = store.StoreClientCLI(
-                    ephemeral=bool(export_path), use_environment_auth=False
+                    ephemeral=export_path is not None, use_environment_auth=False
                 ).login(email=email, password=password, otp=otp)
         except CredentialsAlreadyAvailable as error:
             raise SdkcraftError(
@@ -98,6 +98,8 @@ class StoreLoginCommand(AppCommand):
             ) from error
 
         if export_path:
+            export_path.touch(mode=0o600)
+            export_path.chmod(0o600)
             export_path.write_text(credentials)
             emit.message(
                 f"Login successful. Credentials exported to {str(export_path)!r}."
@@ -114,10 +116,6 @@ class StoreLogoutCommand(AppCommand):
     overview = textwrap.dedent(
         """
         Clear the locally stored SDK Store credentials.
-
-        This is required after upgrading from a version of sdkcraft that
-        used a different login mechanism, before running `sdkcraft login`
-        again.
 
         See also `sdkcraft whoami` to verify that you are logged in,
         and `sdkcraft login` for sign-in instructions.
