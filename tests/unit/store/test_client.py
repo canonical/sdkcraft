@@ -149,7 +149,7 @@ def test_login_with_params(fake_u1_login: MockType):
         ttl=20,
         acls=["package-view", "package-manage"],
         packages=["fake-sdk", "fake-other-sdk"],
-        channels=["stable/fake", "edge/fake"],
+        channels=["latest/stable", "latest/edge"],
     )
 
     fake_u1_login.assert_called_once_with(
@@ -165,7 +165,7 @@ def test_login_with_params(fake_u1_login: MockType):
             {"type": "sdk", "name": "fake-sdk"},
             {"type": "sdk", "name": "fake-other-sdk"},
         ],
-        channels=["stable/fake", "edge/fake"],
+        channels=["latest/stable", "latest/edge"],
         ttl=20,
     )
 
@@ -187,6 +187,26 @@ def test_login_returns_credentials(fake_u1_login: MockType):
     )
 
     assert result == "encoded-credentials"
+
+
+def test_login_refuses_when_already_logged_in(mocker: MockerFixture):
+    """Login aborts if credentials already exist instead of overwriting them."""
+    login_with = mocker.patch.object(client.UbuntuOneLogin, "login_with")
+    mocker.patch.object(client, "get_client")
+
+    fake_auth = mocker.MagicMock()
+    fake_auth.ensure_no_credentials.side_effect = CredentialsAlreadyAvailable(
+        "sdkcraft", "api.charmhub.io"
+    )
+    mocker.patch.object(client, "Auth", return_value=fake_auth)
+
+    with pytest.raises(CredentialsAlreadyAvailable):
+        client.StoreClientCLI().login(
+            email="user@example.com",
+            password="hunter2",  # noqa: S106
+        )
+
+    login_with.assert_not_called()
 
 
 ######################################

@@ -357,6 +357,9 @@ class StoreClientCLI:
             file_fallback=True,
         )
 
+        # Refuse to overwrite existing credentials on a persistent login.
+        store_auth.ensure_no_credentials()
+
         UbuntuOneLogin.login_with(
             email=email,
             password=password,

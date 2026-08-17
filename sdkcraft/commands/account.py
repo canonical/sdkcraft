@@ -93,8 +93,7 @@ class StoreLoginCommand(AppCommand):
                 ).login(email=email, password=password, otp=otp)
         except CredentialsAlreadyAvailable as error:
             raise SdkcraftError(
-                "Cannot log in because credentials were already found on this system "
-                "(they may be from an older version of sdkcraft and no longer valid).",
+                "Cannot log in because credentials were already found on this system.",
                 resolution="Run 'sdkcraft logout' first, then try again.",
             ) from error
 
