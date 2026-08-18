@@ -381,7 +381,7 @@ wheels = [
 
 [[package]]
 name = "craft-store"
-version = "3.3.0"
+version = "3.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-types" },
@@ -396,9 +396,9 @@ dependencies = [
     { name = "requests-toolbelt" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c4/64/af2af291aef5ea2b5fc56d9be151324eabb55c4ed89bc4f11343faa377b5/craft_store-3.3.0.tar.gz", hash = "sha256:02304296d7d5b896bb8d07660c3a29eaff461fc12d40fd2a21a39230f53c288b", size = 217863, upload-time = "2025-07-02T14:09:49.221Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a4/fd/2013bd5b54a5b14c69ba63ce1c2210ac15d26603b7b5a912b793312f3f30/craft_store-3.4.0.tar.gz", hash = "sha256:c2552f3e0596e1d63b3076ac49e87664571fb87fa45065dffacde4c395f4b28e", size = 322509, upload-time = "2026-07-16T12:23:06.131Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/81/14c738f7d95737a49d753e0b453c09bf8e9e096d54023200d27a6d58398a/craft_store-3.3.0-py3-none-any.whl", hash = "sha256:e1c8597653922f615db7d23cdc9b8774abc6b7cb18217252266ddbaa05a1c330", size = 52612, upload-time = "2025-07-02T14:09:47.962Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/83/8501f6d4254c71ce01541e7fb8938421669752ebae4b5b225ae5d97ebec9/craft_store-3.4.0-py3-none-any.whl", hash = "sha256:4ac8ce55a4e312c617d3300a5fb7a13f59486e9b6b9a78fe2cd768292adb7c3f", size = 61240, upload-time = "2026-07-16T12:23:04.77Z" },
 ]
 
 [[package]]
@@ -1707,7 +1707,7 @@ requires-dist = [
     { name = "craft-cli", specifier = ">=3.4.0" },
     { name = "craft-parts", specifier = ">=2.33.0" },
     { name = "craft-platforms", specifier = ">=0.11.1" },
-    { name = "craft-store", specifier = ">=3.3.0" },
+    { name = "craft-store", specifier = ">=3.4.0" },
     { name = "gencodo-py", specifier = ">=0.3.0" },
     { name = "pydantic", specifier = ">=2.11.7" },
     { name = "python-apt", marker = "sys_platform == 'linux' and extra == 'apt'", specifier = ">=2.4.0", index = "https://people.canonical.com/~lengau/python-apt-ubuntu-wheels/" },
@@ -1758,11 +1758,11 @@ wheels = [
 
 [[package]]
 name = "setuptools"
-version = "80.9.0"
+version = "84.0.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/18/5d/3bf57dcd21979b887f014ea83c24ae194cfcd12b9e0fda66b957c69d1fca/setuptools-80.9.0.tar.gz", hash = "sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c", size = 1319958, upload-time = "2025-05-27T00:56:51.443Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/44/f5da03a8ef95d369145c5bb53050e7877c9f3d312e128605fd9504829143/setuptools-84.0.0.tar.gz", hash = "sha256:f4695c21257f0d9b537ec2692c941d02ee143b7cc1276941349a546573b2ef73", size = 1168449, upload-time = "2026-08-08T18:27:58.365Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl", hash = "sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922", size = 1201486, upload-time = "2025-05-27T00:56:49.664Z" },
+    { url = "https://files.pythonhosted.org/packages/95/9c/c510029fc6ef33a6275cd2c5d3cecd6613dfd6aa401d57c54f1c18852ccf/setuptools-84.0.0-py3-none-any.whl", hash = "sha256:51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670", size = 818216, upload-time = "2026-08-08T18:27:56.719Z" },
 ]
 
 [[package]]

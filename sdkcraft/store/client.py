@@ -17,11 +17,11 @@
 from __future__ import annotations
 
 import os
-import platform
 import subprocess
 import time
 from datetime import timedelta
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
+from urllib.parse import urlparse
 
 import craft_store
 import keyring
@@ -31,12 +31,14 @@ from craft_application.errors import CraftValidationError
 from craft_cli import emit
 from craft_store import errors as store_errors
 from craft_store import models
-from craft_store.auth import FileKeyring
+from craft_store.auth import Auth, FileKeyring
+from craft_store.login import UbuntuOneLogin
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
+    import requests  # type: ignore[import-untyped]
     from requests_toolbelt import (  # type: ignore[import-untyped]
         MultipartEncoder,
         MultipartEncoderMonitor,
@@ -48,7 +50,6 @@ from sdkcraft.models.metadata import Metadata
 from sdkcraft.models.store import SdkListReleasesModel, SdkRevisionModel
 from sdkcraft.store import constants
 
-_HOSTNAME: str = platform.node() or "UNKNOWN"
 _POLL_DELAY = 1.0  # seconds between status checks
 _POLL_TIMEOUT = 300.0  # 5 minutes max polling time
 
@@ -63,19 +64,26 @@ def get_store_upload_url() -> str:
     return os.getenv("SDK_STORE_UPLOAD_URL", constants.SDK_STORE_UPLOAD_URL)
 
 
+def get_store_login_url() -> str:
+    """Return the Ubuntu One SSO login URL."""
+    return os.getenv("UBUNTU_ONE_SSO_URL", constants.UBUNTU_ONE_SSO_URL)
+
+
 def build_user_agent() -> str:
     """Build user agent string for SDKcraft."""
     return f"sdkcraft/{__version__}"
 
 
-class StoreClient(craft_store.StoreClient):
+class StoreClient(craft_store.UbuntuOneStoreClient):
     """SDK Store Client with SDK-specific API methods.
 
     This class wraps craft_store.BaseClient and provides SDK-specific
     API interaction methods without CLI dependencies.
     """
 
-    def __init__(self, *, ephemeral: bool = False) -> None:
+    def __init__(
+        self, *, ephemeral: bool = False, use_environment_auth: bool = True
+    ) -> None:
         """Initialize the StoreClient."""
         store_url = get_store_url()
         store_upload_url = get_store_upload_url()
@@ -92,16 +100,30 @@ class StoreClient(craft_store.StoreClient):
             list_releases_model=SdkListReleasesModel,
         )
 
+        environment_auth = (
+            constants.ENVIRONMENT_STORE_CREDENTIALS if use_environment_auth else None
+        )
+
         super().__init__(
             base_url=store_url,
             storage_base_url=store_upload_url,
+            auth_url=get_store_login_url(),
             application_name="sdkcraft",
             user_agent=user_agent,
             endpoints=endpoints,
-            environment_auth=constants.ENVIRONMENT_STORE_CREDENTIALS,
+            environment_auth=environment_auth,
             ephemeral=ephemeral,
             file_fallback=True,  # Enable file-based keyring for containers
         )
+
+    @override
+    def _get_authorization_header(self) -> str:
+        """Return the auth header from the stored, already-exchanged store token.
+
+        Login exchanges the Ubuntu One macaroons for a store token and persists
+        that token, so requests authenticate with ``Macaroon <token>`` directly.
+        """
+        return f"Macaroon {self._auth.get_credentials()}"
 
     def get_credentials_storage_info(self) -> str:
         """Return a human-readable description of where credentials are stored."""
@@ -116,6 +138,35 @@ class StoreClient(craft_store.StoreClient):
         service = self._auth.application_name
         key = self._auth.host
         return f"system keyring ({provider}), service={service!r}, key={key!r}"
+
+    @override
+    def request(
+        self,
+        method: str,
+        url: str,
+        params: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+        **kwargs: Any,
+    ) -> requests.Response:
+        """Perform an authenticated request, translating stale-credential errors.
+
+        Credentials stored by older sdkcraft versions (which used a different
+        login mechanism) can't be parsed by the current auth backend. Surface
+        that as an actionable error instead of an opaque parsing failure.
+        """
+        try:
+            return super().request(method, url, params, headers, **kwargs)  # pyright: ignore[reportUnknownMemberType]
+        except store_errors.CredentialsUnavailable as error:
+            raise SdkcraftError(
+                "You are not logged in to the SDK Store.",
+                resolution="Run 'sdkcraft login' to authenticate.",
+            ) from error
+        except store_errors.CredentialsNotParseable as error:
+            raise SdkcraftError(
+                "Stored SDK Store credentials could not be read "
+                "(they may be from an older version of sdkcraft).",
+                resolution="Run 'sdkcraft logout' then 'sdkcraft login' to refresh your credentials.",
+            ) from error
 
     def ensure_registered(self, sdk_name: str) -> None:
         """Ensure the SDK is registered on the store.
@@ -241,14 +292,16 @@ class StoreClient(craft_store.StoreClient):
         ]
 
 
-def get_client(*, ephemeral: bool = False) -> StoreClient:
+def get_client(
+    *, ephemeral: bool = False, use_environment_auth: bool = True
+) -> StoreClient:
     """Store Client factory.
 
     Returns:
         StoreClient instance with SDK-specific API methods
 
     """
-    return StoreClient(ephemeral=ephemeral)
+    return StoreClient(ephemeral=ephemeral, use_environment_auth=use_environment_auth)
 
 
 class StoreClientCLI:
@@ -258,27 +311,27 @@ class StoreClientCLI:
     like SDK metadata extraction and progress reporting.
     """
 
-    def __init__(self, *, ephemeral: bool = False) -> None:
+    def __init__(
+        self, *, ephemeral: bool = False, use_environment_auth: bool = True
+    ) -> None:
         """Initialize the CLI store client."""
-        self.store_client = get_client(ephemeral=ephemeral)
+        self._ephemeral = ephemeral
+        self.store_client = get_client(
+            ephemeral=ephemeral, use_environment_auth=use_environment_auth
+        )
 
     def login(
         self,
         *,
+        email: str,
+        password: str,
+        otp: str | None = None,
         ttl: int = int(timedelta(days=365).total_seconds()),
         acls: list[str] | None = None,
         packages: list[str] | None = None,
         channels: list[str] | None = None,
-        **kwargs: Any,
     ) -> str:
-        """Login to the store and return credentials."""
-        if packages is None:
-            packages = []
-        _packages = [
-            craft_store.endpoints.Package(package_name=p, package_type="sdk")
-            for p in packages
-        ]
-
+        """Login to the store via Ubuntu One SSO and return the credentials."""
         if acls is None:
             acls = [
                 "account-register-package",
@@ -296,16 +349,41 @@ class StoreClientCLI:
                 "package-view-revisions",
             ]
 
-        description = f"sdkcraft@{_HOSTNAME}"
+        _packages = [{"type": "sdk", "name": p} for p in (packages or [])]
 
-        return self.store_client.login(  # pyright: ignore[reportUnknownMemberType]
-            ttl=ttl,
-            permissions=acls,
-            channels=channels,
-            packages=_packages,
-            description=description,
-            **kwargs,
+        store_url = get_store_url()
+        store_auth = Auth(
+            application_name="sdkcraft",
+            host=urlparse(store_url).netloc,
+            ephemeral=self._ephemeral,
+            file_fallback=True,
         )
+
+        # Refuse to overwrite existing credentials on a persistent login.
+        store_auth.ensure_no_credentials()
+
+        UbuntuOneLogin.login_with(
+            email=email,
+            password=password,
+            otp=otp,
+            base_url=store_url,
+            login_url=get_store_login_url(),
+            application_name="sdkcraft",
+            store_auth=store_auth,
+            permissions=acls,
+            packages=_packages or None,
+            channels=channels,
+            ttl=ttl,
+        )
+
+        # The exchange window is short, so swap the freshly issued macaroons for
+        # a reusable store token now and persist that instead of the macaroons.
+        craft_store.UbuntuOneAuth(
+            auth=store_auth,
+            api_base_url=store_url,
+            client_description="sdkcraft",
+        ).get_token_from_keyring()
+        return store_auth.encode_credentials(store_auth.get_credentials())
 
     def upload(
         self,
