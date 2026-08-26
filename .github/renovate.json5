@@ -6,4 +6,6 @@
       allowedVersions: "<7",
     },
   ],
+  // Override starflow because we don't run any checks on renovate/* branches.
+  prCreation: "immediate",
 }
