@@ -32,6 +32,8 @@ from sdkcraft.linters import LinterStatus, format_summary, report, run_linters
 from sdkcraft.services.project import ProjectService
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from craft_application import AppMetadata
 
 
@@ -49,56 +51,6 @@ class PackageService(services.PackageService):
         if started_at is None:
             started_at = datetime.now(UTC)
         self._started_at = started_at
-
-    @override
-    def pack(self, prime_dir: pathlib.Path, dest: pathlib.Path) -> list[pathlib.Path]:
-        """Create one or more packages as appropriate.
-
-        :param dest: Directory into which to write the package(s).
-        :returns: A list of paths to created packages.
-        """
-        project_service = cast(ProjectService, self._services.get("project"))
-        marked_project = project_service.get_marked()
-
-        issues = run_linters(prime_dir, marked_project)
-        status = report(issues, intermediate=True)
-        if status >= LinterStatus.ERRORS:
-            summary = format_summary(issues, LinterStatus.ERRORS)
-            raise LinterError(status, resolution=f"Fix {summary}.")
-
-        build_info = self._build_info
-        project = project_service.get_with_base(build_info)
-        arch = str(build_info.build_for)
-
-        components = [project.name, arch]
-        if project.base:
-            components.append(project.base)
-        sdk = dest / ("_".join(components) + ".sdk")
-
-        sdk.unlink(missing_ok=True)
-        names = (p.name for p in sorted(prime_dir.iterdir()))
-        subprocess.run(
-            [
-                "tar",
-                "--create",
-                "--format=posix",
-                "--use-compress-program=zstd -10 --threads=0",
-                # Restrict to rwxr-xr-x for security and reproducibility.
-                "--mode=a-st,go-w",
-                "--owner=root:0",
-                "--group=root:0",
-                f"--mtime={datetime_as_utc_str(self._started_at)}",
-                "--sort=name",
-                "--force-local",
-                f"--file={sdk}",
-                f"--directory={prime_dir}",
-                "--",
-                *names,
-            ],
-            check=True,
-        )
-
-        return [sdk]
 
     @property
     @override
@@ -154,6 +106,82 @@ class PackageService(services.PackageService):
                 hooks_target.parent.mkdir(exist_ok=True)
             copytree(hooks_source, hooks_target)
 
+    def _sdk_path(self) -> pathlib.Path:
+        """Return the expected path for the output .sdk artifact."""
+        project_service = cast(ProjectService, self._services.get("project"))
+        build_info = self._build_info
+        project = project_service.get_with_base(build_info)
+        arch = str(build_info.build_for)
+        components = [project.name, arch]
+        if project.base:
+            components.append(project.base)
+        return self._output_dir / ("_".join(components) + ".sdk")
+
+    @override
+    def get_artifacts(self) -> dict[str | None, pathlib.Path]:
+        """Return the single .sdk artifact path for this build."""
+        return {None: self._sdk_path()}
+
+    @override
+    def _pack(self, *, name: str | None = None, path: pathlib.Path) -> None:
+        """Pack the prime directory into the .sdk artifact."""
+        prime_dir = self._services.get("lifecycle").prime_dir
+        project_service = cast(ProjectService, self._services.get("project"))
+        marked_project = project_service.get_marked()
+
+        issues = run_linters(prime_dir, marked_project)
+        status = report(issues, intermediate=True)
+        if status >= LinterStatus.ERRORS:
+            summary = format_summary(issues, LinterStatus.ERRORS)
+            raise LinterError(status, resolution=f"Fix {summary}.")
+
+        path.unlink(missing_ok=True)
+        names = (p.name for p in sorted(prime_dir.iterdir()))
+        subprocess.run(
+            [
+                "tar",
+                "--create",
+                "--format=posix",
+                "--use-compress-program=zstd -10 --threads=0",
+                # Restrict to rwxr-xr-x for security and reproducibility.
+                "--mode=a-st,go-w",
+                "--owner=root:0",
+                "--group=root:0",
+                f"--mtime={datetime_as_utc_str(self._started_at)}",
+                "--sort=name",
+                "--force-local",
+                f"--file={path}",
+                f"--directory={prime_dir}",
+                "--",
+                *names,
+            ],
+            check=True,
+        )
+
+    @override
+    def _app_needs_repack(self, partition: str | None = None) -> bool:
+        """Return True if the project file or hooks directory changed since last pack."""
+        sdk = self._sdk_path()
+        if not sdk.is_file():
+            return True
+        pack_time = sdk.stat().st_mtime_ns
+
+        project_service = cast(ProjectService, self._services.get("project"))
+        project_file = project_service.resolve_project_file_path()
+        if project_file.stat().st_mtime_ns >= pack_time:
+            return True
+
+        dirs = self._services.get("lifecycle").project_info.dirs
+        hooks = dirs.project_dir / "hooks"
+        if hooks.is_dir():
+            hooks_time = max(_walk_mtimes(hooks))
+        else:
+            # Hooks directory may have been deleted since last pack. Checking the
+            # parent directory is coarse, but most SDKs have at least one hook.
+            hooks_time = hooks.parent.stat().st_mtime_ns
+
+        return hooks_time >= pack_time
+
 
 def datetime_as_utc_str(dt: datetime) -> str:
     """Convert to UTC and format as ISO 8601.
@@ -164,6 +192,17 @@ def datetime_as_utc_str(dt: datetime) -> str:
         raise NotImplementedError("timezone required")
 
     return dt.astimezone(UTC).isoformat()
+
+
+def _walk_mtimes(path: pathlib.Path) -> Iterator[int]:
+    yield path.stat().st_mtime_ns
+    with os.scandir(path) as entries:
+        for entry in entries:
+            time = entry.stat(follow_symlinks=False).st_mtime_ns
+            if entry.is_symlink() or entry.is_file():
+                yield time
+            elif entry.is_dir():
+                yield from _walk_mtimes(path / entry.name)
 
 
 def copytree(source: os.PathLike[str], target: pathlib.Path) -> None:

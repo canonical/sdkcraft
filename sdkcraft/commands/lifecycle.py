@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 
-import os
 import textwrap
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast, override
@@ -31,7 +30,7 @@ from sdkcraft.store.client import extract_sdk_metadata
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser, Namespace
-    from collections.abc import Iterable, Iterator, Mapping
+    from collections.abc import Iterable, Mapping
 
     from craft_application import PackageService
     from craft_platforms import BuildInfo
@@ -48,42 +47,6 @@ class PackCommand(lifecycle.PackCommand):
     related_commands: list[str] | None = None
 
     _show_lxd_arg = False
-
-    @override
-    def _is_already_packed(self) -> bool:
-        if not super()._is_already_packed():
-            return False
-
-        pack_time = self._get_packed_file_list_timestamp()
-        if pack_time is None:
-            return False
-
-        project_file = self._services.get("project").resolve_project_file_path()
-        if project_file.stat().st_mtime_ns >= pack_time:
-            return False
-
-        dirs = self._services.get("lifecycle").project_info.dirs
-        hooks = dirs.project_dir / "hooks"
-        if hooks.is_dir():
-            hooks_time = max(_walk_mtimes(hooks))
-        else:
-            # Hooks directory may have been deleted since last pack. Checking the
-            # parent directory is coarse, but most SDKs have at least one hook.
-            hooks_time = hooks.parent.stat().st_mtime_ns
-
-        return hooks_time < pack_time
-
-
-def _walk_mtimes(path: Path) -> Iterator[int]:
-    yield path.stat().st_mtime_ns
-    with os.scandir(path) as entries:
-        for entry in entries:
-            time = entry.stat(follow_symlinks=False).st_mtime_ns
-            if entry.is_symlink() or entry.is_file():
-                yield time
-            elif entry.is_dir():
-                yield time
-                yield from _walk_mtimes(path / entry.name)
 
 
 class TestCommand(PackCommand):
