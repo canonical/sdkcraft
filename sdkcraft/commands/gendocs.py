@@ -48,12 +48,9 @@ class GenerateDocsCommand(AppCommand):
     examples: list[tuple[str, str]] = []
     related_commands: list[str] | None = None
 
-    def __init__(self, config: dict[str, Any] | None) -> None:
+    def __init__(self, config: dict[str, Any]) -> None:
         super().__init__(config)
-        if config is not None:
-            self._command_groups: list[craft_cli.CommandGroup] = config[
-                "command_groups"
-            ]
+        self._command_groups: list[craft_cli.CommandGroup] = config["command_groups"]
 
     @override
     def fill_parser(self, parser: ArgumentParser) -> None:
