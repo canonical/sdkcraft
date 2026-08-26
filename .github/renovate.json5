@@ -1,3 +1,9 @@
 {
   extends: ["github>canonical/starflow:renovate.json5"],
+  packageRules: [
+    {
+      matchPackageNames: ["craft-application"],
+      allowedVersions: "<7",
+    },
+  ],
 }
