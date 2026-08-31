@@ -1,6 +1,6 @@
 name: sdkcraft
 version: 0.9.2
-base: core24
+base: core26
 summary: Design and build SDKs for Workshop
 description: |
   A tool to design and build SDKs. An SDK can be defined
@@ -29,13 +29,11 @@ parts:
       - apt-transport-https
       - apt-utils
       - binutils
+      - libgit2-1.9
       - gpg
       - gpgv
       - libpython3-stdlib
-      - libpython3.12-stdlib
-      - libpython3.12-minimal
       - python3-minimal
-      - python3.12-minimal
       - python3-apt
       - shellcheck
       - zstd
@@ -50,9 +48,24 @@ parts:
   sdkcraft:
     source: .
     plugin: uv
+    build-packages:
+      - libffi-dev
+      - libgit2-dev
+      - libssl-dev
+      - pkg-config
+      - on riscv64:
+          - rustup
     build-snaps:
       - astral-uv
     override-build: |
+      if [ "$CRAFT_ARCH_BUILD_FOR" = "riscv64" ]; then
+        # Target the RVA23 profile feature set on top of the Tier-2
+        # riscv64gc-unknown-linux-gnu host, since riscv64a23-unknown-linux-gnu
+        # is a Tier-3 target with no published rustup host toolchain.
+        rustup default "stable-riscv64gc-unknown-linux-gnu"
+        export RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=+rva23u64"
+        export PATH="$HOME/.cargo/bin:$PATH"
+      fi
       ${SNAP}/libexec/snapcraft/craftctl default
 
       # Enable system-site-packages and fix interpreter path for subsequent build commands
