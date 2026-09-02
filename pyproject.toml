@@ -8,7 +8,7 @@ dependencies = [
     "craft-parts>=2.33.0",
     "craft-platforms>=0.11.1",
     "craft-store>=3.4.0",
-    "gencodo-py>=0.3.0",
+    "gencodo-py>=0.4.0",
     "pydantic>=2.11.7",
     "pyyaml>=6.0.3",
     "rich>=14.2.0",
@@ -66,7 +66,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 write_to = "sdkcraft/_version.py"
-# the version comes from the latest annotated git tag formatted as 'X.Y.Z'
+# the version comes from the latest git tag formatted as 'vX.Y.Z'
 # version scheme:
 #   - X.Y.Z.post1.dev<commits since tag>+g<hash>.d<%Y%m%d>
 # parts of scheme:
@@ -77,19 +77,20 @@ write_to = "sdkcraft/_version.py"
 #   - 0.0.post1.dev<total commits>+g<hash>
 version_scheme = "no-guess-dev"
 # deviations from the default 'git describe' command:
-# - only match annotated tags
-# - only match tags formatted as 'X.Y.Z'
+# - match lightweight tags too (GitHub releases create lightweight tags)
+# - only match release tags formatted as 'vX.Y.Z' (setuptools_scm strips the 'v')
 git_describe_command = [
     "git",
     "describe",
     "--dirty",
+    "--tags",
     "--long",
     "--match",
-    "*.*.*",
+    "v[0-9]*.[0-9]*.[0-9]*",
     "--exclude",
-    "*[!0-9.]*",
+    "v*[!0-9.]*",
     "--exclude",
-    "*.*.*.*",
+    "v*.*.*.*",
 ]
 
 [tool.setuptools.packages.find]
