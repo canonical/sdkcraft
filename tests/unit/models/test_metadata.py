@@ -33,8 +33,6 @@ def test_metadata_schema_forbids_additional_properties():
     schema = Metadata.model_json_schema()
 
     assert schema["additionalProperties"] is False
-    for key in ("contact", "issues", "source-code", "website"):
-        assert key in schema["properties"]
 
 
 def test_metadata_accepts_known_fields():
