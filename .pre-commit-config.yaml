@@ -14,7 +14,7 @@ repos:
       - id: fix-byte-order-marker
       - id: mixed-line-ending
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.16.5"
+    rev: "v0.16.6"
     hooks:
       # Run the linter
       - id: ruff
@@ -29,6 +29,6 @@ repos:
         additional_dependencies:
           - prettier@3.6.0 # renovate: datasource=npm
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.12.7"
+    rev: "0.12.9"
     hooks:
       - id: uv-lock
