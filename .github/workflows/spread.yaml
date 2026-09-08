@@ -87,6 +87,8 @@ jobs:
         with:
           name: snap-amd64
           path: tests
+      - name: Set LXD storage size
+        run: lxc profile device set default root size=32GiB
       - name: Run spread
         run: spread ${{ matrix.os }}:tests/spread/
       - name: Run store spread
