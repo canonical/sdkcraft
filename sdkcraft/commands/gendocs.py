@@ -31,6 +31,13 @@ if TYPE_CHECKING:
     import craft_cli
 
 
+FILE_PREFIX = "sdkcraft-"
+"""Prefix of the generated command pages, matching the Workshop docs layout."""
+
+INDEX_FILE_NAME = "sdkcraft.rst"
+"""Name of the generated index page, matching the Workshop docs layout."""
+
+
 class GenerateDocsCommand(AppCommand):
     """Generate CLI reference documentation in reStructuredText."""
 
@@ -39,8 +46,9 @@ class GenerateDocsCommand(AppCommand):
     overview = textwrap.dedent(
         """
         Generate reStructuredText reference pages for every visible
-        sdkcraft command, plus an index page.  The output is written
-        to the given directory.
+        sdkcraft command (sdkcraft-<command>.rst), plus the index page
+        (sdkcraft.rst).  The output is written to the given directory and
+        matches the layout of docs/reference/cli/ in the Workshop docs.
         """
     )
     hidden = True
@@ -67,16 +75,12 @@ class GenerateDocsCommand(AppCommand):
     @override
     def run(self, parsed_args: Namespace) -> None:
         """Run the command."""
+        # gencodo skips hidden commands itself, so every group is passed as is.
         command_groups = [
-            CommandGroup(
-                name=g.name,
-                commands=g.commands,
-            )
-            for g in self._command_groups
-            if not all(getattr(c, "hidden", False) for c in g.commands)
+            CommandGroup(name=g.name, commands=g.commands) for g in self._command_groups
         ]
 
-        templates = _load_templates()
+        templates = load_templates()
         command_config: dict[str, Any] = {
             "app": self._app,
             "services": self._services,
@@ -89,6 +93,7 @@ class GenerateDocsCommand(AppCommand):
             templates=templates,
             file_extension=".rst",
             command_config=command_config,
+            file_prefix=FILE_PREFIX,
         )
 
         emit.message(
@@ -99,13 +104,13 @@ class GenerateDocsCommand(AppCommand):
         emit.message(f"  {templates.index_file_name}")
 
 
-def _load_templates() -> TemplateInfo:
+def load_templates() -> TemplateInfo:
     """Load custom reST templates matching the Workshop documentation style."""
     templates_dir = importlib.resources.files("sdkcraft") / "doc_templates"
     command_template = (templates_dir / "command.rst.j2").read_text(encoding="utf-8")
     index_template = (templates_dir / "index.rst.j2").read_text(encoding="utf-8")
     return TemplateInfo(
-        index_file_name="index.rst",
+        index_file_name=INDEX_FILE_NAME,
         index_template=index_template,
         command_template=command_template,
     )

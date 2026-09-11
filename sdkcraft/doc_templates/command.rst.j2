@@ -9,7 +9,7 @@ sdkcraft {{ command_name }}
 
 .. @artefact sdkcraft {{ command_name }}
 
-{{ short }}
+{{ short | trim_suffix('.') }}
 
 .. rubric:: Usage
 
@@ -19,19 +19,42 @@ sdkcraft {{ command_name }}
 
 .. rubric:: Description
 
-
 {{ long }}
+{% if arguments %}
 
+.. rubric:: Arguments
+
+{% for argument in arguments %}
+{{ argument.name }}{{ ' (' ~ argument.nargs ~ ')' if argument.nargs else '' }}
+
+   {{ argument.usage | indent(3, first=False) }}
+{% if argument.choices %}
+
+   Choices: {% for choice in argument.choices %}:samp:`{{ choice }}`{{ ", " if not loop.last }}{% endfor %}
+
+{% endif %}
+{% if argument.default_value %}
+
+   Default: :samp:`{{ argument.default_value }}`
+{% endif %}
+
+{% endfor %}
+{% endif %}
 {% if flags %}
 
 .. rubric:: Flags
 
 {% for flag in flags %}
+{{ flag.short ~ ', ' if flag.short else '' }}{{ flag.name }}{{ ' ' ~ flag.metavar if flag.metavar else '' }}
 
-{{ flag.name }}
+   {{ flag.usage | indent(3, first=False) }}{{ ' (required)' if flag.required else '' }}
+{% if flag.choices %}
 
-{{ flag.usage | indent(3) }}
+   Choices: {% for choice in flag.choices %}:samp:`{{ choice }}`{{ ", " if not loop.last }}{% endfor %}
+
+{% endif %}
 {% if flag.default_value %}
+
    Default: :samp:`{{ flag.default_value }}`
 {% endif %}
 
@@ -42,7 +65,6 @@ sdkcraft {{ command_name }}
 .. rubric:: Examples
 
 {% for example in examples %}
-
 {{ example.info }}:
 
 .. code-block:: console
