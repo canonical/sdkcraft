@@ -56,7 +56,7 @@ class Metadata(BaseMetadata):
 
     sdkcraft_started_at: str
 
-    model_config = ConfigDict(use_enum_values=True)
+    model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
 
 def export_schema() -> None:
