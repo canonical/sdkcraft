@@ -182,6 +182,19 @@ class TunnelSlot(models.CraftBaseModel):
     endpoint: Endpoint = ""
 
 
+class VirtualizationPlug(models.CraftBaseModel):
+    """SDKcraft project virtualization plug definition."""
+
+    interface: Literal["virtualization"]
+
+    def validate_policy(self, name: str) -> None:
+        """Check plug name."""
+        if name != "virtualization":
+            raise ValueError(
+                "virtualization interface plugs must be named 'virtualization'"
+            )
+
+
 type Plug = Annotated[
     CameraPlug
     | CustomDevicePlug
@@ -189,7 +202,8 @@ type Plug = Annotated[
     | GPUPlug
     | MountPlug
     | SSHAgentPlug
-    | TunnelPlug,
+    | TunnelPlug
+    | VirtualizationPlug,
     Discriminator("interface"),
 ]
 type Slot = Annotated[MountSlot | TunnelSlot, Discriminator("interface")]
