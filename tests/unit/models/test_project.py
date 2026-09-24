@@ -33,6 +33,8 @@ from sdkcraft.models.project import (
     Part,
     Plugs,
     Project,
+    SecretPlug,
+    Slots,
     SSHAgentPlug,
 )
 
@@ -111,6 +113,20 @@ def test_custom_device_plug_no_filter():
 
     with pytest.raises(ValidationError):
         custom_device_adapter.validate_python(plug)
+
+
+def test_secret_plug():
+    plug = {"interface": "secret"}
+
+    result = SecretPlug.unmarshal(plug)
+    assert result.interface == "secret"
+
+
+def test_secret_plug_unknown_key():
+    plug = {"interface": "secret", "env-mapping": "DEMO_SECRET"}
+
+    with pytest.raises(ValidationError):
+        SecretPlug.unmarshal(plug)
 
 
 @pytest.mark.parametrize("path", ["$SDK", "$SDK/subdir"])
@@ -219,6 +235,7 @@ def test_implicit_interfaces():
         camera:
         desktop: desktop
         gpu:
+        github-token: secret
         ssh-agent: 'ssh-agent'
     """)
 
@@ -226,6 +243,7 @@ def test_implicit_interfaces():
         "camera": CameraPlug(interface="camera"),
         "desktop": DesktopPlug(interface="desktop"),
         "gpu": GPUPlug(interface="gpu"),
+        "github-token": SecretPlug(interface="secret"),
         "ssh-agent": SSHAgentPlug(interface="ssh-agent"),
     }
 
@@ -238,6 +256,15 @@ def test_interface_policies():
         match="ssh-agent interface plugs must be named 'ssh-agent'",
     ):
         plugs_adapter.validate_python({"foo": {"interface": "ssh-agent"}})
+
+
+slots_adapter: TypeAdapter[Slots] = TypeAdapter(Slots)
+
+
+def test_secret_slot_rejected():
+    """Secret slots are only provided by the system SDK, never by an SDK."""
+    with pytest.raises(ValidationError, match="Input tag 'secret'"):
+        slots_adapter.validate_python({"github-token": {"interface": "secret"}})
 
 
 part_adapter: TypeAdapter[Part] = TypeAdapter(Part)

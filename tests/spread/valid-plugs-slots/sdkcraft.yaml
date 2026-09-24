@@ -21,6 +21,8 @@ plugs:
   postgres:
     interface: tunnel
     endpoint: 5432
+  api-token:
+    interface: secret
 slots:
   test:
     interface: mount
