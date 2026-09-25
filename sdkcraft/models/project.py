@@ -157,6 +157,12 @@ class MountSlot(models.CraftBaseModel):
     workshop_source: CleanAbsPath
 
 
+class SecretPlug(models.CraftBaseModel):
+    """SDKcraft project secret plug definition."""
+
+    interface: Literal["secret"]
+
+
 class SSHAgentPlug(models.CraftBaseModel):
     """SDKcraft project SSH agent plug definition."""
 
@@ -188,6 +194,7 @@ type Plug = Annotated[
     | DesktopPlug
     | GPUPlug
     | MountPlug
+    | SecretPlug
     | SSHAgentPlug
     | TunnelPlug,
     Discriminator("interface"),
