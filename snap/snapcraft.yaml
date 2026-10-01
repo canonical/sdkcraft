@@ -15,10 +15,6 @@ apps:
     command: bin/sdkcraft
     environment:
       PATH: ${SNAP}/bin:${PATH}:${SNAP}/usr/bin
-  publish:
-    environment:
-      PATH: ${SNAP}/bin:${PATH}
-    command: bin/publish.sh
 parts:
   sdkcraft-libs:
     plugin: nil
