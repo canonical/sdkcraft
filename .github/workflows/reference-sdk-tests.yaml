@@ -1,0 +1,106 @@
+name: Reference SDK tests
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-snap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: canonical/action-build@3bdaa03e1ba6bf59a65f84a751d943d549a54e79 # v1.3.0
+        id: snapcraft
+
+      - name: Upload snap artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sdkcraft-snap
+          path: ${{ steps.snapcraft.outputs.snap }}
+
+  test:
+    needs: build-snap
+    name: test (${{ matrix.name }} @ ${{ matrix.ref }})
+    runs-on: [self-hosted, linux, jammy, x64, xlarge]
+    strategy:
+      fail-fast: false
+      matrix:
+        # Chosen to cover different SDKcraft features rather than every SDK.
+        include:
+          - name: openvino
+            repo: canonical/openvino-sdk
+            ref: "2026"
+          - name: uv
+            repo: canonical/uv-sdk
+            ref: latest
+          - name: node
+            repo: canonical/node-sdk
+            ref: "24"
+          - name: codex
+            repo: canonical/codex-sdk
+            ref: latest
+          - name: github-runner
+            repo: canonical/github-runner-sdk
+            ref: latest
+          - name: go
+            repo: canonical/go-sdk
+            ref: "1.27"
+          - name: ollama
+            repo: canonical/ollama-sdk
+            ref: latest
+          - name: docker
+            repo: canonical/docker-sdk
+            ref: latest
+          - name: zephyr-arm
+            repo: canonical/zephyr-toolchains-sdks
+            ref: 1.0.1
+            subdirectory: zephyr-arm-sdk
+    steps:
+      - name: Checkout ${{ matrix.repo }}@${{ matrix.ref }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ matrix.repo }}
+          ref: ${{ matrix.ref }}
+          persist-credentials: false
+
+      - name: Install LXD
+        uses: canonical/setup-lxd@8c6a87bfb56aa48f3fb9b830baa18562d8bfd4ee # v1
+        with:
+          channel: 6/stable
+
+      - name: Download snap artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sdkcraft-snap
+          path: ${{ runner.temp }}/sdkcraft-snap
+
+      - name: Install sdkcraft
+        run: sudo snap install --dangerous --classic "$RUNNER_TEMP"/sdkcraft-snap/*.snap
+
+      - name: Pack SDK
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          SUBDIRECTORY: ${{ matrix.subdirectory }}
+        with:
+          max_attempts: 3
+          retry_wait_seconds: 60
+          timeout_minutes: 120
+          command: |
+            [ -z "$SUBDIRECTORY" ] || cd "$SUBDIRECTORY"
+            sdkcraft --verbose pack
+
+      - name: Run tests
+        env:
+          SUBDIRECTORY: ${{ matrix.subdirectory }}
+        run: |
+          [ -z "$SUBDIRECTORY" ] || cd "$SUBDIRECTORY"
+          if [ -f tests/spread.yaml ]; then
+            lxc profile device set default root size=20GiB
+            sdkcraft --verbose test
+          else
+            echo "No tests/spread.yaml found – only packing was tested."
+          fi
