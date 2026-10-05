@@ -1,5 +1,7 @@
 name: Reference SDK tests
 on:
+  push:
+    branches: [chore/reference-sdk-tests]
   workflow_dispatch:
 
 permissions:
