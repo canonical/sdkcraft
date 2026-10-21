@@ -76,7 +76,11 @@ class PackageService(services.PackageService):
         sdk = dest / ("_".join(components) + ".sdk")
 
         sdk.unlink(missing_ok=True)
-        names = (p.name for p in sorted(prime_dir.iterdir()))
+
+        names = (p.name for p in prime_dir.iterdir())
+        # Put meta/ first so Workshop can extract it efficiently.
+        entries = sorted(names, key=lambda name: (name != "meta", name))
+
         subprocess.run(
             [
                 "tar",
@@ -93,7 +97,7 @@ class PackageService(services.PackageService):
                 f"--file={sdk}",
                 f"--directory={prime_dir}",
                 "--",
-                *names,
+                *entries,
             ],
             check=True,
         )

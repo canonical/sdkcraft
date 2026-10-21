@@ -42,7 +42,7 @@ parts:
   foo:
     plugin: nil
     override-build: |
-      target_file=${CRAFT_PART_INSTALL}/variables.yaml
+      target_file=${CRAFT_PART_INSTALL}/env.yaml
       touch $target_file
       echo "project_name:    \\"${CRAFT_PROJECT_NAME}\\""    >> $target_file
       echo "project_dir:     \\"${CRAFT_PROJECT_DIR}\\""     >> $target_file
@@ -79,7 +79,7 @@ def test_global_environment(
     return_code = sdkcraft.cli.main()
     assert return_code == 0
 
-    variables_yaml = new_path / "stage" / "variables.yaml"
+    variables_yaml = new_path / "stage" / "env.yaml"
     assert variables_yaml.is_file()
     variables = yaml.safe_load(variables_yaml.read_text())
 
@@ -113,14 +113,16 @@ def test_pack(
     )
 
     with tarfile.open(new_path / "my-project.tar") as tar:
+        assert tar.getnames()[:2] == ["meta", "meta/sdk.yaml"]
+
         members = Counter(member.name for member in tar)
         assert set(members.keys()) == {
+            "env.yaml",
             "meta",
             "meta/sdk.yaml",
             "sdk",
             "sdk/hooks",
             "sdk/hooks/setup-base",
-            "variables.yaml",
         }
         assert set(members.values()) == {1}
 
