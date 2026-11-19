@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     )
 
 from sdkcraft._version import __version__
-from sdkcraft.errors import SdkcraftError
+from sdkcraft.errors import SdkcraftCommandError, SdkcraftError
 from sdkcraft.models.metadata import Metadata
 from sdkcraft.models.store import SdkListReleasesModel, SdkRevisionModel
 from sdkcraft.store import constants
@@ -423,6 +423,7 @@ class StoreClientCLI:
                 "Uploading",
                 total=encoder.len,  # pyright: ignore[reportUnknownMemberType]
                 delta=False,
+                units="B",
             )
 
             def progress_callback(monitor: MultipartEncoderMonitor) -> None:
@@ -498,8 +499,10 @@ def extract_sdk_metadata(sdk_file: Path) -> Metadata:
         yaml_data = yaml.safe_load(result.stdout)
         sdk_metadata = Metadata.model_validate(yaml_data)
     except subprocess.CalledProcessError as error:
-        raise SdkcraftError(
-            f"Failed to extract metadata from SDK file: {error.stderr}"
+        raise SdkcraftCommandError(
+            "Failed to extract metadata from SDK file.",
+            stderr=error.stderr,
+            retcode=error.returncode,
         ) from error
     except pydantic.ValidationError as error:
         raise CraftValidationError.from_pydantic(

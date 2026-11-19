@@ -105,7 +105,7 @@ class ShellCheck:
             command, capture_output=True, check=False, cwd=sdk_dir, text=True
         )
         if process.returncode > 1:
-            raise ShellCheckError(process.stderr)
+            raise ShellCheckError(process.stderr, retcode=process.returncode)
         output = JSON1.model_validate_json(process.stdout)
 
         _workaround_issue_3397(output)
