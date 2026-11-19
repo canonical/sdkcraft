@@ -22,6 +22,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from craft_application.errors import CraftValidationError
+from craft_cli.pytest_plugin import raises_craft_error
 from sdkcraft.commands.create_track import StoreCreateTrackCommand
 
 if TYPE_CHECKING:
@@ -87,7 +88,7 @@ def test_create_track_invalid_name(
 ):
     cmd = StoreCreateTrackCommand(app_config)
 
-    with pytest.raises(CraftValidationError):
+    with raises_craft_error(CraftValidationError):
         cmd.run(Namespace(sdk_name="go", tracks=["invalid--name"]))
 
     fake_store_client.return_value.create_tracks.assert_not_called()
@@ -99,7 +100,7 @@ def test_create_track_name_too_long(
 ):
     cmd = StoreCreateTrackCommand(app_config)
 
-    with pytest.raises(CraftValidationError):
+    with raises_craft_error(CraftValidationError):
         cmd.run(Namespace(sdk_name="go", tracks=["a" * 29]))
 
     fake_store_client.return_value.create_tracks.assert_not_called()

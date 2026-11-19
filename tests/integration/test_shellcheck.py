@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from craft_cli.pytest_plugin import raises_craft_error
 from sdkcraft.errors import ShellCheckError
 from sdkcraft.linters.shellcheck import ShellCheck
 from sdkcraft.models import Location
@@ -24,7 +25,7 @@ def test_shellcheck_error(tmp_path_factory: pytest.TempPathFactory):
     hook.write_text("")
     hook.chmod(0)
 
-    with pytest.raises(ShellCheckError):
+    with raises_craft_error(ShellCheckError):
         ShellCheck().run(path)
 
 
