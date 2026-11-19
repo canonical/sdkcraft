@@ -174,7 +174,11 @@ def test_notify_and_poll_revision_rejected(mocker: MockerFixture):
 
     client = StoreClient()
 
-    with raises_craft_error(SdkcraftError, match="Revision rejected: invalid-format"):
+    with raises_craft_error(
+        SdkcraftError,
+        match="Revision rejected: invalid-format",
+        details="Invalid SDK format",
+    ):
         client.notify_and_poll_revision("test-sdk", "test-upload-id-123")
 
 

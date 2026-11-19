@@ -18,9 +18,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from craft_cli import CraftError
+from craft_cli import CraftCommandError, CraftError
 from craft_platforms import CraftPlatformsError
-from craft_providers.errors import details_from_called_process_error
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -30,6 +29,10 @@ if TYPE_CHECKING:
 
 class SdkcraftError(CraftError):
     """Failure in a SDKcraft operation."""
+
+
+class SdkcraftCommandError(SdkcraftError, CraftCommandError):
+    """Failure in a SDKcraft subprocess command operation."""
 
 
 class SdkcraftInitError(SdkcraftError):
@@ -62,21 +65,21 @@ class LinterError(SdkcraftError):
         super().__init__("Linter errors found!", resolution=resolution)
 
 
-class ShellCheckError(SdkcraftError):
+class ShellCheckError(SdkcraftCommandError):
     """ShellCheck returned an error."""
 
-    def __init__(self, message: str) -> None:
-        super().__init__(f"Cannot run shellcheck: {message}")
+    def __init__(self, stderr: str | bytes | None, *, retcode: int = 1) -> None:
+        super().__init__("Cannot run shellcheck.", stderr=stderr, retcode=retcode)
 
 
 class SpreadFileMissingError(SdkcraftError, FileNotFoundError):
     """Error finding spread project file."""
 
 
-class SpreadListError(SdkcraftError):
+class SpreadListError(SdkcraftCommandError):
     """Error listing spread tests."""
 
     def __init__(self, exc: CalledProcessError) -> None:
         super().__init__(
-            "Cannot list SDK tests.", details=details_from_called_process_error(exc)
+            "Cannot list SDK tests.", stderr=exc.stderr, retcode=exc.returncode
         )

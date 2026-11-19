@@ -277,7 +277,13 @@ def test_whoami_output(
     cmd = StoreWhoamiCommand(app_config)
     cmd.run(Namespace())
 
-    emitter.assert_message("email: test@example.com")
-    emitter.assert_message("username: testuser")
-    emitter.assert_message("id: abc123")
-    emitter.assert_message("token: system keyring")
+    emitter.assert_messages(
+        [
+            "email: test@example.com",
+            "username: testuser",
+            "id: abc123",
+            "permissions: package-view, package-manage",
+            "channels: no restrictions",
+            "token: system keyring",
+        ]
+    )

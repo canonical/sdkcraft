@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 from subprocess import CompletedProcess
 from typing import TYPE_CHECKING, Any
 
 import pytest
 from craft_application.util import safe_yaml_load
+from craft_cli import CraftCommandError
+from craft_cli.pytest_plugin import raises_craft_error
+from sdkcraft.errors import SpreadListError
 from sdkcraft.services.testing import SPREAD_PREPARE, SPREAD_PREPARE_SEP, TestingService
 
 if TYPE_CHECKING:
@@ -231,3 +235,51 @@ def test_spread_discard(
     )
 
     assert not (tmp_path / ".craft-spread-abcxyz").exists()
+
+
+def test_spread_run_failure(
+    testing_service: TestingService,
+    tmp_path: Path,
+    mocker: MockerFixture,
+):
+    mocker.patch(
+        "sdkcraft.services.testing._run_spread",
+        side_effect=subprocess.CalledProcessError(
+            2, ["/fake-bin/craft.spread"], stderr="spread error output"
+        ),
+    )
+
+    with raises_craft_error(
+        CraftCommandError,
+        match="Testing failed.",
+        retcode=2,
+    ) as exc_info:
+        testing_service.run_spread(tmp_path)
+
+    assert isinstance(exc_info.value, CraftCommandError)
+    assert exc_info.value.stderr == "spread error output"
+
+
+def test_spread_list_failure(
+    testing_service: TestingService,
+    tmp_path: Path,
+    mocker: MockerFixture,
+):
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "spread.yaml").write_text("{}")
+    mocker.patch(
+        "subprocess.run",
+        side_effect=subprocess.CalledProcessError(
+            1, ["/fake-bin/craft.spread", "-list"], stderr="list error output"
+        ),
+    )
+
+    with raises_craft_error(
+        SpreadListError,
+        match="Cannot list SDK tests.",
+        retcode=1,
+    ) as exc_info:
+        testing_service.list_tests(tmp_path)
+
+    assert isinstance(exc_info.value, SpreadListError)
+    assert exc_info.value.stderr == "list error output"

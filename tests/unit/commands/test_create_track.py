@@ -60,8 +60,12 @@ def test_create_track_single(
     cmd.run(Namespace(sdk_name="go", tracks=["1.26"]))
 
     fake_store_client.return_value.create_tracks.assert_called_once_with("go", ["1.26"])
-    emitter.assert_message("Created track: 1.26")
-    emitter.assert_message('Successfully created 1 track(s) for "go" SDK')
+    emitter.assert_messages(
+        [
+            "Created track: 1.26",
+            'Successfully created 1 track(s) for "go" SDK',
+        ]
+    )
 
 
 def test_create_track_multiple(
@@ -77,9 +81,13 @@ def test_create_track_multiple(
     fake_store_client.return_value.create_tracks.assert_called_once_with(
         "go", ["1.26", "1.25"]
     )
-    emitter.assert_message("Created track: 1.26")
-    emitter.assert_message("Created track: 1.25")
-    emitter.assert_message('Successfully created 2 track(s) for "go" SDK')
+    emitter.assert_messages(
+        [
+            "Created track: 1.26",
+            "Created track: 1.25",
+            'Successfully created 2 track(s) for "go" SDK',
+        ]
+    )
 
 
 def test_create_track_invalid_name(

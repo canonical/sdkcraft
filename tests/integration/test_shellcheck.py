@@ -25,7 +25,7 @@ def test_shellcheck_error(tmp_path_factory: pytest.TempPathFactory):
     hook.write_text("")
     hook.chmod(0)
 
-    with raises_craft_error(ShellCheckError):
+    with raises_craft_error(ShellCheckError, retcode=2):
         ShellCheck().run(path)
 
 
