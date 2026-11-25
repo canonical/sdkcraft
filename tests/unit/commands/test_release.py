@@ -22,6 +22,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from craft_application.errors import CraftValidationError
+from craft_cli.pytest_plugin import raises_craft_error
 from craft_store import models
 from sdkcraft.commands.release import StoreReleaseCommand
 from sdkcraft.models.store import SdkChannelMapModel
@@ -131,7 +132,7 @@ def test_release_invalid_risk(
 ) -> None:
     cmd = StoreReleaseCommand(app_config)
 
-    with pytest.raises(CraftValidationError, match="nightly"):
+    with raises_craft_error(CraftValidationError, match="nightly"):
         cmd.run(Namespace(sdk="my-sdk", revision=9, channels="nightly"))
 
     fake_store_client.return_value.release.assert_not_called()
@@ -143,7 +144,7 @@ def test_release_invalid_risk_in_list(
 ) -> None:
     cmd = StoreReleaseCommand(app_config)
 
-    with pytest.raises(CraftValidationError, match="nightly"):
+    with raises_craft_error(CraftValidationError, match="nightly"):
         cmd.run(Namespace(sdk="my-sdk", revision=9, channels="stable,nightly"))
 
     fake_store_client.return_value.release.assert_not_called()

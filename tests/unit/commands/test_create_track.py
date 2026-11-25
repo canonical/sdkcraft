@@ -22,6 +22,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from craft_application.errors import CraftValidationError
+from craft_cli.pytest_plugin import raises_craft_error
 from sdkcraft.commands.create_track import StoreCreateTrackCommand
 
 if TYPE_CHECKING:
@@ -59,8 +60,12 @@ def test_create_track_single(
     cmd.run(Namespace(sdk_name="go", tracks=["1.26"]))
 
     fake_store_client.return_value.create_tracks.assert_called_once_with("go", ["1.26"])
-    emitter.assert_message("Created track: 1.26")
-    emitter.assert_message('Successfully created 1 track(s) for "go" SDK')
+    emitter.assert_messages(
+        [
+            "Created track: 1.26",
+            'Successfully created 1 track(s) for "go" SDK',
+        ]
+    )
 
 
 def test_create_track_multiple(
@@ -76,9 +81,13 @@ def test_create_track_multiple(
     fake_store_client.return_value.create_tracks.assert_called_once_with(
         "go", ["1.26", "1.25"]
     )
-    emitter.assert_message("Created track: 1.26")
-    emitter.assert_message("Created track: 1.25")
-    emitter.assert_message('Successfully created 2 track(s) for "go" SDK')
+    emitter.assert_messages(
+        [
+            "Created track: 1.26",
+            "Created track: 1.25",
+            'Successfully created 2 track(s) for "go" SDK',
+        ]
+    )
 
 
 def test_create_track_invalid_name(
@@ -87,7 +96,7 @@ def test_create_track_invalid_name(
 ):
     cmd = StoreCreateTrackCommand(app_config)
 
-    with pytest.raises(CraftValidationError):
+    with raises_craft_error(CraftValidationError):
         cmd.run(Namespace(sdk_name="go", tracks=["invalid--name"]))
 
     fake_store_client.return_value.create_tracks.assert_not_called()
@@ -99,7 +108,7 @@ def test_create_track_name_too_long(
 ):
     cmd = StoreCreateTrackCommand(app_config)
 
-    with pytest.raises(CraftValidationError):
+    with raises_craft_error(CraftValidationError):
         cmd.run(Namespace(sdk_name="go", tracks=["a" * 29]))
 
     fake_store_client.return_value.create_tracks.assert_not_called()

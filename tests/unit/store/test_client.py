@@ -24,6 +24,7 @@ import craft_store
 import keyring
 import keyring.backends.fail
 import pytest
+from craft_cli.pytest_plugin import raises_craft_error
 from craft_store.auth import FileKeyring, MemoryKeyring
 from craft_store.errors import (
     CredentialsAlreadyAvailable,
@@ -328,7 +329,7 @@ def test_request_translates_stale_credentials_error(mocker: MockerFixture):
     )
     store_client = client.StoreClient()
 
-    with pytest.raises(SdkcraftError, match="Stored SDK Store credentials"):
+    with raises_craft_error(SdkcraftError, match="Stored SDK Store credentials"):
         store_client.request("GET", "https://api.charmhub.io/v1/tokens/whoami")
 
 
@@ -341,10 +342,12 @@ def test_request_translates_missing_credentials_error(mocker: MockerFixture):
     )
     store_client = client.StoreClient()
 
-    with pytest.raises(SdkcraftError, match="not logged in") as exc_info:
+    with raises_craft_error(
+        SdkcraftError,
+        match="not logged in",
+        resolution="Run 'sdkcraft login' to authenticate.",
+    ):
         store_client.request("GET", "https://api.charmhub.io/v1/tokens/whoami")
-
-    assert exc_info.value.resolution == "Run 'sdkcraft login' to authenticate."
 
 
 ######################################

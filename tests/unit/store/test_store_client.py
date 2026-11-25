@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
+from craft_cli.pytest_plugin import raises_craft_error
 from craft_store import models
 from craft_store.errors import StoreServerError
 from sdkcraft.errors import SdkcraftError
@@ -173,7 +174,11 @@ def test_notify_and_poll_revision_rejected(mocker: MockerFixture):
 
     client = StoreClient()
 
-    with pytest.raises(SdkcraftError, match="Revision rejected: invalid-format"):
+    with raises_craft_error(
+        SdkcraftError,
+        match="Revision rejected: invalid-format",
+        details="Invalid SDK format",
+    ):
         client.notify_and_poll_revision("test-sdk", "test-upload-id-123")
 
 
@@ -205,7 +210,7 @@ def test_notify_and_poll_revision_timeout(mocker: MockerFixture):
 
     client = StoreClient()
 
-    with pytest.raises(SdkcraftError, match="Revision polling timed out"):
+    with raises_craft_error(SdkcraftError, match="Revision polling timed out"):
         client.notify_and_poll_revision("test-sdk", "test-upload-id-123")
 
 
@@ -364,5 +369,5 @@ def test_create_tracks_server_error(mocker: MockerFixture):
 
     client = StoreClient()
 
-    with pytest.raises(SdkcraftError, match="Failed to create tracks"):
+    with raises_craft_error(SdkcraftError, match="Failed to create tracks"):
         client.create_tracks("my-sdk", ["1.26"])

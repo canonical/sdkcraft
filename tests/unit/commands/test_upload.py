@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
+from craft_cli.pytest_plugin import raises_craft_error
 from sdkcraft.commands.upload import StoreUploadCommand
 from sdkcraft.errors import SdkcraftError
 
@@ -57,7 +58,7 @@ def test_upload_file_not_found(
     cmd = StoreUploadCommand(app_config)
     non_existent = tmp_path / "doesnotexist.sdk"
 
-    with pytest.raises(SdkcraftError, match="SDK file not found"):
+    with raises_craft_error(SdkcraftError, match="SDK file not found"):
         cmd.run(Namespace(sdk_file=non_existent, release=None))
 
     fake_store_client.return_value.upload.assert_not_called()
@@ -70,7 +71,7 @@ def test_upload_invalid_extension(
     wrong_file = tmp_path / "test.txt"
     wrong_file.write_text("content")
 
-    with pytest.raises(SdkcraftError, match="File must have .sdk extension"):
+    with raises_craft_error(SdkcraftError, match="File must have .sdk extension"):
         cmd.run(Namespace(sdk_file=wrong_file, release=None))
 
     fake_store_client.return_value.upload.assert_not_called()

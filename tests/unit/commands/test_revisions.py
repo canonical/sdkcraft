@@ -179,4 +179,4 @@ def test_revisions_displays_nothing_without_revisions(
     cmd = StoreRevisionsCommand(app_config)
     cmd.run(Namespace(sdk="my-sdk"))
 
-    emitter.assert_interactions(None)
+    emitter.assert_no_message(r".*", regex=True)

@@ -32,7 +32,7 @@ from craft_application import services
 from craft_application.errors import CraftValidationError
 from craft_application.models import CraftBaseModel
 from craft_application.util import dump_yaml, safe_yaml_load
-from craft_cli import CraftError, emit
+from craft_cli import CraftCommandError, CraftError, emit
 from craft_platforms import DistroBase
 from craft_providers.bases import BaseName, BuilddBaseAlias, get_base_alias
 from pydantic import ConfigDict, ValidationError
@@ -236,10 +236,11 @@ class TestingService(services.TestingService):
             with emit.pause():
                 _run_spread(spread_command, spread_dir)
         except subprocess.CalledProcessError as exc:
-            raise CraftError(
+            raise CraftCommandError(
                 "Testing failed.",
-                reportable=False,
+                stderr=exc.stderr,
                 retcode=exc.returncode,
+                reportable=False,
             )
 
     def clean(self, project_path: Path) -> None:
