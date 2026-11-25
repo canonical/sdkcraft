@@ -119,6 +119,7 @@ class PackageService(services.PackageService):
                     "summary",
                     "description",
                     "base",
+                    "assumes",
                     "contact",
                     "issues",
                     "source_code",

@@ -44,6 +44,29 @@ def test_default_metadata(
         (
             "s390x",
             {
+                "name": "assumes-metadata",
+                "version": "1.0",
+                "summary": "default project",
+                "description": "default project",
+                "base": "ubuntu@22.04",
+                "platforms": {"s390x": None},
+                "assumes": ["workshop1.0"],
+            },
+        )
+    ],
+    ids=[pytest.HIDDEN_PARAM],  # type: ignore[list-item]
+)
+def test_assumes_metadata(package_service: PackageService):
+    assert package_service.metadata.marshal()["assumes"] == ["workshop1.0"]
+
+
+@pytest.mark.usefixtures("configure_project", "fake_arch")
+@pytest.mark.parametrize(
+    ("fake_arch_str", "project_data"),
+    [
+        (
+            "s390x",
+            {
                 "name": "build-base-metadata",
                 "version": "1.0",
                 "summary": "default project",
