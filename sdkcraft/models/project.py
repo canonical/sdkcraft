@@ -280,6 +280,7 @@ class Project(models.Project):
 
     name: ProjectName
     website: AnyUrl | None = None
+    assumes: list[str] = []
 
     plugs: Plugs = {}
     slots: Slots = {}

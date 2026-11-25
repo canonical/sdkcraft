@@ -44,6 +44,7 @@ class Metadata(BaseMetadata):
 
     base: str | None = None
     architecture: str
+    assumes: list[str] = []
 
     contact: str | UniqueStrList | None = None
     issues: str | UniqueStrList | None = None

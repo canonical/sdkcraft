@@ -65,6 +65,12 @@ def test_project_create_valid(project_data: dict[str, Any]):
     assert project.package_repositories is None
 
 
+def test_project_assumes(project_data: dict[str, Any]):
+    project = Project.unmarshal(project_data | {"assumes": ["workshop1.0"]})
+
+    assert project.assumes == ["workshop1.0"]
+
+
 custom_device_adapter: TypeAdapter[CustomDevicePlug] = TypeAdapter(CustomDevicePlug)
 
 

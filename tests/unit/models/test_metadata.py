@@ -37,11 +37,13 @@ def test_metadata_schema_forbids_additional_properties():
 
 def test_metadata_accepts_known_fields():
     metadata = Metadata.model_validate(
-        MINIMAL_METADATA | {"website": "https://example.com"}
+        MINIMAL_METADATA
+        | {"website": "https://example.com", "assumes": ["workshop1.0"]}
     )
 
     assert metadata.name == "my-sdk"
     assert str(metadata.website) == "https://example.com/"
+    assert metadata.assumes == ["workshop1.0"]
 
 
 def test_metadata_rejects_unknown_fields():
