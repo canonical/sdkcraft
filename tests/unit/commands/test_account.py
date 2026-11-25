@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
 
 import pytest
+from craft_cli.pytest_plugin import raises_craft_error
 from craft_store.errors import (
     CredentialsAlreadyAvailable,
     CredentialsUnavailable,
@@ -148,12 +149,12 @@ def test_login_fails_with_stale_credentials(
     )
 
     cmd = StoreLoginCommand(app_config)
-    with pytest.raises(
-        SdkcraftError, match="credentials were already found"
-    ) as exc_info:
+    with raises_craft_error(
+        SdkcraftError,
+        match="credentials were already found",
+        resolution="Run 'sdkcraft logout' first, then try again.",
+    ):
         cmd.run(Namespace(export=None))
-
-    assert exc_info.value.resolution == "Run 'sdkcraft logout' first, then try again."
 
 
 def test_login_export_writes_credentials_to_file(
@@ -276,7 +277,13 @@ def test_whoami_output(
     cmd = StoreWhoamiCommand(app_config)
     cmd.run(Namespace())
 
-    emitter.assert_message("email: test@example.com")
-    emitter.assert_message("username: testuser")
-    emitter.assert_message("id: abc123")
-    emitter.assert_message("token: system keyring")
+    emitter.assert_messages(
+        [
+            "email: test@example.com",
+            "username: testuser",
+            "id: abc123",
+            "permissions: package-view, package-manage",
+            "channels: no restrictions",
+            "token: system keyring",
+        ]
+    )
